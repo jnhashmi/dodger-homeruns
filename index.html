@@ -10,6 +10,11 @@
   <title>Dodger Home Runs 2026</title>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      /* Consistent horizontal alignment value */
+      --side-padding: max(env(safe-area-inset-left), 24px);
+    }
+
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -31,9 +36,6 @@
       min-height: 100vh;
       min-height: -webkit-fill-available;
       padding-top: max(env(safe-area-inset-top), 20px);
-      /* Padding-left aligned to 24px to match header alignment logic */
-      padding-left: max(env(safe-area-inset-left), 24px);
-      padding-right: max(env(safe-area-inset-right), 24px);
       padding-bottom: max(env(safe-area-inset-bottom), 40px);
     }
 
@@ -42,6 +44,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2em;
+      padding-left: var(--side-padding);
+      padding-right: var(--side-padding);
     }
 
     #title {
@@ -82,11 +86,11 @@
       display: flex;
       align-items: center;
       border-bottom: 0.5px solid #2e2e2e;
-      padding: 0;
+      padding-left: var(--side-padding);
+      padding-right: var(--side-padding);
       height: 44px;
       gap: 14px;
       will-change: transform;
-      overflow: hidden;
     }
 
     .player-name {
@@ -97,16 +101,14 @@
       min-width: 190px;
       white-space: nowrap;
       letter-spacing: -0.1px;
-      /* Removed the 4px padding-left to align perfectly with the header title */
-      padding-left: 0; 
+      padding-left: 0; /* Zeroed to match container padding */
     }
 
     .tick-area {
       flex: 1;
       display: grid;
-      /* Grid ceiling set to 62 as requested */
-      grid-template-columns: repeat(62, 1fr); 
-      /* Increased gap to 4px for distinct chunky feel */
+      /* minmax ensures bars don't collapse in portrait */
+      grid-template-columns: repeat(62, minmax(4px, 1fr)); 
       gap: 4px; 
       height: 100%;
       align-items: center;
@@ -116,12 +118,12 @@
     .tick-area::-webkit-scrollbar { display: none; }
 
     .tick {
-      /* Restored subtle gradient */
+      /* Forced webkit gradient for iOS Safari rendering */
+      background: -webkit-linear-gradient(top, #0977cc 0%, #005A9C 100%);
       background: linear-gradient(180deg, #0977cc 0%, #005A9C 100%);
-      /* Calc height to shave exactly 1px from top and bottom */
       height: calc(100% - 2px); 
       width: 100%;
-      border-radius: 0;
+      display: block; /* Ensure visibility */
     }
 
     .tick-empty {
@@ -136,7 +138,6 @@
       color: #fff;
       min-width: 32px;
       text-align: right;
-      padding-right: 4px;
     }
 
     #status-msg {
@@ -149,7 +150,13 @@
     @media (orientation: portrait) {
       #title { font-size: 15px; }
       .player-name { font-size: 15px; width: 130px; min-width: 130px; }
-      .hr-count { font-size: 15px; min-width: 24px; }
+      #status-msg::after {
+        content: "Best viewed in Landscape";
+        display: block;
+        margin-top: 8px;
+        color: #666;
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -180,7 +187,7 @@
   const TEAM_ID = 119;
   const SEASON = 2026;
   const POLL_MS = 60000;
-  const MAX_TICKS = 62; // Ceiling updated to 62
+  const MAX_TICKS = 62;
 
   const PLACEHOLDER = [
     { name: 'Shohei Ohtani',       hr: 5 },
@@ -250,14 +257,11 @@
   function animateSort(newSorted) {
     if (animating) return;
     animating = true;
-
     const container = document.getElementById('player-list');
     const rows = [...container.querySelectorAll('.player-row')];
     const oldPos = {};
     rows.forEach(r => { oldPos[r.dataset.name] = r.getBoundingClientRect().top; });
-
     renderList(newSorted);
-
     container.querySelectorAll('.player-row').forEach(r => {
       const old = oldPos[r.dataset.name];
       if (old === undefined) return;
@@ -271,7 +275,6 @@
         });
       }
     });
-
     setTimeout(() => { animating = false; }, 480);
   }
 
@@ -279,7 +282,6 @@
     try {
       const url = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${SEASON}&hydrate=person(stats(type=season,season=${SEASON},group=hitting))`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error('API error');
       const data = await res.json();
       return (data.roster || [])
         .filter(p => {
@@ -292,9 +294,7 @@
           const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
           return { name: p.person?.fullName || 'Unknown', hr: stat?.homeRuns ?? 0 };
         });
-    } catch (e) {
-      return null;
-    }
+    } catch (e) { return null; }
   }
 
   async function refresh() {
@@ -309,9 +309,7 @@
         updEl.textContent = formatTime(new Date());
         renderList(sortPlayers(players, sortMode));
       }
-    } catch (e) {
-      if (!dataLoaded) statusEl.textContent = 'Connection issues. Retrying...';
-    }
+    } catch (e) { if (!dataLoaded) statusEl.textContent = 'Retrying...'; }
   }
 
   document.getElementById('sort-btn').addEventListener('click', () => {
