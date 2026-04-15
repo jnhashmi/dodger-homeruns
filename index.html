@@ -82,54 +82,52 @@
       align-items: center;
       border-bottom: 0.5px solid #2e2e2e;
       padding: 0;
-      height: 48px;
-      gap: 16px;
+      height: 44px;
+      gap: 14px;
       will-change: transform;
       overflow: hidden;
     }
 
     .player-name {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 400;
       color: #fff;
-      width: 160px;
-      min-width: 160px;
-      padding-left: 4px;
+      width: 190px;
+      min-width: 190px;
       white-space: nowrap;
-      letter-spacing: -0.2px;
+      letter-spacing: -0.1px;
+      padding-left: 4px;
     }
 
     .tick-area {
       flex: 1;
       display: grid;
-      grid-template-columns: repeat(65, minmax(2px, 1fr));
+      grid-template-columns: repeat(65, 1fr);
+      gap: 2px;
       height: 100%;
-      gap: 1.5px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      align-items: stretch;
+      align-items: center;
     }
-    .tick-area::-webkit-scrollbar { display: none; }
 
     .tick {
-      background: linear-gradient(180deg, #0977cc 0%, #005A9C 100%);
-      height: 100%;
+      background: #0977cc;
+      height: 85%;
       width: 100%;
+      border-radius: 0;
     }
 
     .tick-empty {
       width: 100%;
-      height: 100%;
+      height: 85%;
       background: transparent;
     }
 
     .hr-count {
       font-size: 18px;
-      font-weight: 700;
+      font-weight: 400;
       color: #fff;
-      min-width: 40px;
+      min-width: 32px;
       text-align: right;
-      padding-right: 8px;
+      padding-right: 4px;
     }
 
     #status-msg {
@@ -141,15 +139,8 @@
 
     @media (orientation: portrait) {
       #title { font-size: 15px; }
-      .player-name { font-size: 14px; width: 110px; min-width: 110px; }
-      .tick-area { gap: 1px; }
+      .player-name { font-size: 15px; width: 130px; min-width: 130px; }
       .hr-count { font-size: 15px; min-width: 24px; }
-      #status-msg::after {
-        content: "Best viewed in Landscape";
-        display: block;
-        margin-top: 8px;
-        font-size: 11px;
-      }
     }
   </style>
 </head>
@@ -293,7 +284,6 @@
           return { name: p.person?.fullName || 'Unknown', hr: stat?.homeRuns ?? 0 };
         });
     } catch (e) {
-      console.error(e);
       return null;
     }
   }
@@ -320,11 +310,8 @@
     animateSort(sortPlayers(players, sortMode));
   });
 
-  // Initial render with placeholder
   players = PLACEHOLDER;
   renderList(sortPlayers(players, sortMode));
-
-  // Initial fetch and start poller
   refresh();
   setInterval(refresh, POLL_MS);
 </script>
