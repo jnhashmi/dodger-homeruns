@@ -11,7 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Consistent horizontal alignment value */
       --side-padding: max(env(safe-area-inset-left), 24px);
     }
 
@@ -28,8 +27,6 @@
       color: #fff;
       font-family: 'Bricolage Grotesque', -apple-system, 'Helvetica Neue', sans-serif;
       -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-      overscroll-behavior-y: contain;
     }
 
     #app {
@@ -64,21 +61,16 @@
     #last-updated {
       font-size: 11px;
       color: #666;
-      white-space: nowrap;
     }
 
     #sort-btn {
       background: none;
       border: none;
-      cursor: pointer;
       padding: 2px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.15s;
     }
-
-    #sort-btn:active { opacity: 0.5; }
 
     #player-list { width: 100%; }
 
@@ -90,7 +82,6 @@
       padding-right: var(--side-padding);
       height: 44px;
       gap: 14px;
-      will-change: transform;
     }
 
     .player-name {
@@ -101,34 +92,27 @@
       min-width: 190px;
       white-space: nowrap;
       letter-spacing: -0.1px;
-      padding-left: 0; /* Zeroed to match container padding */
     }
 
     .tick-area {
       flex: 1;
       display: grid;
-      /* minmax ensures bars don't collapse in portrait */
-      grid-template-columns: repeat(62, minmax(4px, 1fr)); 
+      grid-template-columns: repeat(62, 1fr);
       gap: 4px; 
       height: 100%;
       align-items: center;
-      overflow-x: auto;
-      scrollbar-width: none;
+      overflow: visible; /* Changed from hidden/auto to ensure visibility */
     }
-    .tick-area::-webkit-scrollbar { display: none; }
 
     .tick {
-      /* Forced webkit gradient for iOS Safari rendering */
-      background: -webkit-linear-gradient(top, #0977cc 0%, #005A9C 100%);
-      background: linear-gradient(180deg, #0977cc 0%, #005A9C 100%);
-      height: calc(100% - 2px); 
+      background: #0977cc;
+      height: 70%; 
       width: 100%;
-      display: block; /* Ensure visibility */
     }
 
     .tick-empty {
       width: 100%;
-      height: calc(100% - 2px);
+      height: 70%;
       background: transparent;
     }
 
@@ -141,21 +125,24 @@
     }
 
     #status-msg {
-      color: #3a3a3a;
+      color: #666;
       font-size: 13px;
       text-align: center;
       margin-top: 48px;
+      padding: 0 24px;
     }
 
     @media (orientation: portrait) {
       #title { font-size: 15px; }
       .player-name { font-size: 15px; width: 130px; min-width: 130px; }
+      .tick-area { gap: 2px; } /* Slightly tighter for portrait fit */
       #status-msg::after {
         content: "Best viewed in Landscape";
         display: block;
-        margin-top: 8px;
-        color: #666;
-        font-size: 12px;
+        margin-top: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
     }
   </style>
@@ -166,7 +153,7 @@
     <div id="title">Dodger Home Runs 2026</div>
     <div id="header-right">
       <span id="last-updated">––:––</span>
-      <button id="sort-btn" title="Toggle sort" aria-label="Toggle sort order">
+      <button id="sort-btn" aria-label="Toggle sort order">
         <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="8.5" cy="5.5" r="2.5" stroke="#ffffff" stroke-width="1.6"/>
           <line x1="2" y1="5.5" x2="6" y2="5.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
@@ -207,7 +194,6 @@
   let sortMode = 'most';
   let players = [];
   let animating = false;
-  let dataLoaded = false;
 
   function formatTime(d) {
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -254,30 +240,6 @@
     });
   }
 
-  function animateSort(newSorted) {
-    if (animating) return;
-    animating = true;
-    const container = document.getElementById('player-list');
-    const rows = [...container.querySelectorAll('.player-row')];
-    const oldPos = {};
-    rows.forEach(r => { oldPos[r.dataset.name] = r.getBoundingClientRect().top; });
-    renderList(newSorted);
-    container.querySelectorAll('.player-row').forEach(r => {
-      const old = oldPos[r.dataset.name];
-      if (old === undefined) return;
-      const diff = old - r.getBoundingClientRect().top;
-      if (diff !== 0) {
-        r.style.transform = `translateY(${diff}px)`;
-        r.style.transition = 'none';
-        requestAnimationFrame(() => {
-          r.style.transition = 'transform 0.42s cubic-bezier(0.4, 0, 0.2, 1)';
-          r.style.transform = '';
-        });
-      }
-    });
-    setTimeout(() => { animating = false; }, 480);
-  }
-
   async function fetchData() {
     try {
       const url = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${SEASON}&hydrate=person(stats(type=season,season=${SEASON},group=hitting))`;
@@ -287,8 +249,7 @@
         .filter(p => {
           const pos = p.position?.abbreviation || '';
           const name = p.person?.fullName || '';
-          if (pos === 'P' && name !== 'Shohei Ohtani') return false;
-          return true;
+          return pos !== 'P' || name === 'Shohei Ohtani';
         })
         .map(p => {
           const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
@@ -298,23 +259,18 @@
   }
 
   async function refresh() {
-    const statusEl = document.getElementById('status-msg');
-    const updEl    = document.getElementById('last-updated');
-    try {
-      const data = await fetchData();
-      if (data && data.length > 0) {
-        players = data;
-        dataLoaded = true;
-        statusEl.textContent = '';
-        updEl.textContent = formatTime(new Date());
-        renderList(sortPlayers(players, sortMode));
-      }
-    } catch (e) { if (!dataLoaded) statusEl.textContent = 'Retrying...'; }
+    const updEl = document.getElementById('last-updated');
+    const data = await fetchData();
+    if (data && data.length > 0) {
+      players = data;
+      updEl.textContent = formatTime(new Date());
+      renderList(sortPlayers(players, sortMode));
+    }
   }
 
   document.getElementById('sort-btn').addEventListener('click', () => {
     sortMode = sortMode === 'most' ? 'alpha' : 'most';
-    animateSort(sortPlayers(players, sortMode));
+    renderList(sortPlayers(players, sortMode));
   });
 
   players = PLACEHOLDER;
