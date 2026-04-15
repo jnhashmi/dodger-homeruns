@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Dodger HRs">
   <meta name="theme-color" content="#000000">
   <title>Dodger Home Runs 2026</title>
@@ -24,6 +24,7 @@
       font-family: 'Bricolage Grotesque', -apple-system, 'Helvetica Neue', sans-serif;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      overscroll-behavior-y: contain;
     }
 
     #app {
@@ -47,7 +48,6 @@
       font-weight: 700;
       letter-spacing: -0.1px;
       color: #fff;
-      font-family: 'Bricolage Grotesque', sans-serif;
     }
 
     #header-right {
@@ -59,7 +59,6 @@
     #last-updated {
       font-size: 11px;
       color: #666;
-      font-family: 'Bricolage Grotesque', sans-serif;
       white-space: nowrap;
     }
 
@@ -82,60 +81,58 @@
       display: flex;
       align-items: center;
       border-bottom: 0.5px solid #2e2e2e;
-      padding: 10px 0;
-      gap: 14px;
+      padding: 0;
+      height: 48px;
+      gap: 16px;
       will-change: transform;
       overflow: hidden;
     }
 
     .player-name {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 400;
       color: #fff;
-      width: 190px;
-      min-width: 190px;
+      width: 160px;
+      min-width: 160px;
+      padding-left: 4px;
       white-space: nowrap;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      letter-spacing: -0.1px;
+      letter-spacing: -0.2px;
     }
 
     .tick-area {
       flex: 1;
       display: grid;
-      grid-template-columns: repeat(65, 1fr);
-      align-items: center;
-      gap: 2px;
-      overflow: hidden;
+      grid-template-columns: repeat(65, minmax(2px, 1fr));
+      height: 100%;
+      gap: 1.5px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      align-items: stretch;
     }
+    .tick-area::-webkit-scrollbar { display: none; }
 
     .tick {
+      background: linear-gradient(180deg, #0977cc 0%, #005A9C 100%);
+      height: 100%;
       width: 100%;
-      height: calc(100% + 10px);
-      background: #0977cc;
-      border-radius: 0;
-      margin-top: -5px;
-      margin-bottom: -5px;
     }
 
     .tick-empty {
       width: 100%;
-      height: calc(100% + 10px);
+      height: 100%;
       background: transparent;
-      margin-top: -5px;
-      margin-bottom: -5px;
     }
 
     .hr-count {
       font-size: 18px;
-      font-weight: 400;
+      font-weight: 700;
       color: #fff;
-      min-width: 32px;
+      min-width: 40px;
       text-align: right;
-      font-family: 'Bricolage Grotesque', sans-serif;
+      padding-right: 8px;
     }
 
     #status-msg {
-      font-family: 'Bricolage Grotesque', sans-serif;
       color: #3a3a3a;
       font-size: 13px;
       text-align: center;
@@ -144,10 +141,15 @@
 
     @media (orientation: portrait) {
       #title { font-size: 15px; }
-      .player-name { font-size: 15px; width: 130px; min-width: 130px; }
-      .tick { height: calc(100% + 10px); margin-top: -5px; margin-bottom: -5px; }
-      .tick-empty { height: calc(100% + 10px); margin-top: -5px; margin-bottom: -5px; }
+      .player-name { font-size: 14px; width: 110px; min-width: 110px; }
+      .tick-area { gap: 1px; }
       .hr-count { font-size: 15px; min-width: 24px; }
+      #status-msg::after {
+        content: "Best viewed in Landscape";
+        display: block;
+        margin-top: 8px;
+        font-size: 11px;
+      }
     }
   </style>
 </head>
@@ -156,7 +158,7 @@
   <div id="header">
     <div id="title">Dodger Home Runs 2026</div>
     <div id="header-right">
-      <span id="last-updated"></span>
+      <span id="last-updated">––:––</span>
       <button id="sort-btn" title="Toggle sort" aria-label="Toggle sort order">
         <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="8.5" cy="5.5" r="2.5" stroke="#ffffff" stroke-width="1.6"/>
@@ -181,19 +183,17 @@
   const MAX_TICKS = 65;
 
   const PLACEHOLDER = [
-    { name: 'Shohei Ohtani',       hr: 8 },
-    { name: 'Freddie Freeman',     hr: 5 },
-    { name: 'Teoscar Hernández',   hr: 4 },
-    { name: 'Will Smith',          hr: 3 },
-    { name: 'Max Muncy',           hr: 3 },
-    { name: 'Dalton Rushing',      hr: 2 },
-    { name: 'Andy Pages',          hr: 2 },
-    { name: 'Hyeseong Kim',        hr: 1 },
+    { name: 'Shohei Ohtani',       hr: 5 },
+    { name: 'Andy Pages',          hr: 5 },
+    { name: 'Max Muncy',           hr: 4 },
+    { name: 'Dalton Rushing',      hr: 3 },
+    { name: 'Freddie Freeman',     hr: 3 },
+    { name: 'Teoscar Hernández',   hr: 3 },
+    { name: 'Will Smith',          hr: 2 },
+    { name: 'Alex Freeland',       hr: 1 },
     { name: 'Miguel Rojas',        hr: 1 },
-    { name: 'Alex Call',           hr: 0 },
     { name: 'Santiago Espinal',    hr: 0 },
     { name: 'Kyle Tucker',         hr: 0 },
-    { name: 'Michael Conforto',    hr: 0 },
     { name: 'Tommy Edman',         hr: 0 },
   ];
 
@@ -276,21 +276,26 @@
   }
 
   async function fetchData() {
-    const url = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${SEASON}&hydrate=person(stats(type=season,season=${SEASON},group=hitting))`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('API error');
-    const data = await res.json();
-    return (data.roster || [])
-      .filter(p => {
-        const pos = p.position?.abbreviation || '';
-        const name = p.person?.fullName || '';
-        if (pos === 'P' && name !== 'Shohei Ohtani') return false;
-        return true;
-      })
-      .map(p => {
-        const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
-        return { name: p.person?.fullName || 'Unknown', hr: stat?.homeRuns ?? 0 };
-      });
+    try {
+      const url = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${SEASON}&hydrate=person(stats(type=season,season=${SEASON},group=hitting))`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      return (data.roster || [])
+        .filter(p => {
+          const pos = p.position?.abbreviation || '';
+          const name = p.person?.fullName || '';
+          if (pos === 'P' && name !== 'Shohei Ohtani') return false;
+          return true;
+        })
+        .map(p => {
+          const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
+          return { name: p.person?.fullName || 'Unknown', hr: stat?.homeRuns ?? 0 };
+        });
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
   }
 
   async function refresh() {
@@ -306,7 +311,7 @@
         renderList(sortPlayers(players, sortMode));
       }
     } catch (e) {
-      if (!dataLoaded) statusEl.textContent = 'Could not connect. Retrying…';
+      if (!dataLoaded) statusEl.textContent = 'Connection issues. Retrying...';
     }
   }
 
@@ -315,10 +320,11 @@
     animateSort(sortPlayers(players, sortMode));
   });
 
+  // Initial render with placeholder
   players = PLACEHOLDER;
   renderList(sortPlayers(players, sortMode));
-  document.getElementById('last-updated').textContent = '––:––';
 
+  // Initial fetch and start poller
   refresh();
   setInterval(refresh, POLL_MS);
 </script>
