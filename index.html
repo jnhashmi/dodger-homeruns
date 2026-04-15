@@ -103,21 +103,21 @@
       flex: 1;
       display: grid;
       grid-template-columns: repeat(65, 1fr);
-      gap: 2px;
+      gap: 3px; /* Increased gap for chunkier look */
       height: 100%;
       align-items: center;
     }
 
     .tick {
       background: #0977cc;
-      height: 85%;
+      height: 70%; /* Reduced height to ensure no touching and better float */
       width: 100%;
       border-radius: 0;
     }
 
     .tick-empty {
       width: 100%;
-      height: 85%;
+      height: 70%;
       background: transparent;
     }
 
