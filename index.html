@@ -4,16 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Dodger HRs">
   <meta name="theme-color" content="#000000">
   <title>Dodger Home Runs 2026</title>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --side-padding: max(env(safe-area-inset-left), 24px);
-    }
-
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -33,6 +29,8 @@
       min-height: 100vh;
       min-height: -webkit-fill-available;
       padding-top: max(env(safe-area-inset-top), 20px);
+      padding-left: max(env(safe-area-inset-left), 24px);
+      padding-right: max(env(safe-area-inset-right), 24px);
       padding-bottom: max(env(safe-area-inset-bottom), 40px);
     }
 
@@ -41,8 +39,6 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2em;
-      padding-left: var(--side-padding);
-      padding-right: var(--side-padding);
     }
 
     #title {
@@ -50,6 +46,7 @@
       font-weight: 700;
       letter-spacing: -0.1px;
       color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
     }
 
     #header-right {
@@ -61,16 +58,21 @@
     #last-updated {
       font-size: 11px;
       color: #666;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      white-space: nowrap;
     }
 
     #sort-btn {
       background: none;
       border: none;
+      cursor: pointer;
       padding: 2px;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: opacity 0.15s;
     }
+    #sort-btn:active { opacity: 0.5; }
 
     #player-list { width: 100%; }
 
@@ -78,10 +80,9 @@
       display: flex;
       align-items: center;
       border-bottom: 0.5px solid #2e2e2e;
-      padding-left: var(--side-padding);
-      padding-right: var(--side-padding);
-      height: 44px;
       gap: 14px;
+      will-change: transform;
+      height: 40px;        /* explicit row height — ticks will fill this */
     }
 
     .player-name {
@@ -91,29 +92,24 @@
       width: 190px;
       min-width: 190px;
       white-space: nowrap;
+      font-family: 'Bricolage Grotesque', sans-serif;
       letter-spacing: -0.1px;
+      flex-shrink: 0;
     }
 
+    /* tick-area is an SVG that fills the row height exactly */
     .tick-area {
       flex: 1;
-      display: grid;
-      grid-template-columns: repeat(62, 1fr);
-      gap: 4px; 
       height: 100%;
-      align-items: center;
-      overflow: visible; /* Changed from hidden/auto to ensure visibility */
+      min-width: 0;
+      overflow-x: auto;    /* horizontal scroll if HRs exceed 62 */
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
     }
 
-    .tick {
-      background: #0977cc;
-      height: 70%; 
-      width: 100%;
-    }
-
-    .tick-empty {
-      width: 100%;
-      height: 70%;
-      background: transparent;
+    .tick-area svg {
+      display: block;
+      height: 100%;        /* SVG stretches to row height */
     }
 
     .hr-count {
@@ -122,28 +118,32 @@
       color: #fff;
       min-width: 32px;
       text-align: right;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      flex-shrink: 0;
     }
 
     #status-msg {
-      color: #666;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      color: #3a3a3a;
       font-size: 13px;
       text-align: center;
       margin-top: 48px;
-      padding: 0 24px;
+    }
+
+    #portrait-note {
+      display: none;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      color: #444;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 32px;
     }
 
     @media (orientation: portrait) {
       #title { font-size: 15px; }
       .player-name { font-size: 15px; width: 130px; min-width: 130px; }
-      .tick-area { gap: 2px; } /* Slightly tighter for portrait fit */
-      #status-msg::after {
-        content: "Best viewed in Landscape";
-        display: block;
-        margin-top: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
+      .hr-count { font-size: 15px; min-width: 24px; }
+      #portrait-note { display: block; }
     }
   </style>
 </head>
@@ -152,8 +152,8 @@
   <div id="header">
     <div id="title">Dodger Home Runs 2026</div>
     <div id="header-right">
-      <span id="last-updated">––:––</span>
-      <button id="sort-btn" aria-label="Toggle sort order">
+      <span id="last-updated"></span>
+      <button id="sort-btn" title="Toggle sort" aria-label="Toggle sort order">
         <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="8.5" cy="5.5" r="2.5" stroke="#ffffff" stroke-width="1.6"/>
           <line x1="2" y1="5.5" x2="6" y2="5.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
@@ -168,32 +168,40 @@
 
   <div id="player-list"></div>
   <div id="status-msg"></div>
+  <div id="portrait-note">Best in landscape view</div>
 </div>
 
 <script>
   const TEAM_ID = 119;
   const SEASON = 2026;
   const POLL_MS = 60000;
-  const MAX_TICKS = 62;
+  const MAX_TICKS = 62;      // grid slots — fills screen at 62 HRs
+  const TICK_GAP = 3;        // px gap between bars
+  const BAR_COLOR = '#0977cc';
+  const ROW_H = 40;          // must match CSS .player-row height
+  const BAR_PADDING = 3;     // px top & bottom gap from rule to bar edge
 
   const PLACEHOLDER = [
-    { name: 'Shohei Ohtani',       hr: 5 },
-    { name: 'Andy Pages',          hr: 5 },
-    { name: 'Max Muncy',           hr: 4 },
-    { name: 'Dalton Rushing',      hr: 3 },
-    { name: 'Freddie Freeman',     hr: 3 },
-    { name: 'Teoscar Hernández',   hr: 3 },
-    { name: 'Will Smith',          hr: 2 },
-    { name: 'Alex Freeland',       hr: 1 },
+    { name: 'Shohei Ohtani',       hr: 8 },
+    { name: 'Freddie Freeman',     hr: 5 },
+    { name: 'Teoscar Hernández',   hr: 4 },
+    { name: 'Will Smith',          hr: 3 },
+    { name: 'Max Muncy',           hr: 3 },
+    { name: 'Dalton Rushing',      hr: 2 },
+    { name: 'Andy Pages',          hr: 2 },
+    { name: 'Hyeseong Kim',        hr: 1 },
     { name: 'Miguel Rojas',        hr: 1 },
+    { name: 'Alex Call',           hr: 0 },
     { name: 'Santiago Espinal',    hr: 0 },
     { name: 'Kyle Tucker',         hr: 0 },
+    { name: 'Michael Conforto',    hr: 0 },
     { name: 'Tommy Edman',         hr: 0 },
   ];
 
   let sortMode = 'most';
   let players = [];
   let animating = false;
+  let dataLoaded = false;
 
   function formatTime(d) {
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -207,6 +215,52 @@
       copy.sort((a, b) => a.name.localeCompare(b.name));
     }
     return copy;
+  }
+
+  // Build an SVG tick bar for a given player
+  // The SVG viewBox is always 62 slots wide; if hr > 62 the SVG is wider and the container scrolls
+  function buildTickSVG(hr) {
+    const slots = Math.max(MAX_TICKS, hr);  // expand if over 62
+    const barH = ROW_H - BAR_PADDING * 2;
+    const barY = BAR_PADDING;
+
+    // Each slot gets equal width; we'll compute per slot width dynamically
+    // Use a viewBox that maps to the container's natural width for ≤62,
+    // or expands proportionally for overflow
+    const slotW = 100 / MAX_TICKS;  // percent of viewBox width per slot
+    const viewW = slots * slotW;    // viewBox expands if slots > MAX_TICKS
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    // preserveAspectRatio none so height always fills row
+    svg.setAttribute('viewBox', `0 0 ${viewW} ${ROW_H}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    // width: if ≤ MAX_TICKS, fill container (100%); if over, expand proportionally
+    if (hr > MAX_TICKS) {
+      svg.style.width = `${(hr / MAX_TICKS) * 100}%`;
+    } else {
+      svg.style.width = '100%';
+    }
+
+    // Gap in viewBox units
+    const gapVB = TICK_GAP * (viewW / 100);  // rough approximation
+    // Better: gap as fixed fraction of slot width
+    const gapFrac = 0.18;  // gap is 18% of slot width
+    const barW = slotW * (1 - gapFrac);
+
+    for (let i = 0; i < slots; i++) {
+      if (i < hr) {
+        const rect = document.createElementNS(svgNS, 'rect');
+        rect.setAttribute('x', i * slotW + slotW * (gapFrac / 2));
+        rect.setAttribute('y', barY);
+        rect.setAttribute('width', barW);
+        rect.setAttribute('height', barH);
+        rect.setAttribute('fill', BAR_COLOR);
+        svg.appendChild(rect);
+      }
+    }
+
+    return svg;
   }
 
   function renderList(sorted) {
@@ -223,11 +277,7 @@
 
       const tickArea = document.createElement('div');
       tickArea.className = 'tick-area';
-      for (let i = 0; i < MAX_TICKS; i++) {
-        const cell = document.createElement('div');
-        cell.className = i < p.hr ? 'tick' : 'tick-empty';
-        tickArea.appendChild(cell);
-      }
+      tickArea.appendChild(buildTickSVG(p.hr));
 
       const countEl = document.createElement('div');
       countEl.className = 'hr-count';
@@ -240,41 +290,78 @@
     });
   }
 
-  async function fetchData() {
-    try {
-      const url = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${SEASON}&hydrate=person(stats(type=season,season=${SEASON},group=hitting))`;
-      const res = await fetch(url);
-      const data = await res.json();
-      return (data.roster || [])
-        .filter(p => {
-          const pos = p.position?.abbreviation || '';
-          const name = p.person?.fullName || '';
-          return pos !== 'P' || name === 'Shohei Ohtani';
-        })
-        .map(p => {
-          const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
-          return { name: p.person?.fullName || 'Unknown', hr: stat?.homeRuns ?? 0 };
+  function animateSort(newSorted) {
+    if (animating) return;
+    animating = true;
+
+    const container = document.getElementById('player-list');
+    const rows = [...container.querySelectorAll('.player-row')];
+    const oldPos = {};
+    rows.forEach(r => { oldPos[r.dataset.name] = r.getBoundingClientRect().top; });
+
+    renderList(newSorted);
+
+    container.querySelectorAll('.player-row').forEach(r => {
+      const old = oldPos[r.dataset.name];
+      if (old === undefined) return;
+      const diff = old - r.getBoundingClientRect().top;
+      if (diff !== 0) {
+        r.style.transform = `translateY(${diff}px)`;
+        r.style.transition = 'none';
+        requestAnimationFrame(() => {
+          r.style.transition = 'transform 0.42s cubic-bezier(0.4, 0, 0.2, 1)';
+          r.style.transform = '';
         });
-    } catch (e) { return null; }
+      }
+    });
+
+    setTimeout(() => { animating = false; }, 480);
+  }
+
+  async function fetchData() {
+    const url = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${SEASON}&hydrate=person(stats(type=season,season=${SEASON},group=hitting))`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    return (data.roster || [])
+      .filter(p => {
+        const pos = p.position?.abbreviation || '';
+        const name = p.person?.fullName || '';
+        if (pos === 'P' && name !== 'Shohei Ohtani') return false;
+        return true;
+      })
+      .map(p => {
+        const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
+        return { name: p.person?.fullName || 'Unknown', hr: stat?.homeRuns ?? 0 };
+      });
   }
 
   async function refresh() {
-    const updEl = document.getElementById('last-updated');
-    const data = await fetchData();
-    if (data && data.length > 0) {
-      players = data;
-      updEl.textContent = formatTime(new Date());
-      renderList(sortPlayers(players, sortMode));
+    const statusEl = document.getElementById('status-msg');
+    const updEl    = document.getElementById('last-updated');
+    try {
+      const data = await fetchData();
+      if (data && data.length > 0) {
+        players = data;
+        dataLoaded = true;
+        statusEl.textContent = '';
+        updEl.textContent = formatTime(new Date());
+        renderList(sortPlayers(players, sortMode));
+      }
+    } catch (e) {
+      if (!dataLoaded) statusEl.textContent = 'Could not connect. Retrying…';
     }
   }
 
   document.getElementById('sort-btn').addEventListener('click', () => {
     sortMode = sortMode === 'most' ? 'alpha' : 'most';
-    renderList(sortPlayers(players, sortMode));
+    animateSort(sortPlayers(players, sortMode));
   });
 
   players = PLACEHOLDER;
   renderList(sortPlayers(players, sortMode));
+  document.getElementById('last-updated').textContent = '––:––';
+
   refresh();
   setInterval(refresh, POLL_MS);
 </script>
