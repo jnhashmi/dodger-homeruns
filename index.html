@@ -372,7 +372,7 @@
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('viewBox', `0 0 ${viewW} ${ROW_H}`);
     svg.setAttribute('preserveAspectRatio', 'none');
-    svg.style.width = hr > MAX_TICKS ? `$x(hr / MAX_TICKS) * 100}%` : '100%';
+    svg.style.width = hr > MAX_TICKS ? `${(hr / MAX_TICKS) * 100}%` : '100%';
 
     for (let i = 0; i < d; i++) {
       const rect = document.createElementNS(svgNS, 'rect');
