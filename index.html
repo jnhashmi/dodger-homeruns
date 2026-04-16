@@ -122,6 +122,7 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       max-height: 70vh;
+      width: 80px;
     }
 
     .year-option {
@@ -213,10 +214,22 @@
     #portrait-note {
       display: none;
       font-family: 'Bricolage Grotesque', sans-serif;
-      color: #444;
-      font-size: 13px;
+      color: #3f3f3f;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
       text-align: center;
       margin-top: 32px;
+      text-transform: uppercase;
+    }
+
+    #version {
+      display: none;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      color: #3f3f3f;
+      font-size: 11px;
+      text-align: center;
+      margin-top: 8px;
     }
 
     @media (orientation: portrait) {
@@ -226,6 +239,7 @@
       .hr-count { font-size: 15px; min-width: 24px; }
       #portrait-note { display: block; }
       .year-option { font-size: 15px; }
+      #version { display: block; }
     }
   </style>
 </head>
@@ -255,6 +269,7 @@
     <div id="player-list"></div>
     <div id="status-msg"></div>
     <div id="portrait-note">Best in landscape view</div>
+    <div id="version">V10</div>
   </div>
 </div>
 
@@ -316,7 +331,6 @@
     const dropdown = document.getElementById('year-dropdown');
     dropdown.style.left = rect.left + 'px';
     dropdown.style.top = (rect.bottom + 4) + 'px';
-    dropdown.style.width = '80px';
     document.getElementById('year-overlay').classList.add('open');
   });
 
