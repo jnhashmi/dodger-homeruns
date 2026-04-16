@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Dodger HRs">
@@ -70,7 +70,7 @@
       font-family: 'Bricolage Grotesque', sans-serif;
       color: #fff;
       background: none;
-      border: 0.5px solid #3f3f3f;
+      border: 0.5px solid #6e6e6e;
       border-radius: 4px;
       padding: 2px 8px;
       cursor: pointer;
@@ -117,7 +117,7 @@
     #year-dropdown {
       position: absolute;
       background: #0a0a0a;
-      border: 0.5px solid #3f3f3f;
+      border: 0.5px solid #6e6e6e;
       border-radius: 6px;
       overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
@@ -161,7 +161,7 @@
     .player-row {
       display: flex;
       align-items: center;
-      border-bottom: 0.5px solid #3f3f3f;
+      border-bottom: 0.5px solid #6e6e6e;
       gap: 14px;
       will-change: transform;
       height: 40px;
@@ -214,7 +214,7 @@
     #portrait-note {
       display: none;
       font-family: 'Bricolage Grotesque', sans-serif;
-      color: #3f3f3f;
+      color: #6e6e6e;
       font-size: 16px;
       font-weight: 700;
       letter-spacing: 0.05em;
@@ -226,7 +226,7 @@
     #version {
       display: block;
       font-family: 'Bricolage Grotesque', sans-serif;
-      color: #3f3f3f;
+      color: #6e6e6e;
       font-size: 11px;
       text-align: center;
       margin-top: 8px;
@@ -268,7 +268,7 @@
     <div id="player-list"></div>
     <div id="status-msg"></div>
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V10</div>
+    <div id="version">V11</div>
   </div>
 </div>
 
@@ -349,7 +349,8 @@
     });
     // Stop live polling if not current year
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-    document.getElementById('last-updated').textContent = '––:––';
+    document.getElementById('last-updated').textContent = '';
+    document.getElementById('last-updated').style.display = 'none';
     loadYear(y);
   }
 
@@ -548,8 +549,10 @@
 
         if (year === CURRENT_YEAR) {
           updEl.textContent = formatTime(new Date());
+          updEl.style.display = '';
         } else {
-          updEl.textContent = year + ' season';
+          updEl.textContent = '';
+          updEl.style.display = 'none';
         }
 
         const sorted = sortPlayers(players, sortMode);
