@@ -41,7 +41,6 @@
       padding-right: max(env(safe-area-inset-right), 24px);
     }
 
-    /* ââ Header ââ */
     #header {
       display: flex;
       justify-content: space-between;
@@ -104,7 +103,6 @@
     }
     #sort-btn:active { opacity: 0.5; }
 
-    /* ââ Year dropdown overlay ââ */
     #year-overlay {
       display: none;
       position: fixed;
@@ -143,18 +141,9 @@
     .year-option:active { background: #1a1a1a; }
     .year-option.active { color: #0977cc; }
 
-    /* ââ Player list ââ */
     #player-list {
       width: 100%;
       transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-    #player-list.fade-out {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-    #player-list.fade-in {
-      opacity: 1;
-      transform: translateY(0);
     }
 
     .player-row {
@@ -258,7 +247,6 @@
   </div>
 </div>
 
-<!-- Year picker overlay -->
 <div id="year-overlay">
   <div id="year-dropdown"></div>
 </div>
@@ -278,7 +266,7 @@
   const PLACEHOLDER = [
     { name: 'Shohei Ohtani',       hr: 8 },
     { name: 'Freddie Freeman',     hr: 5 },
-    { name: 'Teoscar HernÃ¡ndez',   hr: 4 },
+    { name: 'Teoscar Hernández',   hr: 4 },
     { name: 'Will Smith',          hr: 3 },
     { name: 'Max Muncy',           hr: 3 },
     { name: 'Dalton Rushing',      hr: 2 },
@@ -299,7 +287,6 @@
   let selectedYear = CURRENT_YEAR;
   let pollTimer = null;
 
-  // ââ Build year dropdown ââ
   const dropdown = document.getElementById('year-dropdown');
   YEARS.forEach(y => {
     const btn = document.createElement('button');
@@ -313,11 +300,10 @@
   document.getElementById('year-btn').addEventListener('click', () => {
     const btn = document.getElementById('year-btn');
     const rect = btn.getBoundingClientRect();
-    const dropdown = document.getElementById('year-dropdown');
-    // Match dropdown width exactly to button, position just below it
-    dropdown.style.left = rect.left + 'px';
-    dropdown.style.top = (rect.bottom + 4) + 'px';
-    dropdown.style.width = rect.width + 'px';
+    const dd = document.getElementById('year-dropdown');
+    dd.style.left = rect.left + 'px';
+    dd.style.top = (rect.bottom + 4) + 'px';
+    dd.style.width = rect.width + 'px';
     document.getElementById('year-overlay').classList.add('open');
   });
 
@@ -335,13 +321,11 @@
     document.querySelectorAll('.year-option').forEach(b => {
       b.classList.toggle('active', parseInt(b.dataset.year) === y);
     });
-    // Stop live polling if not current year
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-    document.getElementById('last-updated').textContent = 'ââ:ââ';
+    document.getElementById('last-updated').textContent = '––:––';
     loadYear(y);
   }
 
-  // ââ Utilities ââ
   function formatTime(d) {
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
@@ -356,9 +340,7 @@
     return copy;
   }
 
-  // ââ SVG tick builder (draws N filled ticks out of MAX_TICKS slots) ââ
   function buildTickSVG(hr, displayHr) {
-    // hr = actual count, displayHr = how many to visually show (for animation)
     const d = displayHr !== undefined ? displayHr : hr;
     const slots = Math.max(MAX_TICKS, hr);
     const barH = ROW_H - BAR_PADDING * 2;
@@ -367,13 +349,11 @@
     const viewW = slots * slotW;
     const gapFrac = 0.18;
     const barW = slotW * (1 - gapFrac);
-
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('viewBox', `0 0 ${viewW} ${ROW_H}`);
     svg.setAttribute('preserveAspectRatio', 'none');
     svg.style.width = hr > MAX_TICKS ? `${(hr / MAX_TICKS) * 100}%` : '100%';
-
     for (let i = 0; i < d; i++) {
       const rect = document.createElementNS(svgNS, 'rect');
       rect.setAttribute('x', i * slotW + slotW * (gapFrac / 2));
@@ -386,7 +366,6 @@
     return svg;
   }
 
-  // ââ Render list (names + 0 ticks initially for grow-in, or full for instant) ââ
   function renderList(sorted, instant) {
     const container = document.getElementById('player-list');
     container.innerHTML = '';
@@ -395,19 +374,15 @@
       row.className = 'player-row';
       row.dataset.name = p.name;
       row.dataset.hr = p.hr;
-
       const nameEl = document.createElement('div');
       nameEl.className = 'player-name';
       nameEl.textContent = p.name;
-
       const tickArea = document.createElement('div');
       tickArea.className = 'tick-area';
       tickArea.appendChild(buildTickSVG(p.hr, instant ? p.hr : 0));
-
       const countEl = document.createElement('div');
       countEl.className = 'hr-count';
       countEl.textContent = instant ? p.hr : 0;
-
       row.appendChild(nameEl);
       row.appendChild(tickArea);
       row.appendChild(countEl);
@@ -415,19 +390,13 @@
     });
   }
 
-  // ââ HR grow-in animation ââ
-  // Increments displayed HR count one tick at a time across all rows simultaneously
   function animateHRGrowIn(sorted) {
     const maxHR = Math.max(...sorted.map(p => p.hr), 0);
     if (maxHR === 0) return;
-
     const rows = document.querySelectorAll('.player-row');
     const rowMap = {};
     rows.forEach(r => { rowMap[r.dataset.name] = r; });
-
     let tick = 0;
-    const TICK_SPEED = 40; // ms per tick â fast progress bar feel
-
     const timer = setInterval(() => {
       tick++;
       sorted.forEach(p => {
@@ -441,22 +410,18 @@
         countEl.textContent = show;
       });
       if (tick >= maxHR) clearInterval(timer);
-    }, TICK_SPEED);
+    }, 40);
   }
 
-  // ââ Sort animation (FLIP) ââ
   function animateSort(newSorted) {
     if (animating) return;
     animating = true;
-
     const container = document.getElementById('player-list');
     const oldPos = {};
     container.querySelectorAll('.player-row').forEach(r => {
       oldPos[r.dataset.name] = r.getBoundingClientRect().top;
     });
-
-    renderList(newSorted, true); // instant, no grow-in on sort
-
+    renderList(newSorted, true);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         container.querySelectorAll('.player-row').forEach(r => {
@@ -477,33 +442,20 @@
     });
   }
 
-  // ââ Year transition: fade out â render names â grow in HRs ââ
   function transitionToYear(sorted) {
     const container = document.getElementById('player-list');
-
-    // 1. Fade out + slide up
     container.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
     container.style.opacity = '0';
     container.style.transform = 'translateY(-8px)';
-
     setTimeout(() => {
-      // 2. Render names with 0 ticks
       renderList(sorted, false);
-
-      // 3. Fade in
       container.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
       container.style.opacity = '1';
       container.style.transform = 'translateY(0)';
-
-      // 4. After fade in completes, grow in HRs
-      setTimeout(() => {
-        animateHRGrowIn(sorted);
-      }, 220);
-
+      setTimeout(() => { animateHRGrowIn(sorted); }, 220);
     }, 220);
   }
 
-  // ââ Fetch data ââ
   async function fetchData(year) {
     const url = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person(stats(type=season,season=${year},group=hitting))`;
     const res = await fetch(url);
@@ -522,28 +474,18 @@
       });
   }
 
-  // ââ Load a year (with transition) ââ
   async function loadYear(year, initial) {
     const statusEl = document.getElementById('status-msg');
-    const updEl    = document.getElementById('last-updated');
-
+    const updEl = document.getElementById('last-updated');
     try {
       const data = await fetchData(year);
       if (data && data.length > 0) {
         players = data;
         dataLoaded = true;
         statusEl.textContent = '';
-
-        if (year === CURRENT_YEAR) {
-          updEl.textContent = formatTime(new Date());
-        } else {
-          updEl.textContent = year + ' season';
-        }
-
+        updEl.textContent = year === CURRENT_YEAR ? formatTime(new Date()) : year + ' season';
         const sorted = sortPlayers(players, sortMode);
-
         if (initial) {
-          // First load â just render instantly, then grow in
           renderList(sorted, false);
           const container = document.getElementById('player-list');
           container.style.opacity = '1';
@@ -552,14 +494,12 @@
         } else {
           transitionToYear(sorted);
         }
-
-        // Re-enable polling only for current year
         if (year === CURRENT_YEAR) {
           pollTimer = setInterval(() => refreshCurrentYear(), POLL_MS);
         }
       }
     } catch (e) {
-      if (!dataLoaded) statusEl.textContent = 'Could not connect. Retryingâ¦';
+      if (!dataLoaded) statusEl.textContent = 'Could not connect. Retrying…';
     }
   }
 
@@ -575,22 +515,16 @@
     } catch (e) {}
   }
 
-  // ââ Sort button ââ
   document.getElementById('sort-btn').addEventListener('click', () => {
     sortMode = sortMode === 'most' ? 'alpha' : 'most';
     animateSort(sortPlayers(players, sortMode));
   });
 
-  // ââ Boot ââ
-  // Show placeholder immediately
   const container = document.getElementById('player-list');
   container.style.opacity = '0';
   players = PLACEHOLDER;
   renderList(sortPlayers(players, sortMode), true);
-
-  // Load real data with grow-in
   loadYear(CURRENT_YEAR, true);
-  // Note: poll timer is started inside loadYear on success
 </script>
 </body>
 </html>
