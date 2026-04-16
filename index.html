@@ -25,13 +25,18 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    /* App handles only top/bottom safe area — horizontal margins live on #inner */
     #app {
       min-height: 100vh;
       min-height: -webkit-fill-available;
       padding-top: max(env(safe-area-inset-top), 20px);
+      padding-bottom: max(env(safe-area-inset-bottom), 40px);
+    }
+
+    /* All content sits inside #inner which enforces horizontal margins */
+    #inner {
       padding-left: max(env(safe-area-inset-left), 24px);
       padding-right: max(env(safe-area-inset-right), 24px);
-      padding-bottom: max(env(safe-area-inset-bottom), 40px);
     }
 
     #header {
@@ -74,11 +79,12 @@
     }
     #sort-btn:active { opacity: 0.5; }
 
-    #player-list { width: 100%; overflow: hidden; }
+    #player-list { width: 100%; }
 
     .player-row {
       display: flex;
       align-items: center;
+      /* border sits inside the padded #inner — no bleed possible */
       border-bottom: 0.5px solid #2e2e2e;
       gap: 14px;
       will-change: transform;
@@ -97,12 +103,10 @@
       flex-shrink: 0;
     }
 
-    /* tick-area is an SVG that fills the row height exactly */
     .tick-area {
       flex: 1;
       height: 100%;
       min-width: 0;
-      max-width: 100%;
       overflow-x: auto;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
@@ -110,7 +114,7 @@
 
     .tick-area svg {
       display: block;
-      height: 100%;        /* SVG stretches to row height */
+      height: 100%;
     }
 
     .hr-count {
@@ -150,37 +154,38 @@
 </head>
 <body>
 <div id="app">
-  <div id="header">
-    <div id="title">Dodger Home Runs 2026</div>
-    <div id="header-right">
-      <span id="last-updated"></span>
-      <button id="sort-btn" title="Toggle sort" aria-label="Toggle sort order">
-        <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="8.5" cy="5.5" r="2.5" stroke="#ffffff" stroke-width="1.6"/>
-          <line x1="2" y1="5.5" x2="6" y2="5.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
-          <line x1="11" y1="5.5" x2="26" y2="5.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
-          <circle cx="19.5" cy="16.5" r="2.5" stroke="#ffffff" stroke-width="1.6"/>
-          <line x1="2" y1="16.5" x2="17" y2="16.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
-          <line x1="22" y1="16.5" x2="26" y2="16.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-      </button>
+  <div id="inner">
+    <div id="header">
+      <div id="title">Dodger Home Runs 2026</div>
+      <div id="header-right">
+        <span id="last-updated"></span>
+        <button id="sort-btn" title="Toggle sort" aria-label="Toggle sort order">
+          <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8.5" cy="5.5" r="2.5" stroke="#ffffff" stroke-width="1.6"/>
+            <line x1="2" y1="5.5" x2="6" y2="5.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="11" y1="5.5" x2="26" y2="5.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="19.5" cy="16.5" r="2.5" stroke="#ffffff" stroke-width="1.6"/>
+            <line x1="2" y1="16.5" x2="17" y2="16.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="22" y1="16.5" x2="26" y2="16.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
     </div>
-  </div>
 
-  <div id="player-list"></div>
-  <div id="status-msg"></div>
-  <div id="portrait-note">Best in landscape view</div>
+    <div id="player-list"></div>
+    <div id="status-msg"></div>
+    <div id="portrait-note">Best in landscape view</div>
+  </div>
 </div>
 
 <script>
   const TEAM_ID = 119;
   const SEASON = 2026;
   const POLL_MS = 60000;
-  const MAX_TICKS = 62;      // grid slots — fills screen at 62 HRs
-  const TICK_GAP = 3;        // px gap between bars
+  const MAX_TICKS = 62;
   const BAR_COLOR = '#0977cc';
-  const ROW_H = 40;          // must match CSS .player-row height
-  const BAR_PADDING = 3;     // px top & bottom gap from rule to bar edge
+  const ROW_H = 40;
+  const BAR_PADDING = 3;
 
   const PLACEHOLDER = [
     { name: 'Shohei Ohtani',       hr: 8 },
@@ -218,36 +223,20 @@
     return copy;
   }
 
-  // Build an SVG tick bar for a given player
-  // The SVG viewBox is always 62 slots wide; if hr > 62 the SVG is wider and the container scrolls
   function buildTickSVG(hr) {
-    const slots = Math.max(MAX_TICKS, hr);  // expand if over 62
+    const slots = Math.max(MAX_TICKS, hr);
     const barH = ROW_H - BAR_PADDING * 2;
     const barY = BAR_PADDING;
-
-    // Each slot gets equal width; we'll compute per slot width dynamically
-    // Use a viewBox that maps to the container's natural width for ≤62,
-    // or expands proportionally for overflow
-    const slotW = 100 / MAX_TICKS;  // percent of viewBox width per slot
-    const viewW = slots * slotW;    // viewBox expands if slots > MAX_TICKS
+    const slotW = 100 / MAX_TICKS;
+    const viewW = slots * slotW;
+    const gapFrac = 0.18;
+    const barW = slotW * (1 - gapFrac);
 
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
-    // preserveAspectRatio none so height always fills row
     svg.setAttribute('viewBox', `0 0 ${viewW} ${ROW_H}`);
     svg.setAttribute('preserveAspectRatio', 'none');
-    // width: if ≤ MAX_TICKS, fill container (100%); if over, expand proportionally
-    if (hr > MAX_TICKS) {
-      svg.style.width = `${(hr / MAX_TICKS) * 100}%`;
-    } else {
-      svg.style.width = '100%';
-    }
-
-    // Gap in viewBox units
-    const gapVB = TICK_GAP * (viewW / 100);  // rough approximation
-    // Better: gap as fixed fraction of slot width
-    const gapFrac = 0.18;  // gap is 18% of slot width
-    const barW = slotW * (1 - gapFrac);
+    svg.style.width = hr > MAX_TICKS ? `${(hr / MAX_TICKS) * 100}%` : '100%';
 
     for (let i = 0; i < slots; i++) {
       if (i < hr) {
@@ -260,7 +249,6 @@
         svg.appendChild(rect);
       }
     }
-
     return svg;
   }
 
@@ -296,27 +284,36 @@
     animating = true;
 
     const container = document.getElementById('player-list');
-    const rows = [...container.querySelectorAll('.player-row')];
+
+    // Snapshot old positions BEFORE re-render
     const oldPos = {};
-    rows.forEach(r => { oldPos[r.dataset.name] = r.getBoundingClientRect().top; });
-
-    renderList(newSorted);
-
     container.querySelectorAll('.player-row').forEach(r => {
-      const old = oldPos[r.dataset.name];
-      if (old === undefined) return;
-      const diff = old - r.getBoundingClientRect().top;
-      if (diff !== 0) {
-        r.style.transform = `translateY(${diff}px)`;
-        r.style.transition = 'none';
-        requestAnimationFrame(() => {
-          r.style.transition = 'transform 0.42s cubic-bezier(0.4, 0, 0.2, 1)';
-          r.style.transform = '';
-        });
-      }
+      oldPos[r.dataset.name] = r.getBoundingClientRect().top;
     });
 
-    setTimeout(() => { animating = false; }, 480);
+    // Re-render with new order
+    renderList(newSorted);
+
+    // After render, measure new positions and animate from old
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        container.querySelectorAll('.player-row').forEach(r => {
+          const old = oldPos[r.dataset.name];
+          if (old === undefined) return;
+          const newTop = r.getBoundingClientRect().top;
+          const diff = old - newTop;
+          if (diff !== 0) {
+            r.style.transition = 'none';
+            r.style.transform = `translateY(${diff}px)`;
+            requestAnimationFrame(() => {
+              r.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
+              r.style.transform = '';
+            });
+          }
+        });
+        setTimeout(() => { animating = false; }, 500);
+      });
+    });
   }
 
   async function fetchData() {
