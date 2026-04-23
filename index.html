@@ -270,7 +270,7 @@
     <div id="player-list"></div>
     <div id="status-msg"></div>
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V19</div>
+    <div id="version">V20</div>
   </div>
 </div>
 
@@ -518,7 +518,7 @@
 
     // Position: left edge at start of tick area, feet on rule line
     const leftX = innerRect.left + nameColWidth + gapWidth;
-    const bottomY = rowRect.bottom + 19 - 34 + 17 + 3; // net: -12 from rule
+    const bottomY = rowRect.bottom + 19 - 34 + 17 + 3 + 2; // net: -10 from rule
 
     // Create canvas element for sprite playback
     const canvas = document.createElement('canvas');
