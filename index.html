@@ -270,7 +270,7 @@
     <div id="player-list"></div>
     <div id="status-msg"></div>
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V16</div>
+    <div id="version">V17</div>
   </div>
 </div>
 
@@ -498,7 +498,6 @@
     if (!firstRow) { onComplete(); return; }
 
     const rowRect = firstRow.getBoundingClientRect();
-    const nameWidth = 190; // matches .player-name width in landscape
     const innerRect = document.getElementById('inner').getBoundingClientRect();
 
     // Sprite constants
@@ -512,9 +511,14 @@
     const displayH = 96;
     const displayW = Math.round(FRAME_W * (displayH / FRAME_H));
 
-    // Position: left edge at start of tick area, feet on rule line + 19px down
-    const leftX = innerRect.left + nameWidth + 14;
-    const bottomY = rowRect.bottom + 19;
+    // Detect portrait vs landscape for name column width
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const nameColWidth = isPortrait ? 130 : 190;
+    const gapWidth = 14;
+
+    // Position: left edge at start of tick area, feet on rule line
+    const leftX = innerRect.left + nameColWidth + gapWidth;
+    const bottomY = rowRect.bottom + 19 - 34; // 19 was previous offset, -34 moves up
 
     // Create canvas element for sprite playback
     const canvas = document.createElement('canvas');
