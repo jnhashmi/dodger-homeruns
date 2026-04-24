@@ -65,6 +65,15 @@
       white-space: nowrap;
     }
 
+    #dodger-logo {
+      height: 28px;
+      width: auto;
+      display: none;
+      vertical-align: baseline;
+    }
+
+
+
     #year-btn {
       font-size: 18px;
       font-weight: 700;
@@ -233,7 +242,25 @@
       margin-top: 8px;
     }
 
+    #home-runs-label {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      white-space: nowrap;
+      display: none;
+    }
+
+    @media (orientation: landscape) {
+      #title-text { display: none; }
+      #dodger-logo { display: inline-block; }
+      #home-runs-label { display: inline-block; }
+    }
+
     @media (orientation: portrait) {
+      #title-text { display: inline; }
+      #dodger-logo { display: none; }
+      #home-runs-label { display: none; }
       #title { font-size: 15px; }
       #year-btn { font-size: 15px; padding: 4px 8px; }
       .player-name { font-size: 15px; width: 130px; min-width: 130px; }
@@ -250,7 +277,11 @@
   <div id="inner">
     <div id="header">
       <div id="header-left">
-        <div id="title">Dodger Home Runs</div>
+        <div id="title">
+          <img id="dodger-logo" src="Dodger-script.png" alt="Los Angeles Dodgers">
+          <span id="title-text">Dodger Home Runs</span>
+        </div>
+        <span id="home-runs-label">Home Runs</span>
         <button id="year-btn">2026</button>
       </div>
       <div id="header-right">
@@ -271,7 +302,7 @@
     <div id="player-list"></div>
     <div id="status-msg"></div>
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V21</div>
+    <div id="version">V23</div>
   </div>
 </div>
 
