@@ -71,7 +71,7 @@
       display: none;
       vertical-align: baseline;
       position: relative;
-      top: 5px;
+      top: 4px;
     }
 
 
@@ -251,7 +251,7 @@
       font-family: 'Bricolage Grotesque', sans-serif;
       white-space: nowrap;
       display: none;
-      margin-left: 16px;
+      margin-left: 13px;
     }
 
     @media (orientation: landscape) {
@@ -305,7 +305,7 @@
     <div id="player-list"></div>
     <div id="status-msg"></div>
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V25</div>
+    <div id="version">V26</div>
   </div>
 </div>
 
@@ -538,7 +538,9 @@
     // Sprite constants
     const TOTAL_FRAMES = 59;
     const USE_FRAMES = 58;
-    const FRAME_W = 690;   // px per frame in source
+    const SHEET_W = 40706; // exact total sprite sheet width
+    const FRAME_W_PRECISE = SHEET_W / TOTAL_FRAMES; // 689.9322...px exact
+    const FRAME_W = Math.round(FRAME_W_PRECISE); // 690 for display
     const FRAME_H = 307;   // px per frame in source
 
     // Scale batter to row height with a bit of overflow above
@@ -601,13 +603,13 @@
             ctx.globalAlpha = 1;
           }
 
-          // Draw the current frame from sprite sheet
+          // Draw the current frame from sprite sheet using precise width to prevent drift
           ctx.drawImage(
             img,
-            currentFrame * FRAME_W, 0,  // source x, y
-            FRAME_W, FRAME_H,            // source w, h
-            0, 0,                        // dest x, y
-            displayW, displayH           // dest w, h
+            currentFrame * FRAME_W_PRECISE, 0,  // source x (precise, no drift)
+            FRAME_W_PRECISE, FRAME_H,            // source w, h
+            0, 0,                                // dest x, y
+            displayW, displayH                   // dest w, h
           );
 
           currentFrame++;
