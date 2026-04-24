@@ -305,7 +305,7 @@
     <div id="player-list"></div>
     <div id="status-msg"></div>
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V28</div>
+    <div id="version">V29</div>
   </div>
 </div>
 
@@ -548,28 +548,31 @@
     const displayH = 96;
     const displayW = Math.round(FRAME_W * (displayH / FRAME_H));
 
-    // Detect portrait vs landscape for name column width
-    const isPortrait = window.innerHeight > window.innerWidth;
-    const nameColWidth = isPortrait ? 130 : 190;
-    const gapWidth = 14;
-
-    // Position: left edge at start of tick area, feet on rule line
-    const leftX = Math.round(innerRect.left + nameColWidth + gapWidth);
+    // Get the actual tick area left edge from the first row's DOM
+    const tickArea = firstRow.querySelector('.tick-area');
+    const tickRect = tickArea.getBoundingClientRect();
+    const leftX = Math.round(tickRect.left);
     const bottomY = Math.round(rowRect.bottom + 19 - 34 + 17 + 3 + 2);
+
+    // Scale canvas for Retina/high-DPI displays
+    const dpr = window.devicePixelRatio || 1;
 
     // Create canvas element for sprite playback
     const canvas = document.createElement('canvas');
-    canvas.width = displayW;
-    canvas.height = displayH;
+    canvas.width = displayW * dpr;
+    canvas.height = displayH * dpr;
     canvas.style.position = 'fixed';
     canvas.style.left = leftX + 'px';
     canvas.style.top = (bottomY - displayH) + 'px';
+    canvas.style.width = displayW + 'px';
+    canvas.style.height = displayH + 'px';
     canvas.style.pointerEvents = 'none';
     canvas.style.zIndex = '50';
     canvas.style.imageRendering = 'auto';
     document.body.appendChild(canvas);
 
     const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     const img = new Image();
