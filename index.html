@@ -33,13 +33,28 @@
     #app {
       min-height: 100vh;
       min-height: -webkit-fill-available;
-      padding-top: max(env(safe-area-inset-top), 20px);
-      padding-bottom: max(env(safe-area-inset-bottom), 40px);
+      display: flex;
+      flex-direction: column;
     }
 
+    /* Sticky header bar */
+    #header-bar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: #000;
+      padding-top: max(env(safe-area-inset-top), 20px);
+      padding-left: max(env(safe-area-inset-left), 24px);
+      padding-right: max(env(safe-area-inset-right), 24px);
+      padding-bottom: 12px;
+    }
+
+    /* Scrollable content area */
     #inner {
       padding-left: max(env(safe-area-inset-left), 24px);
       padding-right: max(env(safe-area-inset-right), 24px);
+      padding-bottom: max(env(safe-area-inset-bottom), 40px);
+      flex: 1;
     }
 
     /* ── Header ── */
@@ -47,7 +62,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2em;
     }
 
     #header-left {
@@ -159,6 +173,7 @@
     /* ── Player list ── */
     #player-list {
       width: 100%;
+      margin-top: 1.5em;
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
     #player-list.fade-out {
@@ -271,13 +286,14 @@
       #portrait-note { display: block; font-size: 13px; }
       .year-option { font-size: 15px; }
       #header { padding-bottom: 2px; }
+      #header-bar { padding-bottom: 10px; }
     }
   </style>
 
 </head>
 <body>
 <div id="app">
-  <div id="inner">
+  <div id="header-bar">
     <div id="header">
       <div id="header-left">
         <div id="title">
@@ -301,11 +317,13 @@
         </button>
       </div>
     </div>
+  </div>
 
+  <div id="inner">
     <div id="player-list"></div>
     <div id="status-msg"></div>
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V32</div>
+    <div id="version">V33</div>
   </div>
 </div>
 
@@ -316,7 +334,15 @@
 
 <script>
   const TEAM_ID = 119;
-  const CURRENT_YEAR = 2026;
+
+  // ── Auto year logic ──
+  // Before March 20 of current calendar year → show previous year
+  // On/after March 20 → show current year
+  const now = new Date();
+  const calYear = now.getFullYear();
+  const openingDay = new Date(calYear, 2, 20); // March 20 (month is 0-indexed)
+  const CURRENT_YEAR = now >= openingDay ? calYear : calYear - 1;
+
   const YEARS = [];
   for (let y = CURRENT_YEAR; y >= 2013; y--) YEARS.push(y);
 
@@ -749,6 +775,9 @@
   });
 
   // ── Boot ──
+  // Set year button to dynamic current year
+  document.getElementById('year-btn').textContent = CURRENT_YEAR;
+
   // Show placeholder immediately
   const container = document.getElementById('player-list');
   container.style.opacity = '0';
