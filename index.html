@@ -161,12 +161,13 @@
       white-space: nowrap;
     }
 
-    /* Home plate nav button */
+    /* Home plate nav button — flush to right edge */
     #home-btn {
       background: none;
       border: none;
       cursor: pointer;
-      padding: 2px;
+      padding: 0;
+      margin-right: -4px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -193,13 +194,13 @@
       overflow-x: hidden;
       overscroll-behavior: contain;
       max-height: 70vh;
-      width: 100px;
+      width: 120px;
     }
 
     .year-option {
       display: block;
       width: 100%;
-      padding: 10px 8px 10px 16px;
+      padding: 10px 8px 10px 32px;
       font-size: 18px;
       font-weight: 700;
       font-family: 'Bricolage Grotesque', sans-serif;
@@ -224,7 +225,6 @@
       width: 100%;
       margin-top: 1.5em;
       transition: opacity 0.25s ease, transform 0.25s ease;
-      cursor: pointer; /* tap to sort */
     }
 
     .player-row {
@@ -246,6 +246,7 @@
       font-family: 'Bricolage Grotesque', sans-serif;
       letter-spacing: -0.1px;
       flex-shrink: 0;
+      cursor: pointer;
     }
 
     .tick-area {
@@ -393,9 +394,9 @@
       <div id="header-right">
         <span id="last-updated"></span>
         <button id="home-btn" title="Navigate" aria-label="Navigate">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Home plate: flat top, point at bottom -->
-            <path d="M3 4 L23 4 L23 16 L13 23 L3 16 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+          <svg width="22" height="26" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Home plate: flat top, point at bottom, narrower -->
+            <path d="M2 3 L20 3 L20 16 L11 23 L2 16 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
@@ -415,7 +416,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V35</div>
+    <div id="version">V36</div>
   </div>
 </div>
 
@@ -558,8 +559,10 @@
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     document.getElementById('last-updated').textContent = '';
     document.getElementById('last-updated').style.display = 'none';
-    // Scroll to top so batter animation is visible
+    // Scroll to top — target all possible scroll containers
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.scrollTo({ top: 0, behavior: 'smooth' });
     loadYear(y);
   }
 
@@ -718,9 +721,15 @@
     });
   }
 
-  // ── Tap list to toggle sort ──
-  document.getElementById('player-list').addEventListener('click', () => {
+  // ── Tap name column to toggle sort ──
+  document.getElementById('player-list').addEventListener('click', (e) => {
     if (animating) return;
+    const row = e.target.closest('.player-row');
+    if (!row) return;
+    const nameEl = row.querySelector('.player-name');
+    if (!nameEl) return;
+    const nameRect = nameEl.getBoundingClientRect();
+    if (e.clientX > nameRect.right) return; // only respond to taps in name column
     sortMode = sortMode === 'most' ? 'alpha' : 'most';
     animateSort(sortPlayers(players, sortMode));
   });
@@ -864,16 +873,20 @@
     if (!res.ok) throw new Error('API error');
     const data = await res.json();
     return (data.roster || [])
-      .filter(p => {
-        const pos = p.position?.abbreviation || '';
-        const name = p.person?.fullName || '';
-        if (pos === 'P' && name !== 'Shohei Ohtani') return false;
-        return true;
-      })
       .map(p => {
         const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
-        return { name: p.person?.fullName || 'Unknown', hr: stat?.homeRuns ?? 0 };
-      });
+        return {
+          name: p.person?.fullName || 'Unknown',
+          hr: stat?.homeRuns ?? 0,
+          pos: p.position?.abbreviation || ''
+        };
+      })
+      .filter(p => {
+        if (p.name === 'Shohei Ohtani') return true; // always include
+        if (p.pos === 'P') return p.hr >= 1; // pitchers only if they homered
+        return true; // all position players
+      })
+      .map(({ name, hr }) => ({ name, hr }));
   }
 
   async function loadYear(year, initial) {
