@@ -189,16 +189,17 @@
       background: #0a0a0a;
       border: 0.5px solid #6e6e6e;
       border-radius: 6px;
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
       max-height: 70vh;
-      width: 80px;
+      width: 100px;
     }
 
     .year-option {
       display: block;
       width: 100%;
-      padding: 10px 8px;
+      padding: 10px 8px 10px 16px;
       font-size: 18px;
       font-weight: 700;
       font-family: 'Bricolage Grotesque', sans-serif;
@@ -347,7 +348,7 @@
       #home-runs-label { display: none; }
       #ws-label { margin-left: 0; }
       #title { font-size: 15px; }
-      #year-btn { font-size: 15px; padding: 4px 8px; }
+      #year-btn { font-size: 15px; padding: 6px 8px; }
       .player-name { font-size: 15px; width: 130px; min-width: 130px; }
       .hr-count { font-size: 15px; min-width: 24px; }
       .ws-year { font-size: 15px; }
@@ -393,8 +394,8 @@
         <span id="last-updated"></span>
         <button id="home-btn" title="Navigate" aria-label="Navigate">
           <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Home plate shape -->
-            <path d="M13 3 L23 10 L23 19 L18 23 L8 23 L3 19 L3 10 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+            <!-- Home plate: flat top, point at bottom -->
+            <path d="M3 4 L23 4 L23 16 L13 23 L3 16 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
@@ -414,7 +415,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V34</div>
+    <div id="version">V35</div>
   </div>
 </div>
 
@@ -557,6 +558,8 @@
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     document.getElementById('last-updated').textContent = '';
     document.getElementById('last-updated').style.display = 'none';
+    // Scroll to top so batter animation is visible
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     loadYear(y);
   }
 
