@@ -194,13 +194,13 @@
       overflow-x: hidden;
       overscroll-behavior: contain;
       max-height: 70vh;
-      width: 120px;
+      width: 140px;
     }
 
     .year-option {
       display: block;
       width: 100%;
-      padding: 10px 8px 10px 32px;
+      padding: 10px 8px 10px 29px;
       font-size: 18px;
       font-weight: 700;
       font-family: 'Bricolage Grotesque', sans-serif;
@@ -337,8 +337,9 @@
       margin-top: 8px;
     }
 
+    #title-text { display: none; }
+
     @media (orientation: landscape) {
-      #title-text { display: none; }
       #dodger-logo { display: inline-block; }
       #home-runs-label { display: inline-block; }
     }
@@ -394,9 +395,9 @@
       <div id="header-right">
         <span id="last-updated"></span>
         <button id="home-btn" title="Navigate" aria-label="Navigate">
-          <svg width="22" height="26" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Home plate: flat top, sharp point at bottom -->
-            <path d="M2 3 L20 3 L20 14 L11 24 L2 14 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+          <svg width="20" height="24" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Home plate: flat top, slightly softer point -->
+            <path d="M2 3 L20 3 L20 15 L11 23 L2 15 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
@@ -416,7 +417,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V37</div>
+    <div id="version">V38</div>
   </div>
 </div>
 
@@ -537,7 +538,7 @@
     const btn = document.getElementById('year-btn');
     const rect = btn.getBoundingClientRect();
     const dd = document.getElementById('year-dropdown');
-    dd.style.left = (rect.left - 20) + 'px';
+    dd.style.left = (rect.left - 40) + 'px';
     dd.style.top = (rect.bottom + 4) + 'px';
     document.getElementById('year-overlay').classList.add('open');
   });
@@ -852,11 +853,11 @@
     container.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
     container.style.opacity = '0';
     container.style.transform = 'translateY(-8px)';
-    // Instant scroll to top while list is faded out — invisible to user
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
     setTimeout(() => {
+      // Scroll while list is fully faded out — completely invisible
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
       renderList(sorted, false);
       container.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
       container.style.opacity = '1';
