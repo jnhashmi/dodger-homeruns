@@ -429,7 +429,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V49</div>
+    <div id="version">V50</div>
   </div>
 </div>
 
@@ -981,14 +981,22 @@
           // Date-bounded: same calendar date last year
           statUrl = `https://statsapi.mlb.com/api/v1/people/${p.id}/stats?stats=byDateRange&season=${priorYear}&group=hitting&startDate=01/01/${priorYear}&endDate=${priorDateStr}`;
         } else {
-          // Full prior season totals
-          statUrl = `https://statsapi.mlb.com/api/v1/people/${p.id}/stats?stats=season&season=${priorYear}&group=hitting`;
+          // Full prior season totals — use yearByYear to get reliable multi-team data
+          statUrl = `https://statsapi.mlb.com/api/v1/people/${p.id}/stats?stats=yearByYear&group=hitting`;
         }
         const statRes = await fetch(statUrl);
         if (statRes.ok) {
           const statData = await statRes.json();
           const splits = statData.stats?.[0]?.splits || [];
-          p.priorHr = splits.reduce((sum, s) => sum + (s.stat?.homeRuns ?? 0), 0);
+          if (isCurrentYear) {
+            // byDateRange — sum all splits
+            p.priorHr = splits.reduce((sum, s) => sum + (s.stat?.homeRuns ?? 0), 0);
+          } else {
+            // yearByYear — filter to prior year only, sum across all teams
+            p.priorHr = splits
+              .filter(s => s.season === String(priorYear))
+              .reduce((sum, s) => sum + (s.stat?.homeRuns ?? 0), 0);
+          }
         } else {
           p.priorHr = 0;
         }
