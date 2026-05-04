@@ -429,7 +429,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V44</div>
+    <div id="version">V45</div>
   </div>
 </div>
 
@@ -461,9 +461,9 @@
     1969: { team: 'New York Mets',         color: '#0f65ff' },
     1970: { team: 'Baltimore Orioles',      color: '#e36a30' },
     1971: { team: 'Pittsburgh Pirates',     color: '#e3aa30' },
-    1972: { team: 'Oakland Athletics',      color: '#04a01d' },
-    1973: { team: 'Oakland Athletics',      color: '#04a01d' },
-    1974: { team: 'Oakland Athletics',      color: '#04a01d' },
+    1972: { team: 'Oakland Athletics',      color: '#09951f' },
+    1973: { team: 'Oakland Athletics',      color: '#09951f' },
+    1974: { team: 'Oakland Athletics',      color: '#09951f' },
     1975: { team: 'Cincinnati Reds',        color: '#cc2509' },
     1976: { team: 'Cincinnati Reds',        color: '#cc2509' },
     1977: { team: 'New York Yankees',       color: '#a6a8ab' },
@@ -478,7 +478,7 @@
     1986: { team: 'New York Mets',          color: '#0f65ff' },
     1987: { team: 'Minnesota Twins',        color: '#b92e24' },
     1988: { team: 'Los Angeles Dodgers',    color: '#0977cc' },
-    1989: { team: 'Oakland Athletics',      color: '#04a01d' },
+    1989: { team: 'Oakland Athletics',      color: '#09951f' },
     1990: { team: 'Cincinnati Reds',        color: '#cc2509' },
     1991: { team: 'Minnesota Twins',        color: '#b92e24' },
     1992: { team: 'Toronto Blue Jays',      color: '#0977cc' },
@@ -661,22 +661,24 @@
     return copy;
   }
 
-  function buildTickSVG(hr, displayHr) {
+  function buildTickSVG(hr, displayHr, priorHr) {
     const d = displayHr !== undefined ? displayHr : hr;
-    const slots = Math.max(MAX_TICKS, hr);
+    const prior = priorHr || 0;
+    // Grey bars show when prior year pace exceeds current — only the gap above current
+    const greyCount = prior > hr ? prior - hr : 0;
+    const totalSlots = Math.max(MAX_TICKS, hr, prior);
     const barH = ROW_H - BAR_PADDING * 2;
     const barY = BAR_PADDING;
     const slotW = 100 / MAX_TICKS;
-    const viewW = slots * slotW;
+    const viewW = totalSlots * slotW;
     const gapFrac = 0.18;
     const barW = slotW * (1 - gapFrac);
-    const SHEET_W = 40706;
-    const TOTAL_FRAMES = 59;
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('viewBox', `0 0 ${viewW} ${ROW_H}`);
     svg.setAttribute('preserveAspectRatio', 'none');
-    svg.style.width = hr > MAX_TICKS ? `${(hr / MAX_TICKS) * 100}%` : '100%';
+    svg.style.width = Math.max(hr, prior) > MAX_TICKS ? `${(Math.max(hr, prior) / MAX_TICKS) * 100}%` : '100%';
+    // Draw blue bars (current year, up to displayHr)
     for (let i = 0; i < d; i++) {
       const rect = document.createElementNS(svgNS, 'rect');
       rect.setAttribute('x', i * slotW + slotW * (gapFrac / 2));
@@ -685,6 +687,18 @@
       rect.setAttribute('height', barH);
       rect.setAttribute('fill', BAR_COLOR);
       svg.appendChild(rect);
+    }
+    // Draw grey bars (prior year gap — only when fully animated in)
+    if (displayHr === undefined || displayHr >= hr) {
+      for (let i = hr; i < hr + greyCount; i++) {
+        const rect = document.createElementNS(svgNS, 'rect');
+        rect.setAttribute('x', i * slotW + slotW * (gapFrac / 2));
+        rect.setAttribute('y', barY);
+        rect.setAttribute('width', barW);
+        rect.setAttribute('height', barH);
+        rect.setAttribute('fill', '#3a3a3a');
+        svg.appendChild(rect);
+      }
     }
     return svg;
   }
@@ -702,7 +716,7 @@
       nameEl.textContent = p.name;
       const tickArea = document.createElement('div');
       tickArea.className = 'tick-area';
-      tickArea.appendChild(buildTickSVG(p.hr, instant ? p.hr : 0));
+      tickArea.appendChild(buildTickSVG(p.hr, instant ? p.hr : 0, p.priorHr || 0));
       const countEl = document.createElement('div');
       countEl.className = 'hr-count';
       countEl.textContent = instant ? p.hr : 0;
@@ -728,7 +742,22 @@
 
   function animateHRGrowIn(sorted) {
     const maxHR = Math.max(...sorted.map(p => p.hr), 0);
-    if (maxHR === 0) return;
+    if (maxHR === 0) {
+      // Still show grey bars even if no current HRs
+      sorted.forEach(p => {
+        if ((p.priorHr || 0) > 0) {
+          const rows = document.querySelectorAll('.player-row');
+          rows.forEach(r => {
+            if (r.dataset.name === p.name) {
+              const tickArea = r.querySelector('.tick-area');
+              tickArea.innerHTML = '';
+              tickArea.appendChild(buildTickSVG(p.hr, p.hr, p.priorHr || 0));
+            }
+          });
+        }
+      });
+      return;
+    }
     const rows = document.querySelectorAll('.player-row');
     const rowMap = {};
     rows.forEach(r => { rowMap[r.dataset.name] = r; });
@@ -742,7 +771,8 @@
         const tickArea = row.querySelector('.tick-area');
         const countEl = row.querySelector('.hr-count');
         tickArea.innerHTML = '';
-        tickArea.appendChild(buildTickSVG(p.hr, show));
+        // Pass priorHr — grey bars only appear once blue animation completes
+        tickArea.appendChild(buildTickSVG(p.hr, show, p.priorHr || 0));
         countEl.textContent = show;
       });
       if (tick >= maxHR) clearInterval(timer);
@@ -864,25 +894,65 @@
   }
 
   async function fetchData(year) {
+    const priorYear = year - 1;
+
+    // Fetch current year roster with hitting stats
     const url = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person(stats(type=season,season=${year},group=hitting))`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('API error');
     const data = await res.json();
-    return (data.roster || [])
+
+    const currentPlayers = (data.roster || [])
       .map(p => {
         const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
         return {
           name: p.person?.fullName || 'Unknown',
+          id: p.person?.id,
           hr: stat?.homeRuns ?? 0,
           pos: p.position?.abbreviation || ''
         };
       })
       .filter(p => {
-        if (p.name === 'Shohei Ohtani') return true; // always include
-        if (p.pos === 'P') return p.hr >= 1; // pitchers only if they homered
-        return true; // all position players
-      })
-      .map(({ name, hr }) => ({ name, hr }));
+        if (p.name === 'Shohei Ohtani') return true;
+        if (p.pos === 'P') return p.hr >= 1;
+        return true;
+      });
+
+    // Fetch prior year Dodger roster stats (one call for most players)
+    let priorStatsMap = {};
+    try {
+      const priorUrl = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${priorYear}&hydrate=person(stats(type=season,season=${priorYear},group=hitting))`;
+      const priorRes = await fetch(priorUrl);
+      if (priorRes.ok) {
+        const priorData = await priorRes.json();
+        (priorData.roster || []).forEach(p => {
+          const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
+          priorStatsMap[p.person?.id] = stat?.homeRuns ?? 0;
+        });
+      }
+    } catch(e) {}
+
+    // For players NOT on last year's Dodger roster, fetch their personal prior year stats
+    const missing = currentPlayers.filter(p => p.id && !(p.id in priorStatsMap));
+    await Promise.all(missing.map(async p => {
+      try {
+        const statUrl = `https://statsapi.mlb.com/api/v1/people/${p.id}/stats?stats=season&season=${priorYear}&group=hitting`;
+        const statRes = await fetch(statUrl);
+        if (statRes.ok) {
+          const statData = await statRes.json();
+          const splits = statData.stats?.[0]?.splits || [];
+          // Sum HRs across all teams if traded mid-season
+          const totalHR = splits.reduce((sum, s) => sum + (s.stat?.homeRuns ?? 0), 0);
+          priorStatsMap[p.id] = totalHR;
+        }
+      } catch(e) {}
+    }));
+
+    return currentPlayers.map(({ name, hr, id }) => ({
+      name,
+      hr,
+      priorHr: priorStatsMap[id] ?? 0
+    }));
   }
 
   async function loadYear(year, initial) {
