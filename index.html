@@ -429,7 +429,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V47</div>
+    <div id="version">V48</div>
   </div>
 </div>
 
@@ -974,7 +974,7 @@
     // Fetch prior year stats through same calendar date for each player in parallel
     await Promise.all(currentPlayers.map(async p => {
       try {
-        const statUrl = `https://statsapi.mlb.com/api/v1/people/${p.id}/stats?stats=season&season=${priorYear}&group=hitting&startDate=01/01/${priorYear}&endDate=${priorDateStr}`;
+        const statUrl = `https://statsapi.mlb.com/api/v1/people/${p.id}/stats?stats=byDateRange&season=${priorYear}&group=hitting&startDate=01/01/${priorYear}&endDate=${priorDateStr}`;
         const statRes = await fetch(statUrl);
         if (statRes.ok) {
           const statData = await statRes.json();
