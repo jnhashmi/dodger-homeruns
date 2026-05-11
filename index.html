@@ -419,12 +419,10 @@
       #nav-panel.open { transform: translateX(0); }
     }
 
-    /* Portrait: slides down from top, starts below safe area */
+    /* Portrait: slides down from top */
     @media (orientation: portrait) {
       #nav-panel {
-        top: env(safe-area-inset-top, 0px);
-        left: 0; right: 0;
-        padding-top: 20px;
+        top: 0; left: 0; right: 0;
         padding-left: max(env(safe-area-inset-left), 24px);
         padding-right: max(env(safe-area-inset-right), 24px);
         padding-bottom: 32px;
@@ -432,6 +430,15 @@
         transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       }
       #nav-panel.open { transform: translateY(0); }
+      /* Black cover over status bar area so it doesn't turn blue */
+      #nav-panel::before {
+        content: '';
+        display: block;
+        height: env(safe-area-inset-top, 0px);
+        background: #000;
+        margin-left: -24px;
+        margin-right: -24px;
+      }
     }
 
     /* Nav buttons — match year button style exactly */
@@ -677,7 +684,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V65</div>
+    <div id="version">V66</div>
   </div>
 </div>
 
@@ -861,15 +868,12 @@
 
   function alignNavPanel() {
     const panel = document.getElementById('nav-panel');
-    const firstRow = document.querySelector('.player-row, .ops-row, .ws-row');
-    if (firstRow) {
-      const rowRect = firstRow.getBoundingClientRect();
-      panel.style.paddingTop = rowRect.top + 'px';
-    } else {
-      const headerBar = document.getElementById('header-bar');
-      const headerH = headerBar ? headerBar.getBoundingClientRect().bottom : 80;
-      panel.style.paddingTop = (headerH + 24) + 'px';
-    }
+    // Reset any previous inline padding-top so measurement is clean
+    panel.style.paddingTop = '';
+    // Use the header-bar bottom as anchor — always stable regardless of screen content
+    const headerBar = document.getElementById('header-bar');
+    const headerBottom = headerBar ? headerBar.getBoundingClientRect().bottom : 80;
+    panel.style.paddingTop = headerBottom + 'px';
   }
 
   function openNav() {
@@ -882,6 +886,16 @@
     document.getElementById('nav-overlay').classList.remove('open');
     document.getElementById('nav-panel').classList.remove('open');
   }
+
+  // Re-align on orientation change
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      if (document.getElementById('nav-panel').classList.contains('open')) {
+        alignNavPanel();
+      }
+      positionHomeBtn();
+    }, 100);
+  });
 
   document.getElementById('home-btn').addEventListener('click', () => {
     const panel = document.getElementById('nav-panel');
