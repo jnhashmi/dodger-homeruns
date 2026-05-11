@@ -346,7 +346,6 @@
     @media (orientation: landscape) {
       #dodger-logo { display: inline-block; }
       #home-runs-label { display: inline-block; }
-      /* WS screen: offset year column to align team names with header label */
       body.ws-mode .ws-year { min-width: 190px; width: 190px; }
     }
 
@@ -356,6 +355,7 @@
       #home-runs-label { display: none !important; }
       #header-left { align-items: baseline; }
       #ws-label { margin-left: 0; font-size: 15px; font-weight: 700; line-height: 1.4; }
+      #ops-label { margin-left: 0; font-size: 15px; font-weight: 700; line-height: 1.4; }
       #title { font-size: 15px; line-height: 1.4; }
       #year-btn { font-size: 15px; padding: 2px 8px; }
       #ws-tally { font-size: 15px; font-weight: 400; line-height: 1.4; }
@@ -364,10 +364,201 @@
       .hr-count { font-size: 15px; min-width: 24px; }
       .ws-year { font-size: 15px; }
       .ws-team { font-size: 15px; }
+      .ops-name { font-size: 15px; width: 130px; min-width: 130px; }
+      .ops-value { font-size: 15px; }
+      #ops-bar { left: 130px; }
+      #ops-labels { left: 130px; display: none; }
       #portrait-note { display: block; }
       .year-option { font-size: 15px; }
       #header { padding-bottom: 2px; }
       #header-bar { padding-bottom: 10px; }
+    }
+
+    /* ── Nav overlay ── */
+    #nav-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 200;
+    }
+    #nav-overlay.open { display: block; }
+
+    #nav-panel {
+      position: absolute;
+      background: #0977cc;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 12px;
+    }
+
+    /* Landscape: slides in from right */
+    @media (orientation: landscape) {
+      #nav-panel {
+        top: 0; right: 0; bottom: 0;
+        width: 42%;
+        padding: max(env(safe-area-inset-top), 20px) max(env(safe-area-inset-right), 24px) 40px 32px;
+        padding-top: max(env(safe-area-inset-top), 52px);
+        transform: translateX(100%);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #nav-overlay.open #nav-panel { transform: translateX(0); }
+    }
+
+    /* Portrait: slides in from top */
+    @media (orientation: portrait) {
+      #nav-panel {
+        top: 0; left: 0; right: 0;
+        padding: max(env(safe-area-inset-top), 20px) 24px 32px 24px;
+        transform: translateY(-100%);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #nav-overlay.open #nav-panel { transform: translateY(0); }
+    }
+
+    /* Home plate icon in nav panel */
+    #nav-home-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      align-self: flex-end;
+      margin-bottom: 24px;
+      opacity: 1;
+      transition: opacity 0.15s;
+    }
+    #nav-home-btn:active { opacity: 0.6; }
+
+    /* Nav buttons */
+    .nav-btn {
+      font-size: 18px;
+      font-weight: 700;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      color: #fff;
+      background: none;
+      border: 0.5px solid rgba(255,255,255,0.5);
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      text-align: left;
+      line-height: 1.4;
+      white-space: nowrap;
+      transition: background 0.1s;
+      width: 100%;
+    }
+    .nav-btn:active { background: rgba(255,255,255,0.15); }
+
+    @media (orientation: portrait) {
+      .nav-btn { font-size: 18px; }
+    }
+
+    /* ── OPS screen ── */
+    #ops-screen { display: none; }
+
+    /* OPS scale bar container */
+    #ops-scale {
+      margin-top: 1.5em;
+      margin-bottom: 0;
+      position: relative;
+      height: 40px; /* same row height — scale sits in its own row */
+    }
+
+    /* The color bar itself */
+    #ops-bar {
+      position: absolute;
+      left: 190px; /* aligns with tick area — same as name column width */
+      right: 32px; /* aligns with hr-count area */
+      top: 50%;
+      transform: translateY(-50%);
+      height: 4px;
+      border-radius: 0;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .ops-segment {
+      height: 100%;
+    }
+
+    /* Threshold labels above bar */
+    #ops-labels {
+      position: absolute;
+      left: 190px;
+      right: 32px;
+      top: 0;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .ops-label {
+      position: absolute;
+      font-size: 11px;
+      font-weight: 400;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      color: #6e6e6e;
+      transform: translateX(-50%);
+      top: 0;
+      line-height: 1;
+    }
+
+    /* Vertical divider lines in rows */
+    .ops-divider {
+      position: absolute;
+      top: 3px; /* same gap as BAR_PADDING */
+      bottom: 3px;
+      width: 0.5px;
+      background: #6e6e6e;
+      pointer-events: none;
+    }
+
+    /* OPS player rows */
+    .ops-row {
+      display: flex;
+      align-items: center;
+      border-bottom: 0.5px solid #6e6e6e;
+      gap: 14px;
+      height: 40px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .ops-name {
+      font-size: 18px;
+      font-weight: 400;
+      color: #fff;
+      width: 190px;
+      min-width: 190px;
+      white-space: nowrap;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      letter-spacing: -0.1px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .ops-track {
+      flex: 1;
+      height: 100%;
+      position: relative;
+      min-width: 0;
+    }
+
+    .ops-dot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .ops-value {
+      font-size: 18px;
+      font-weight: 400;
+      color: #fff;
+      min-width: 48px;
+      text-align: right;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      flex-shrink: 0;
     }
 
     /* WS screen — hide year btn, show ws elements */
@@ -382,11 +573,33 @@
     body.ws-mode #hr-screen { display: none; }
     body.ws-mode #ws-screen { display: block; }
     body.ws-mode #portrait-note { display: none !important; }
-    /* Portrait WS mode: hide logo, show ws-label instead of title-text */
+    body.ws-mode #ops-screen { display: none; }
+
+    /* OPS mode */
+    body.ops-mode #year-btn { display: inline-block; }
+    body.ops-mode #last-updated { display: none; }
+    body.ops-mode #ops-label { display: inline-block; }
+    body.ops-mode #home-runs-label { display: none !important; }
+    body.ops-mode #title-text { display: none !important; }
+    body.ops-mode #dodger-logo { display: inline-block; }
+    body.ops-mode #hr-screen { display: none; }
+    body.ops-mode #ws-screen { display: none; }
+    body.ops-mode #ops-screen { display: block; }
+    body.ops-mode #portrait-note { display: none; }
+    body.ops-mode #ws-tally { display: none; }
+    body.ops-mode #ws-clear-btn { display: none; }
+    body.ops-mode #ws-label { display: none; }
+
+    /* Portrait WS mode */
     @media (orientation: portrait) {
       body.ws-mode #dodger-logo { display: none !important; }
       body.ws-mode #ws-label { display: inline-block !important; }
       body.ws-mode #title { display: none; }
+      body.ops-mode #dodger-logo { display: none !important; }
+      body.ops-mode #ops-label { display: inline-block !important; }
+      body.ops-mode #title { display: none; }
+      body.ops-mode #portrait-note { display: block !important; }
+      #ops-labels { display: none; } /* hide threshold numbers in portrait */
     }
   </style>
 </head>
@@ -400,7 +613,8 @@
           <span id="title-text">Dodger Home Runs</span>
         </div>
         <span id="home-runs-label">Home Runs</span>
-        <span id="ws-label">World Series Winners</span>
+        <span id="ws-label">World Series Challenge</span>
+        <span id="ops-label" style="display:none;font-size:18px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;color:#fff;white-space:nowrap;margin-left:11px;">On-base Plus Slugging</span>
         <button id="year-btn">2026</button>
         <span id="ws-tally">Total 0/57</span>
         <button id="ws-clear-btn">Clear</button>
@@ -409,7 +623,6 @@
         <span id="last-updated"></span>
         <button id="home-btn" title="Navigate" aria-label="Navigate">
           <svg width="19" height="24" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Home plate: top down 1px, point split between y14 and y15 -->
             <path d="M2 4 L20 4 L20 15 L11 23 L2 15 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
           </svg>
         </button>
@@ -426,11 +639,35 @@
 
     <!-- World Series Screen -->
     <div id="ws-screen">
+      <div id="ws-tap-reveal" style="font-size:11px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;color:#6e6e6e;letter-spacing:0.08em;text-transform:uppercase;margin-top:1.5em;margin-bottom:0;height:40px;display:flex;align-items:center;">TAP TO REVEAL</div>
       <div id="ws-list"></div>
     </div>
 
+    <!-- OPS Screen -->
+    <div id="ops-screen">
+      <div id="ops-scale">
+        <div id="ops-labels"></div>
+        <div id="ops-bar"></div>
+      </div>
+      <div id="ops-list"></div>
+    </div>
+
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V55</div>
+    <div id="version">V56</div>
+  </div>
+</div>
+
+<!-- Nav overlay -->
+<div id="nav-overlay">
+  <div id="nav-panel">
+    <button id="nav-home-btn" aria-label="Close navigation">
+      <svg width="19" height="24" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 4 L20 4 L20 15 L11 23 L2 15 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="nav-btn" data-screen="hr">Home Runs</button>
+    <button class="nav-btn" data-screen="ops">On-base Plus Slugging</button>
+    <button class="nav-btn" data-screen="ws">World Series Challenge</button>
   </div>
 </div>
 
@@ -572,21 +809,74 @@
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     document.getElementById('last-updated').textContent = '';
     document.getElementById('last-updated').style.display = 'none';
-    loadYear(y);
+    if (currentScreen === 'ops') {
+      loadOPS(y);
+    } else {
+      loadYear(y);
+    }
   }
 
-  // ── Home plate nav ──
+  // ── Nav overlay ──
+  const OPS_THRESHOLDS = [
+    { min: 0,     max: 0.650, color: '#d51920' },
+    { min: 0.650, max: 0.750, color: '#fcb035' },
+    { min: 0.750, max: 0.900, color: '#e8e613' },
+    { min: 0.900, max: 1.000, color: '#78c043' },
+    { min: 1.000, max: 1.200, color: '#4b8d24' },
+  ];
+  const OPS_LABELS = ['.0', '.650', '.750', '.900', '1.000'];
+  const OPS_LABEL_POS = [0, 0.650/1.2, 0.750/1.2, 0.900/1.2, 1.000/1.2]; // as fraction of bar
+
+  function getOPSColor(ops) {
+    for (const t of OPS_THRESHOLDS) {
+      if (ops < t.max) return t.color;
+    }
+    return '#4b8d24';
+  }
+
+  function getOPSDotPos(ops) {
+    // Position as fraction of full bar width (capped at 1.1/1.2)
+    const MAX_OPS = 1.2;
+    return Math.min(ops / MAX_OPS, 1.0);
+  }
+
   document.getElementById('home-btn').addEventListener('click', () => {
-    if (currentScreen === 'hr') {
-      currentScreen = 'ws';
-      document.body.classList.add('ws-mode');
-      buildWSList();
-    } else {
-      currentScreen = 'hr';
-      document.body.classList.remove('ws-mode');
-      document.getElementById('last-updated').style.display = '';
+    document.getElementById('nav-overlay').classList.add('open');
+  });
+
+  document.getElementById('nav-home-btn').addEventListener('click', () => {
+    document.getElementById('nav-overlay').classList.remove('open');
+  });
+
+  document.getElementById('nav-overlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('nav-overlay')) {
+      document.getElementById('nav-overlay').classList.remove('open');
     }
   });
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('nav-overlay').classList.remove('open');
+      const screen = btn.dataset.screen;
+      navigateTo(screen);
+    });
+  });
+
+  function navigateTo(screen) {
+    // Remove all mode classes
+    document.body.classList.remove('ws-mode', 'ops-mode');
+    currentScreen = screen;
+
+    if (screen === 'hr') {
+      document.getElementById('last-updated').style.display = '';
+    } else if (screen === 'ws') {
+      document.body.classList.add('ws-mode');
+      buildWSList();
+    } else if (screen === 'ops') {
+      document.body.classList.add('ops-mode');
+      loadOPS(selectedYear);
+    }
+  }
 
   // ── WS Clear button ──
   document.getElementById('ws-clear-btn').addEventListener('click', () => {
@@ -1053,6 +1343,146 @@
         renderList(sortPlayers(players, sortMode), true);
       }
     } catch (e) {}
+  }
+
+  // ── OPS functions ──
+  function buildOPSScale() {
+    const bar = document.getElementById('ops-bar');
+    const labels = document.getElementById('ops-labels');
+    bar.innerHTML = '';
+    labels.innerHTML = '';
+
+    const MAX_OPS = 1.2;
+    const segments = [
+      { from: 0,     to: 0.650, color: '#d51920' },
+      { from: 0.650, to: 0.750, color: '#fcb035' },
+      { from: 0.750, to: 0.900, color: '#e8e613' },
+      { from: 0.900, to: 1.000, color: '#78c043' },
+      { from: 1.000, to: MAX_OPS, color: '#4b8d24' },
+    ];
+
+    segments.forEach(s => {
+      const seg = document.createElement('div');
+      seg.className = 'ops-segment';
+      seg.style.width = `${((s.to - s.from) / MAX_OPS) * 100}%`;
+      seg.style.background = s.color;
+      bar.appendChild(seg);
+    });
+
+    // Labels
+    const labelData = [
+      { val: '.0',    pos: 0 },
+      { val: '.650',  pos: 0.650 / MAX_OPS },
+      { val: '.750',  pos: 0.750 / MAX_OPS },
+      { val: '.900',  pos: 0.900 / MAX_OPS },
+      { val: '1.000', pos: 1.000 / MAX_OPS },
+    ];
+    labelData.forEach(l => {
+      const lbl = document.createElement('div');
+      lbl.className = 'ops-label';
+      lbl.textContent = l.val;
+      lbl.style.left = `${l.pos * 100}%`;
+      labels.appendChild(lbl);
+    });
+  }
+
+  async function fetchOPS(year) {
+    const url = `https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person(stats(type=season,season=${year},group=hitting))`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    return (data.roster || [])
+      .map(p => {
+        const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
+        const obp = stat?.obp ?? 0;
+        const slg = stat?.slg ?? 0;
+        const ops = Math.round((obp + slg) * 1000) / 1000;
+        return {
+          name: p.person?.fullName || 'Unknown',
+          ops,
+          pos: p.position?.abbreviation || '',
+          ab: stat?.atBats ?? 0
+        };
+      })
+      .filter(p => {
+        if (p.name === 'Shohei Ohtani') return true;
+        if (p.pos === 'P') return false;
+        return p.ab >= 10; // minimum AB to show
+      })
+      .sort((a, b) => b.ops - a.ops);
+  }
+
+  let opsSortMode = 'most';
+
+  function renderOPSList(players) {
+    const list = document.getElementById('ops-list');
+    list.innerHTML = '';
+    const MAX_OPS = 1.2;
+    const BAR_PAD = 3; // same gap as HR bars
+
+    players.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'ops-row';
+      row.dataset.name = p.name;
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'ops-name';
+      nameEl.textContent = p.name;
+
+      const track = document.createElement('div');
+      track.className = 'ops-track';
+
+      // Vertical dividers at threshold positions (with gap — same as BAR_PADDING)
+      const thresholds = [0.650, 0.750, 0.900, 1.000];
+      thresholds.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'ops-divider';
+        div.style.left = `${(t / MAX_OPS) * 100}%`;
+        track.appendChild(div);
+      });
+
+      // Dot
+      if (p.ab >= 10) {
+        const dot = document.createElement('div');
+        dot.className = 'ops-dot';
+        dot.style.background = getOPSColor(p.ops);
+        const pct = Math.min(p.ops / MAX_OPS, 0.98); // cap at right edge
+        dot.style.left = `${pct * 100}%`;
+        track.appendChild(dot);
+      }
+
+      const valueEl = document.createElement('div');
+      valueEl.className = 'ops-value';
+      valueEl.textContent = p.ops > 0 ? p.ops.toFixed(3).replace(/^0/, '') : '—';
+
+      row.appendChild(nameEl);
+      row.appendChild(track);
+      row.appendChild(valueEl);
+      list.appendChild(row);
+    });
+
+    // Tap name to sort
+    list.querySelectorAll('.ops-name').forEach(nameEl => {
+      nameEl.addEventListener('click', () => {
+        opsSortMode = opsSortMode === 'most' ? 'alpha' : 'most';
+        const sorted = opsSortMode === 'most'
+          ? [...opsPlayers].sort((a,b) => b.ops - a.ops)
+          : [...opsPlayers].sort((a,b) => a.name.localeCompare(b.name));
+        renderOPSList(sorted);
+      });
+    });
+  }
+
+  let opsPlayers = [];
+
+  async function loadOPS(year) {
+    try {
+      buildOPSScale();
+      const data = await fetchOPS(year);
+      opsPlayers = data;
+      opsSortMode = 'most';
+      renderOPSList(opsPlayers);
+    } catch(e) {}
   }
 
   // ── Boot ──
