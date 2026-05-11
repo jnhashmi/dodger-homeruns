@@ -419,11 +419,10 @@
       #nav-panel.open { transform: translateX(0); }
     }
 
-    /* Portrait: slides down from below safe area — status bar stays black */
+    /* Portrait: slides down from top — safe-area-cover keeps status bar black */
     @media (orientation: portrait) {
       #nav-panel {
-        top: env(safe-area-inset-top, 50px);
-        left: 0; right: 0;
+        top: 0; left: 0; right: 0;
         padding-top: 0;
         padding-left: max(env(safe-area-inset-left), 24px);
         padding-right: max(env(safe-area-inset-right), 24px);
@@ -434,14 +433,14 @@
       #nav-panel.open { transform: translateY(0); }
     }
 
-    /* Black safe-area cover — sits above nav panel in portrait */
+    /* Black safe-area cover — same z-index as home-btn, always on top */
     #safe-area-cover {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0;
       height: env(safe-area-inset-top, 50px);
       background: #000;
-      z-index: 500;
+      z-index: 9999;
       pointer-events: none;
     }
     @media (orientation: portrait) {
@@ -698,7 +697,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V73</div>
+    <div id="version">V74</div>
   </div>
 </div>
 
