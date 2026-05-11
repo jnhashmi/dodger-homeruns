@@ -419,9 +419,10 @@
       #nav-panel.open { transform: translateX(0); }
     }
 
-    /* Portrait: panel starts below header, slides from right — never touches safe area */
+    /* Portrait: slides in from right, starts 1px below safe area */
     @media (orientation: portrait) {
       #nav-panel {
+        top: calc(env(safe-area-inset-top, 50px) + 1px);
         left: 0; right: 0;
         bottom: auto;
         width: 100%;
@@ -684,7 +685,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V80</div>
+    <div id="version">V81</div>
   </div>
 </div>
 
@@ -878,15 +879,7 @@
     const headerBottom = headerBar ? headerBar.getBoundingClientRect().bottom : 80;
     const emPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
     const listMargin = emPx * 1.5;
-    // In portrait, set top to header bottom so panel never overlaps safe area
-    const isPortrait = window.innerHeight > window.innerWidth;
-    if (isPortrait) {
-      panel.style.top = headerBottom + 'px';
-      panel.style.paddingTop = '0px';
-    } else {
-      panel.style.top = '0';
-      panel.style.paddingTop = (headerBottom + listMargin) + 'px';
-    }
+    panel.style.paddingTop = (headerBottom + listMargin) + 'px';
   }
 
   function openNav() {
