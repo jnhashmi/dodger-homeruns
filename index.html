@@ -686,7 +686,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V67</div>
+    <div id="version">V68</div>
   </div>
 </div>
 
@@ -874,19 +874,13 @@
   function alignNavPanel() {
     const panel = document.getElementById('nav-panel');
     panel.style.paddingTop = '';
-    // Find first data row — try all screen types
-    const firstRow = document.querySelector('#player-list .player-row, #ops-list .ops-row, #ws-list .ws-row');
-    let targetTop;
-    if (firstRow) {
-      targetTop = firstRow.getBoundingClientRect().top;
-    } else {
-      // Fallback: header bottom + 1.5em gap (matching margin-top on lists)
-      const headerBar = document.getElementById('header-bar');
-      const headerBottom = headerBar ? headerBar.getBoundingClientRect().bottom : 80;
-      const fontSize = parseFloat(getComputedStyle(document.body).fontSize) || 16;
-      targetTop = headerBottom + (fontSize * 1.5);
-    }
-    panel.style.paddingTop = Math.max(targetTop, 0) + 'px';
+    // Always measure from header bottom + the list's margin-top (1.5em)
+    const headerBar = document.getElementById('header-bar');
+    const headerBottom = headerBar ? headerBar.getBoundingClientRect().bottom : 80;
+    // 1.5em in px based on root font size
+    const emPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const listMargin = emPx * 1.5;
+    panel.style.paddingTop = (headerBottom + listMargin) + 'px';
   }
 
   function openNav() {
