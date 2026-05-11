@@ -419,24 +419,28 @@
       #nav-panel.open { transform: translateX(0); }
     }
 
-    /* Portrait: slides in from right, starts 1px below safe area */
+    /* Portrait: instant appear/disappear — no animation avoids Safari safe area bug */
     @media (orientation: portrait) {
       #nav-panel {
-        top: calc(env(safe-area-inset-top, 50px) + 1px);
-        left: 0; right: 0;
+        top: 0; left: 0; right: 0;
         bottom: auto;
         width: 100%;
         padding-top: 0;
         padding-left: max(env(safe-area-inset-left), 24px);
         padding-right: max(env(safe-area-inset-right), 24px);
         padding-bottom: 32px;
-        transform: translateX(100%);
+        transform: none;
         clip-path: none;
         max-height: none;
         overflow: visible;
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: none;
+        visibility: hidden;
+        opacity: 0;
       }
-      #nav-panel.open { transform: translateX(0); }
+      #nav-panel.open {
+        visibility: visible;
+        opacity: 1;
+      }
     }
 
     /* Safe area cover — no longer needed since panel slides from right */
@@ -685,7 +689,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V81</div>
+    <div id="version">V82</div>
   </div>
 </div>
 
@@ -886,6 +890,15 @@
     alignNavPanel();
     document.getElementById('nav-overlay').classList.add('open');
     document.getElementById('nav-panel').classList.add('open');
+    // Equalize button widths in portrait
+    if (window.innerHeight > window.innerWidth) {
+      requestAnimationFrame(() => {
+        const btns = document.querySelectorAll('.nav-btn');
+        btns.forEach(b => b.style.width = '');
+        const maxW = Math.max(...Array.from(btns).map(b => b.getBoundingClientRect().width));
+        btns.forEach(b => b.style.width = maxW + 'px');
+      });
+    }
   }
 
   function closeNav() {
