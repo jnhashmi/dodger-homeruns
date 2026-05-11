@@ -419,17 +419,16 @@
       #nav-panel.open { transform: translateX(0); }
     }
 
-    /* Portrait: slides in from right — same as landscape, avoids safe area entirely */
+    /* Portrait: full width panel slides in from right */
     @media (orientation: portrait) {
       #nav-panel {
-        top: 0; right: 0; bottom: 0;
-        left: auto;
-        width: 75%;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%;
         padding-top: 0;
-        padding-left: 24px;
+        padding-left: max(env(safe-area-inset-left), 24px);
         padding-right: max(env(safe-area-inset-right), 24px);
         padding-bottom: 32px;
-        transform: translateX(110%);
+        transform: translateX(100%);
         clip-path: none;
         max-height: none;
         overflow: visible;
@@ -476,13 +475,13 @@
     @media (orientation: portrait) {
       .nav-btn {
         font-size: 15px;
-        width: 100%;
-        padding-right: 8px;
+        width: auto;
+        padding-right: 40px;
       }
       #nav-panel {
         display: flex;
         flex-direction: column;
-        align-items: stretch;
+        align-items: flex-start;
       }
       #nav-btn-container { display: contents; }
     }
@@ -684,7 +683,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V77</div>
+    <div id="version">V78</div>
   </div>
 </div>
 
