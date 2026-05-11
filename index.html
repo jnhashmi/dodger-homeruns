@@ -377,73 +377,55 @@
       #header { padding-bottom: 2px; }
     }
 
-    /* ── Nav overlay backdrop ── */
+    /* ── Nav overlay — display:none when closed, nothing renders ── */
     #nav-overlay {
-      display: block;
+      display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       z-index: 50;
-      pointer-events: none;
-      background: rgba(0,0,0,0);
-      transition: background 0.25s ease;
-    }
-    #nav-overlay.open {
-      pointer-events: auto;
       background: rgba(0,0,0,0.4);
     }
+    #nav-overlay.open { display: block; }
 
-    /* Nav panel — above overlay */
+    /* Nav panel — absolute inside overlay */
     #nav-panel {
-      position: fixed;
+      position: absolute;
       background: #0977cc;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      z-index: 100;
-      pointer-events: none;
     }
-    #nav-panel.open { pointer-events: auto; }
 
-    /* Landscape: slides in from right */
+    /* Landscape: slides in from right with animation */
     @media (orientation: landscape) {
       #nav-panel {
         top: 0; right: 0; bottom: 0;
         width: 42%;
-        padding-top: 0;
         padding-left: 32px;
         padding-right: max(env(safe-area-inset-right), 24px);
         padding-bottom: 40px;
         transform: translateX(110%);
         transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      #nav-panel.open { transform: translateX(0); }
+      #nav-overlay.open #nav-panel { transform: translateX(0); }
     }
 
-    /* Portrait: instant appear/disappear — no animation avoids Safari safe area bug */
+    /* Portrait: no animation — display:none on overlay handles show/hide */
     @media (orientation: portrait) {
       #nav-panel {
         top: 0; left: 0; right: 0;
         bottom: auto;
-        width: 100%;
         padding-top: 0;
         padding-left: max(env(safe-area-inset-left), 24px);
         padding-right: max(env(safe-area-inset-right), 24px);
         padding-bottom: 32px;
         transform: none;
-        clip-path: none;
-        max-height: none;
-        overflow: visible;
         transition: none;
-        visibility: hidden;
-        opacity: 0;
-      }
-      #nav-panel.open {
-        visibility: visible;
-        opacity: 1;
+        align-items: flex-start;
       }
     }
 
-    /* Safe area cover — no longer needed since panel slides from right */
+    /* Safe area cover — keep as fallback */
     #safe-area-cover { display: none !important; }
 
     /* Nav buttons */
@@ -689,22 +671,21 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V82</div>
+    <div id="version">V83</div>
   </div>
 </div>
 
 <!-- Safe area cover for portrait nav -->
 <div id="safe-area-cover"></div>
 
-<!-- Nav backdrop -->
-<div id="nav-overlay"></div>
-
-<!-- Nav panel — direct child of body -->
-<div id="nav-panel">
-  <div id="nav-btn-container">
-    <div class="nav-btn-row"><button class="nav-btn" data-screen="hr">Home Runs</button></div>
-    <div class="nav-btn-row"><button class="nav-btn" data-screen="ops">On-base Plus Slugging</button></div>
-    <div class="nav-btn-row"><button class="nav-btn" data-screen="ws">World Series Challenge</button></div>
+<!-- Nav overlay — display:none when closed so nothing renders -->
+<div id="nav-overlay">
+  <div id="nav-panel">
+    <div id="nav-btn-container">
+      <div class="nav-btn-row"><button class="nav-btn" data-screen="hr">Home Runs</button></div>
+      <div class="nav-btn-row"><button class="nav-btn" data-screen="ops">On-base Plus Slugging</button></div>
+      <div class="nav-btn-row"><button class="nav-btn" data-screen="ws">World Series Challenge</button></div>
+    </div>
   </div>
 </div>
 
@@ -888,22 +869,32 @@
 
   function openNav() {
     alignNavPanel();
-    document.getElementById('nav-overlay').classList.add('open');
-    document.getElementById('nav-panel').classList.add('open');
-    // Equalize button widths in portrait
-    if (window.innerHeight > window.innerWidth) {
+    const overlay = document.getElementById('nav-overlay');
+    overlay.style.display = 'block';
+    // Two rAF trick: let display:block render first, then trigger CSS transition
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const btns = document.querySelectorAll('.nav-btn');
-        btns.forEach(b => b.style.width = '');
-        const maxW = Math.max(...Array.from(btns).map(b => b.getBoundingClientRect().width));
-        btns.forEach(b => b.style.width = maxW + 'px');
+        overlay.classList.add('open');
+        // Equalize button widths in portrait
+        if (window.innerHeight > window.innerWidth) {
+          const btns = document.querySelectorAll('.nav-btn');
+          btns.forEach(b => b.style.width = '');
+          const maxW = Math.max(...Array.from(btns).map(b => b.getBoundingClientRect().width));
+          btns.forEach(b => b.style.width = maxW + 'px');
+        }
       });
-    }
+    });
   }
 
   function closeNav() {
-    document.getElementById('nav-overlay').classList.remove('open');
-    document.getElementById('nav-panel').classList.remove('open');
+    const overlay = document.getElementById('nav-overlay');
+    overlay.classList.remove('open');
+    // After transition ends, set display:none
+    setTimeout(() => {
+      if (!overlay.classList.contains('open')) {
+        overlay.style.display = '';
+      }
+    }, 300);
   }
 
   // Re-align on orientation change
@@ -917,8 +908,8 @@
   });
 
   document.getElementById('home-btn').addEventListener('click', () => {
-    const panel = document.getElementById('nav-panel');
-    if (panel.classList.contains('open')) {
+    const overlay = document.getElementById('nav-overlay');
+    if (overlay.classList.contains('open')) {
       closeNav();
     } else {
       openNav();
