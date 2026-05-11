@@ -419,38 +419,27 @@
       #nav-panel.open { transform: translateX(0); }
     }
 
-    /* Portrait: reveals using max-height — no transform, no clip-path, no GPU layer */
+    /* Portrait: slides in from right — same as landscape, avoids safe area entirely */
     @media (orientation: portrait) {
       #nav-panel {
-        top: 0; left: 0; right: 0;
+        top: 0; right: 0; bottom: 0;
+        left: auto;
+        width: 75%;
         padding-top: 0;
-        padding-left: max(env(safe-area-inset-left), 24px);
+        padding-left: 24px;
         padding-right: max(env(safe-area-inset-right), 24px);
         padding-bottom: 32px;
-        transform: none;
+        transform: translateX(110%);
         clip-path: none;
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        max-height: none;
+        overflow: visible;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      #nav-panel.open {
-        max-height: 400px;
-      }
+      #nav-panel.open { transform: translateX(0); }
     }
 
-    /* Black safe-area cover — same z-index as home-btn, always on top */
-    #safe-area-cover {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: env(safe-area-inset-top, 50px);
-      background: #000;
-      z-index: 9999;
-      pointer-events: none;
-    }
-    @media (orientation: portrait) {
-      #safe-area-cover { display: block; }
-    }
+    /* Safe area cover — no longer needed since panel slides from right */
+    #safe-area-cover { display: none !important; }
 
     /* Nav buttons */
     #nav-panel { gap: 0; }
@@ -487,22 +476,15 @@
     @media (orientation: portrait) {
       .nav-btn {
         font-size: 15px;
-        padding-right: 40px;
-        width: auto;
+        width: 100%;
+        padding-right: 8px;
       }
       #nav-panel {
         display: flex;
         flex-direction: column;
-        right: 0;
-        align-items: flex-start;
+        align-items: stretch;
       }
-      #nav-btn-container {
-        display: flex;
-        flex-direction: column;
-      }
-      #nav-btn-container .nav-btn-row {
-        width: auto;
-      }
+      #nav-btn-container { display: contents; }
     }
 
     /* ── OPS screen ── */
@@ -702,7 +684,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V76</div>
+    <div id="version">V77</div>
   </div>
 </div>
 
@@ -905,16 +887,6 @@
     alignNavPanel();
     document.getElementById('nav-overlay').classList.add('open');
     document.getElementById('nav-panel').classList.add('open');
-    // In portrait, equalize all button widths to the widest
-    if (window.innerHeight > window.innerWidth) {
-      requestAnimationFrame(() => {
-        const btns = document.querySelectorAll('.nav-btn');
-        // Reset first
-        btns.forEach(b => b.style.width = '');
-        const maxW = Math.max(...Array.from(btns).map(b => b.getBoundingClientRect().width));
-        btns.forEach(b => b.style.width = maxW + 'px');
-      });
-    }
   }
 
   function closeNav() {
