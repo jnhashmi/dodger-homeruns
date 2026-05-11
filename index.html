@@ -37,13 +37,11 @@
       flex-direction: column;
     }
 
-    /* ── Fixed header bar ── */
+    /* ── Sticky header bar ── */
     #header-bar {
-      position: fixed;
+      position: sticky;
       top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
+      z-index: 10;
       background: #000;
       padding-top: max(env(safe-area-inset-top), 20px);
       padding-left: max(env(safe-area-inset-left), 24px);
@@ -51,7 +49,6 @@
       padding-bottom: 12px;
     }
 
-    /* Offset content below fixed header — calculated in JS */
     #inner {
       padding-left: max(env(safe-area-inset-left), 24px);
       padding-right: max(env(safe-area-inset-right), 24px);
@@ -170,17 +167,19 @@
 
     /* Home plate nav button — flush to right edge */
     #home-btn {
+      position: fixed;
+      z-index: 9999;
       background: none;
       border: none;
       cursor: pointer;
       padding: 0;
-      margin-right: -4px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: opacity 0.15s;
-      position: relative;
-      z-index: 400;
+      /* Position matches header-right — right edge with margin, vertically centered in header */
+      right: max(env(safe-area-inset-right), 24px);
+      top: max(env(safe-area-inset-top), 20px);
     }
     #home-btn:active { opacity: 0.5; }
 
@@ -383,7 +382,7 @@
       display: block;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 200;
+      z-index: 50;
       pointer-events: none;
       background: rgba(0,0,0,0);
       transition: background 0.25s ease;
@@ -393,14 +392,14 @@
       background: rgba(0,0,0,0.4);
     }
 
-    /* Nav panel — above overlay and header */
+    /* Nav panel — above overlay */
     #nav-panel {
       position: fixed;
       background: #0977cc;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      z-index: 300;
+      z-index: 100;
       pointer-events: none;
     }
     #nav-panel.open { pointer-events: auto; }
@@ -650,11 +649,7 @@
       </div>
       <div id="header-right">
         <span id="last-updated"></span>
-        <button id="home-btn" title="Navigate" aria-label="Navigate">
-          <svg width="19" height="24" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 4 L20 4 L20 15 L11 23 L2 15 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
-          </svg>
-        </button>
+        <div id="home-btn-spacer" style="width:19px;height:24px;margin-right:-4px;"></div>
       </div>
     </div>
   </div>
@@ -682,19 +677,26 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V64</div>
+    <div id="version">V65</div>
   </div>
 </div>
 
 <!-- Nav backdrop -->
 <div id="nav-overlay"></div>
 
-<!-- Nav panel — direct child of body so z-index beats header -->
+<!-- Nav panel — direct child of body -->
 <div id="nav-panel">
   <div class="nav-btn-row"><button class="nav-btn" data-screen="hr">Home Runs</button></div>
   <div class="nav-btn-row"><button class="nav-btn" data-screen="ops">On-base Plus Slugging</button></div>
   <div class="nav-btn-row"><button class="nav-btn" data-screen="ws">World Series Challenge</button></div>
 </div>
+
+<!-- Home plate button — fixed at body level, always on top -->
+<button id="home-btn" title="Navigate" aria-label="Navigate">
+  <svg width="19" height="24" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 4 L20 4 L20 15 L11 23 L2 15 Z" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+  </svg>
+</button>
 
 <!-- Year picker overlay -->
 <div id="year-overlay">
@@ -1524,14 +1526,19 @@
     } catch(e) {}
   }
 
-  // ── Offset content below fixed header ──
-  function setInnerPadding() {
-    const headerH = document.getElementById('header-bar').getBoundingClientRect().height;
-    document.getElementById('inner').style.paddingTop = headerH + 'px';
+  // ── Position fixed home-btn to match header-right spacer ──
+  function positionHomeBtn() {
+    const spacer = document.getElementById('home-btn-spacer');
+    const btn = document.getElementById('home-btn');
+    if (!spacer || !btn) return;
+    const r = spacer.getBoundingClientRect();
+    btn.style.right = (window.innerWidth - r.right) + 'px';
+    btn.style.top = r.top + 'px';
   }
-  setInnerPadding();
-  window.addEventListener('resize', setInnerPadding);
-  window.addEventListener('orientationchange', () => setTimeout(setInnerPadding, 100));
+  window.addEventListener('resize', positionHomeBtn);
+  window.addEventListener('orientationchange', () => setTimeout(positionHomeBtn, 100));
+  // Initial position after fonts/layout settle
+  setTimeout(positionHomeBtn, 100);
 
   // ── Boot ──
   document.getElementById('year-btn').textContent = CURRENT_YEAR;
