@@ -476,29 +476,27 @@
     .nav-btn:active { background: rgba(255,255,255,0.15); }
 
     @media (orientation: landscape) {
-      #nav-btn-container { display: contents; } /* transparent in landscape */
+      #nav-btn-container { display: contents; }
     }
 
     @media (orientation: portrait) {
       .nav-btn {
         font-size: 15px;
-        width: 100%; /* fill the btn-container width */
         padding-right: 40px;
+        width: auto;
       }
       #nav-panel {
         display: flex;
         flex-direction: column;
-        right: 0; /* full width */
-        align-items: flex-start; /* left-align the btn-container */
+        right: 0;
+        align-items: flex-start;
       }
-      /* Container sizes to widest button, all buttons fill it */
       #nav-btn-container {
-        display: inline-flex;
+        display: flex;
         flex-direction: column;
-        min-width: 0;
       }
       #nav-btn-container .nav-btn-row {
-        width: 100%;
+        width: auto;
       }
     }
 
@@ -699,7 +697,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V69</div>
+    <div id="version">V70</div>
   </div>
 </div>
 
@@ -902,6 +900,16 @@
     alignNavPanel();
     document.getElementById('nav-overlay').classList.add('open');
     document.getElementById('nav-panel').classList.add('open');
+    // In portrait, equalize all button widths to the widest
+    if (window.innerHeight > window.innerWidth) {
+      requestAnimationFrame(() => {
+        const btns = document.querySelectorAll('.nav-btn');
+        // Reset first
+        btns.forEach(b => b.style.width = '');
+        const maxW = Math.max(...Array.from(btns).map(b => b.getBoundingClientRect().width));
+        btns.forEach(b => b.style.width = maxW + 'px');
+      });
+    }
   }
 
   function closeNav() {
