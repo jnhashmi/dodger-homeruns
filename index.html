@@ -380,8 +380,8 @@
       .ws-team { font-size: 15px; }
       .ops-name { font-size: 15px !important; width: 130px; min-width: 130px; }
       .ops-value { font-size: 15px !important; }
-      #ops-bar { left: 130px; }
-      #ops-labels { left: 130px; display: none; }
+      #ops-bar { left: 144px; } /* 130px portrait name col + 14px gap */
+      #ops-labels { left: 144px; display: none; }
       #portrait-note { display: block; }
       .year-option { font-size: 15px; }
       #header { padding-bottom: 2px; }
@@ -487,20 +487,25 @@
     /* ── OPS screen ── */
     #ops-screen { display: none; }
 
-    /* OPS scale bar container — same row height as player rows */
+    /* OPS scale bar container */
     #ops-scale {
-      margin-top: 1.5em;
+      margin-top: 0;
       margin-bottom: 0;
       position: relative;
       height: 40px;
     }
 
-    /* The color bar — 5px above bottom of row */
+    /* ops-list gets the 1.5em margin so first player aligns with HR screen */
+    #ops-list {
+      margin-top: 0;
+    }
+
+    /* The color bar — left edge aligns with tick area (name col + gap) */
     #ops-bar {
       position: absolute;
-      left: 190px;
+      left: 204px; /* 190px name col + 14px gap */
       right: 48px;
-      bottom: 1px; /* moved down 2px from 3px */
+      bottom: 1px;
       top: auto;
       transform: none;
       height: 4px;
@@ -514,12 +519,12 @@
       flex-shrink: 0;
     }
 
-    /* Labels — left-aligned to start of each segment, sitting above bar */
+    /* Labels — left-aligned, matching bar position */
     #ops-labels {
       position: absolute;
-      left: 190px;
+      left: 204px;
       right: 48px;
-      bottom: 10px; /* above the bar */
+      bottom: 10px;
       top: 0;
       pointer-events: none;
     }
@@ -675,7 +680,7 @@
     </div>
 
     <!-- OPS Screen -->
-    <div id="ops-screen">
+    <div id="ops-screen" style="margin-top: 1.5em;">
       <div id="ops-scale">
         <div id="ops-labels"></div>
         <div id="ops-bar"></div>
@@ -684,7 +689,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V87</div>
+    <div id="version">V88</div>
   </div>
 </div>
 
