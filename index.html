@@ -493,18 +493,21 @@
       margin-bottom: 0;
       position: relative;
       height: 40px;
+      /* Bottom border acts as the "top rule" of first player row */
+      border-bottom: 0.5px solid #6e6e6e;
     }
 
-    /* The color bar itself — aligned to name column */
+    /* The color bar — sits at bottom of scale row, 3px above bottom border */
     #ops-bar {
       position: absolute;
-      left: 190px;
+      left: 190px; /* matches name column width */
       right: 48px;
-      top: 50%;
-      transform: translateY(-50%);
+      bottom: 3px; /* 3px above the bottom rule = top of dividers */
+      top: auto;
+      transform: none;
       height: 4px;
       display: flex;
-      gap: 5px; /* 5px black gap between segments */
+      gap: 5px;
       overflow: visible;
     }
 
@@ -513,13 +516,13 @@
       flex-shrink: 0;
     }
 
-    /* Threshold labels — same size as "Best in landscape view" */
+    /* Labels — left-aligned to start of each segment, sitting above bar */
     #ops-labels {
       position: absolute;
       left: 190px;
       right: 48px;
+      bottom: 10px; /* above the bar */
       top: 0;
-      height: 100%;
       pointer-events: none;
     }
 
@@ -531,12 +534,12 @@
       color: #6e6e6e;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      transform: translateX(-50%);
-      top: 2px;
+      transform: none; /* left-aligned, not centered */
+      bottom: 0;
       line-height: 1;
     }
 
-    /* Vertical divider lines — centered in the 5px gap */
+    /* Vertical divider lines — top 3px matches bar bottom position */
     .ops-divider {
       position: absolute;
       top: 3px;
@@ -683,7 +686,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V84</div>
+    <div id="version">V85</div>
   </div>
 </div>
 
@@ -1422,9 +1425,11 @@
     } catch (e) {}
   }
 
+  const MIN_OPS = 0.200;
   const MAX_OPS = 1.1;
+  const OPS_RANGE = MAX_OPS - MIN_OPS; // 0.9
   const OPS_SEGMENTS = [
-    { from: 0,     to: 0.650, color: '#d51920' },
+    { from: 0.200, to: 0.650, color: '#d51920' },
     { from: 0.650, to: 0.750, color: '#fcb035' },
     { from: 0.750, to: 0.900, color: '#e8e613' },
     { from: 0.900, to: 1.000, color: '#78c043' },
@@ -1432,32 +1437,33 @@
   ];
   const OPS_THRESHOLDS_VALS = [0.650, 0.750, 0.900, 1.000];
 
+  function opsToPercent(val) {
+    return Math.max(0, Math.min(1, (val - MIN_OPS) / OPS_RANGE));
+  }
+
   function buildOPSScale() {
     const bar = document.getElementById('ops-bar');
     const labels = document.getElementById('ops-labels');
     bar.innerHTML = '';
     labels.innerHTML = '';
 
-    // Calculate total bar width excluding gaps (4 gaps of 5px each)
-    // Segments sized proportionally to their OPS range
     OPS_SEGMENTS.forEach(s => {
       const seg = document.createElement('div');
       seg.className = 'ops-segment';
-      // Width as percentage of MAX_OPS range
-      const pct = ((s.to - s.from) / MAX_OPS) * 100;
-      seg.style.width = `calc(${pct}% - 4px)`; // subtract gap portion
+      const pct = ((s.to - s.from) / OPS_RANGE) * 100;
+      seg.style.width = `calc(${pct}% - 4px)`;
       seg.style.background = s.color;
       seg.style.flexShrink = '0';
       bar.appendChild(seg);
     });
 
-    // Labels at threshold positions
+    // Labels left-aligned to start of each segment
     const labelData = [
-      { val: '.0',    pos: 0 },
-      { val: '.650',  pos: 0.650 / MAX_OPS },
-      { val: '.750',  pos: 0.750 / MAX_OPS },
-      { val: '.900',  pos: 0.900 / MAX_OPS },
-      { val: '1.000', pos: 1.000 / MAX_OPS },
+      { val: '.200',  pos: opsToPercent(0.200) },
+      { val: '.650',  pos: opsToPercent(0.650) },
+      { val: '.750',  pos: opsToPercent(0.750) },
+      { val: '.900',  pos: opsToPercent(0.900) },
+      { val: '1.000', pos: opsToPercent(1.000) },
     ];
     labelData.forEach(l => {
       const lbl = document.createElement('div');
@@ -1513,19 +1519,19 @@
       const track = document.createElement('div');
       track.className = 'ops-track';
 
-      // Vertical dividers centered in 5px gaps between segments
+      // Vertical dividers at threshold positions, centered in 5px gaps
       OPS_THRESHOLDS_VALS.forEach(t => {
         const div = document.createElement('div');
         div.className = 'ops-divider';
-        div.style.left = `calc(${(t / MAX_OPS) * 100}% - 0.25px)`;
+        div.style.left = `${opsToPercent(t) * 100}%`;
         track.appendChild(div);
       });
 
-      // Dot — capped at 98% so it doesn't fall off right edge
+      // Dot — pinned left if below MIN_OPS, pinned right if above MAX_OPS
       const dot = document.createElement('div');
       dot.className = 'ops-dot';
       dot.style.background = getOPSColor(p.ops);
-      const pct = Math.min(p.ops / MAX_OPS, 0.98);
+      const pct = Math.max(0.01, Math.min(0.99, opsToPercent(p.ops)));
       dot.style.left = `${pct * 100}%`;
       track.appendChild(dot);
 
