@@ -487,16 +487,18 @@
     /* ── OPS screen ── */
     #ops-screen { display: none; }
 
-    /* OPS scale bar container */
+    /* OPS scale — absolutely positioned, doesn't affect flow */
     #ops-scale {
-      margin-top: 0;
-      margin-bottom: 0;
-      position: relative;
+      position: absolute;
+      left: 0; right: 0;
       height: 40px;
+      top: 0;
+      pointer-events: none;
     }
 
-    /* ops-list gets the 1.5em margin so first player aligns with HR screen */
+    /* ops-list padding-top reserves space for scale row */
     #ops-list {
+      padding-top: 40px;
       margin-top: 0;
     }
 
@@ -680,7 +682,7 @@
     </div>
 
     <!-- OPS Screen -->
-    <div id="ops-screen" style="margin-top: 1.5em;">
+    <div id="ops-screen" style="margin-top: 1.5em; position: relative;">
       <div id="ops-scale">
         <div id="ops-labels"></div>
         <div id="ops-bar"></div>
@@ -689,7 +691,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V88</div>
+    <div id="version">V89</div>
   </div>
 </div>
 
@@ -1504,8 +1506,6 @@
       .sort((a, b) => b.ops - a.ops);
   }
 
-  let opsSortMode = 'most';
-
   function renderOPSList(list) {
     const container = document.getElementById('ops-list');
     container.innerHTML = '';
@@ -1522,16 +1522,17 @@
       const track = document.createElement('div');
       track.className = 'ops-track';
 
-      // Vertical dividers with fine-tuned pixel offsets to align with segment gaps
-      const dividerOffsets = [-2, 3, 8, 13]; // updated offsets
+      // Dividers positioned to match bar segment boundaries
+      // Using opsToPercent accounting for the gap: 5px between segments
+      // We'll position them after render using rAF to read actual bar segment positions
       OPS_THRESHOLDS_VALS.forEach((t, i) => {
         const div = document.createElement('div');
         div.className = 'ops-divider';
-        div.style.left = `calc(${opsToPercent(t) * 100}% + ${dividerOffsets[i]}px)`;
+        div.dataset.threshold = t;
         track.appendChild(div);
       });
 
-      // Dot — pinned left if below MIN_OPS, pinned right if above MAX_OPS
+      // Dot
       const dot = document.createElement('div');
       dot.className = 'ops-dot';
       dot.style.background = getOPSColor(p.ops);
@@ -1549,6 +1550,34 @@
       container.appendChild(row);
     });
 
+    // After render, align dividers to actual bar segment boundaries
+    requestAnimationFrame(() => {
+      const bar = document.getElementById('ops-bar');
+      const segments = bar.querySelectorAll('.ops-segment');
+      if (!segments.length) return;
+      const barRect = bar.getBoundingClientRect();
+      // Get right edge of each segment (= left of gap = where divider goes)
+      const boundaries = [];
+      segments.forEach((seg, i) => {
+        if (i < segments.length - 1) {
+          const r = seg.getBoundingClientRect();
+          boundaries.push(r.right - barRect.left + 2.5); // center of 5px gap
+        }
+      });
+      // Apply to all rows
+      container.querySelectorAll('.ops-track').forEach(track => {
+        const trackRect = track.getBoundingClientRect();
+        const trackLeft = trackRect.left;
+        const barLeft = barRect.left;
+        const offset = barLeft - trackLeft;
+        track.querySelectorAll('.ops-divider').forEach((div, i) => {
+          if (boundaries[i] !== undefined) {
+            div.style.left = (offset + boundaries[i]) + 'px';
+          }
+        });
+      });
+    });
+
     // Tap name to sort
     container.querySelectorAll('.ops-name').forEach(nameEl => {
       nameEl.addEventListener('click', () => {
@@ -1561,6 +1590,7 @@
     });
   }
 
+  let opsSortMode = 'most';
   let opsPlayers = [];
 
   async function loadOPS(year) {
