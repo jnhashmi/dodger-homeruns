@@ -692,7 +692,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V98</div>
+    <div id="version">V99</div>
   </div>
 </div>
 
@@ -1543,7 +1543,7 @@
           const fraction = (clampedOps - segFrom) / (segTo - segFrom);
           const segLeft = segRects[i].left - barRect.left;
           const segWidth = segRects[i].width;
-          return segLeft + fraction * segWidth;
+          return segLeft + fraction * segWidth + 2;
         }
       }
       return 0;
