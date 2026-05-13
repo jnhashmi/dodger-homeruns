@@ -692,7 +692,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V96</div>
+    <div id="version">V97-DIAG</div>
   </div>
 </div>
 
@@ -1565,8 +1565,7 @@
       const dot = document.createElement('div');
       dot.className = 'ops-dot';
       dot.style.background = getOPSColor(p.ops);
-      const pct = Math.max(0.01, Math.min(0.99, opsToPercent(p.ops)));
-      dot.style.left = `${pct * 100}%`;
+      dot.style.left = '0%'; // DIAGNOSTIC: pin to left edge
       track.appendChild(dot);
 
       const valueEl = document.createElement('div');
