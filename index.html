@@ -692,7 +692,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V97-DIAG</div>
+    <div id="version">V98</div>
   </div>
 </div>
 
@@ -1517,19 +1517,56 @@
     const segments = bar.querySelectorAll('.ops-segment');
     if (!segments.length) return;
     const barRect = bar.getBoundingClientRect();
+    const barWidth = barRect.width;
+
+    // Get right edge of each segment for divider positions
     const boundaries = [];
     segments.forEach((seg, i) => {
       if (i < segments.length - 1) {
         const r = seg.getBoundingClientRect();
-        boundaries.push(r.right - barRect.left + 2.5);
+        boundaries.push(r.right - barRect.left + 2.5); // center of 5px gap
       }
     });
+
+    // Build a mapping: OPS value → pixel position within bar
+    // Each segment spans from its 'from' to 'to' OPS value
+    // Pixel position within bar = segment start px + (fraction within segment) * segment px width
+    const segRects = Array.from(segments).map(s => s.getBoundingClientRect());
+
+    function opsToPx(ops) {
+      const clampedOps = Math.max(MIN_OPS, Math.min(MAX_OPS, ops));
+      for (let i = 0; i < OPS_SEGMENTS.length; i++) {
+        const seg = OPS_SEGMENTS[i];
+        if (clampedOps <= seg.to || i === OPS_SEGMENTS.length - 1) {
+          const segFrom = seg.from;
+          const segTo = seg.to;
+          const fraction = (clampedOps - segFrom) / (segTo - segFrom);
+          const segLeft = segRects[i].left - barRect.left;
+          const segWidth = segRects[i].width;
+          return segLeft + fraction * segWidth;
+        }
+      }
+      return 0;
+    }
+
     document.querySelectorAll('.ops-track').forEach(track => {
       const trackRect = track.getBoundingClientRect();
       const offset = barRect.left - trackRect.left;
+
+      // Position dividers
       track.querySelectorAll('.ops-divider').forEach((div, i) => {
         if (boundaries[i] !== undefined) {
           div.style.left = (offset + boundaries[i]) + 'px';
+        }
+      });
+
+      // Position dots using actual bar segment pixel positions
+      track.querySelectorAll('.ops-dot').forEach(dot => {
+        const ops = parseFloat(dot.dataset.ops);
+        if (!isNaN(ops)) {
+          const px = opsToPx(ops);
+          dot.style.left = (offset + px) + 'px';
+          dot.style.transform = 'translate(-50%, -50%)';
         }
       });
     });
@@ -1565,7 +1602,8 @@
       const dot = document.createElement('div');
       dot.className = 'ops-dot';
       dot.style.background = getOPSColor(p.ops);
-      dot.style.left = '0%'; // DIAGNOSTIC: pin to left edge
+      // Position will be set after render using actual measurements
+      dot.dataset.ops = p.ops;
       track.appendChild(dot);
 
       const valueEl = document.createElement('div');
