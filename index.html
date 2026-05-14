@@ -182,14 +182,15 @@
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0;
+      padding: 8px; /* larger tap target */
+      margin-right: -8px; /* compensate padding so visual position unchanged */
       display: flex;
       align-items: center;
       justify-content: center;
       transition: opacity 0.15s;
-      /* Position matches header-right — right edge with margin, vertically centered in header */
       right: max(env(safe-area-inset-right), 24px);
       top: max(env(safe-area-inset-top), 20px);
+      -webkit-tap-highlight-color: transparent;
     }
     #home-btn:active { opacity: 0.5; }
 
@@ -462,8 +463,8 @@
       line-height: 1.4;
       white-space: nowrap;
       transition: background 0.1s;
-      display: block;
-      width: 100%; /* full width in landscape */
+      display: inline-block;
+      width: auto;
     }
     .nav-btn:active { background: rgba(255,255,255,0.15); }
 
@@ -472,17 +473,12 @@
     }
 
     @media (orientation: portrait) {
-      .nav-btn {
-        font-size: 15px;
-        width: auto;
-        padding-right: 40px;
-      }
+      #nav-btn-container { display: contents; }
       #nav-panel {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
       }
-      #nav-btn-container { display: contents; }
     }
 
     /* ── OPS screen ── */
@@ -692,7 +688,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V100</div>
+    <div id="version">V101</div>
   </div>
 </div>
 
@@ -954,17 +950,27 @@
     });
   });
 
+  let loadedHRYear = null;
+  let loadedOPSYear = null;
+
   function navigateTo(screen) {
     document.body.classList.remove('ws-mode', 'ops-mode');
     currentScreen = screen;
     if (screen === 'hr') {
       document.getElementById('last-updated').style.display = '';
+      // Reload if year has changed since last HR load
+      if (loadedHRYear !== selectedYear) {
+        loadYear(selectedYear);
+      }
     } else if (screen === 'ws') {
       document.body.classList.add('ws-mode');
       buildWSList();
     } else if (screen === 'ops') {
       document.body.classList.add('ops-mode');
-      loadOPS(selectedYear);
+      // Reload if year has changed since last OPS load
+      if (loadedOPSYear !== selectedYear) {
+        loadOPS(selectedYear);
+      }
     }
   }
 
@@ -1391,6 +1397,7 @@
       const data = await fetchData(year);
       if (data && data.length > 0) {
         players = data;
+        loadedHRYear = year;
         dataLoaded = true;
         statusEl.textContent = '';
         if (year === CURRENT_YEAR) {
@@ -1639,6 +1646,7 @@
       buildOPSScale();
       const data = await fetchOPS(year);
       opsPlayers = data;
+      loadedOPSYear = year;
       opsSortMode = 'most';
       renderOPSList(opsPlayers);
     } catch(e) {}
