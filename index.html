@@ -708,7 +708,7 @@
     </div>
 
     <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V112</div>
+    <div id="version">V113</div>
   </div>
 </div>
 
@@ -942,11 +942,15 @@
         alignNavPanel();
       }
       positionHomeBtn();
-      // Re-align OPS dividers after rotation
+      // Re-align OPS dividers and dots after rotation — use double rAF to ensure layout complete
       if (currentScreen === 'ops') {
-        alignOPSDividers();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            alignOPSDividers();
+          });
+        });
       }
-    }, 150);
+    }, 300);
   });
 
   document.getElementById('home-btn').addEventListener('click', () => {
