@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dodger Home Runs — Presenter View</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bricolage Grotesque', sans-serif;
+    }
+
+    .scene {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── iPhone shell ── */
+    .iphone {
+      position: relative;
+      width: 780px;
+      height: 380px;
+      border-radius: 50px;
+
+      background: linear-gradient(
+        160deg,
+        #3a3a3f 0%,
+        #1c1c1e 40%,
+        #2a2a2e 100%
+      );
+
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.07),
+        0 4px 16px rgba(0,0,0,0.4),
+        0 16px 48px rgba(0,0,0,0.3),
+        0 32px 80px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.1),
+        inset 0 -1px 0 rgba(0,0,0,0.3);
+    }
+
+    /* Gloss overlay */
+    .iphone::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50px;
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.1) 0%,
+        transparent 50%
+      );
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Screen bezel — thin 7px */
+    .screen-bezel {
+      position: absolute;
+      top: 7px;
+      left: 7px;
+      right: 7px;
+      bottom: 7px;
+      border-radius: 44px;
+      background: #000;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.9);
+    }
+
+    /* Dynamic Island — right side, vertical pill, dark grey with camera lens */
+    .dynamic-island {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 52px;
+      background: #1e1e1e;
+      border-radius: 8px;
+      z-index: 20;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    /* Camera lens — small black circle below the pill */
+    .dynamic-island::after {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 10px;
+      background: #111;
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    /* Live app iframe — inset from right to clear Dynamic Island, left margin doubled */
+    .app-frame {
+      position: absolute;
+      top: 0;
+      left: 16px;
+      right: 44px;
+      bottom: 0;
+      border: none;
+      width: calc(100% - 60px);
+      height: 100%;
+      border-radius: 44px 0 0 44px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      position: absolute;
+      background: linear-gradient(to bottom, #2a2a2e, #3a3a3f);
+      border-radius: 2px;
+    }
+
+    /* Top edge buttons — right side */
+    /* Volume up — wider */
+    .btn-vol-up {
+      top: -3px;
+      right: 220px;
+      width: 56px;
+      height: 3px;
+      border-radius: 2px 2px 0 0;
+    }
+    /* Volume down — wider */
+    .btn-vol-down {
+      top: -3px;
+      right: 150px;
+      width: 56px;
+      height: 3px;
+      border-radius: 2px 2px 0 0;
+    }
+    /* Action button — stubby, far right top */
+    .btn-action {
+      top: -3px;
+      right: 90px;
+      width: 28px;
+      height: 3px;
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* Bottom edge — one button left side */
+    .btn-bottom {
+      bottom: -3px;
+      left: 100px;
+      width: 56px;
+      height: 3px;
+      border-radius: 0 0 2px 2px;
+    }
+
+    /* Label below */
+    .label {
+      margin-top: 36px;
+      font-size: 13px;
+      color: #999;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene">
+    <div class="iphone">
+      <!-- Top edge buttons -->
+      <div class="btn btn-vol-up"></div>
+      <div class="btn btn-vol-down"></div>
+      <div class="btn btn-action"></div>
+      <!-- Bottom edge button -->
+      <div class="btn btn-bottom"></div>
+
+      <!-- Screen -->
+      <div class="screen-bezel">
+        <div class="dynamic-island"></div>
+        <iframe
+          class="app-frame"
+          src="https://jnhashmi.github.io/dodger-homeruns"
+          title="Dodger Home Runs"
+          scrolling="no"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="label">Live Data</div>
+
+</body>
+</html>
