@@ -698,7 +698,46 @@
       body.vin-mode #dodger-logo { display: none !important; }
       body.vin-mode #vin-label { display: inline-block !important; }
       body.vin-mode #title { display: none; }
-      #vin-photo { height: auto; }
+
+      /* Photo: centered, scaled down, top aligned with first HR row */
+      #vin-photo {
+        display: block;
+        width: auto;
+        max-width: calc(100% - 40px);
+        height: auto;
+        margin: 1.5em auto 0;
+      }
+
+      /* Scorecard: 500px max, centered, no outer border */
+      #vin-grid-wrap {
+        max-width: 500px;
+        margin: 16px auto 0;
+      }
+
+      /* Portrait scorecard rows */
+      .vin-row-top {
+        border-top: 1px solid #6e6e6e;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        height: 50px;
+        vertical-align: middle;
+        text-align: center;
+      }
+
+      .vin-row-num {
+        width: 50px;
+        border-top: 1px solid #6e6e6e;
+        border-right: 1px solid #6e6e6e;
+        border-left: none;
+        border-bottom: none;
+        font-size: 13px;
+        color: #6e6e6e;
+        font-family: 'Bricolage Grotesque', sans-serif;
+        text-align: center;
+        vertical-align: middle;
+        height: 50px;
+      }
     }
 
     @media (orientation: landscape) {
@@ -817,7 +856,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version">V116</div>
+    <div id="version">V117</div>
   </div>
 </div>
 
@@ -1891,45 +1930,60 @@
       }
 
     } else {
-      // Portrait: player list section — # col + Player col, plain speaker icons
+      // Portrait: player list section — no outer border, inner lines only
+      // Header row
       const headerRow = document.createElement('tr');
       headerRow.className = 'vin-header-row';
       const thNum = document.createElement('th');
       thNum.textContent = '#';
-      thNum.style.width = '50px';
+      thNum.style.cssText = 'width:50px;border:none;border-bottom:1px solid #6e6e6e;border-right:1px solid #6e6e6e;font-size:13px;font-weight:400;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;';
       const thPlayer = document.createElement('th');
       thPlayer.textContent = 'Player';
+      thPlayer.style.cssText = 'border:none;border-bottom:1px solid #6e6e6e;font-size:13px;font-weight:400;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;';
       headerRow.appendChild(thNum);
       headerRow.appendChild(thPlayer);
       table.appendChild(headerRow);
 
       for (let i = 0; i < 6; i++) {
-        const tr = document.createElement('tr');
+        // Top 2/3 row — speaker icon
+        const trTop = document.createElement('tr');
 
-        const tdNum = document.createElement('td');
-        tdNum.style.cssText = 'border:1px solid #6e6e6e;border-bottom:none;text-align:center;font-size:13px;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;width:50px;height:50px;vertical-align:middle;';
-        tdNum.textContent = i + 1;
+        const tdNumTop = document.createElement('td');
+        tdNumTop.style.cssText = 'width:50px;border:none;border-right:1px solid #6e6e6e;text-align:center;font-size:13px;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;height:44px;vertical-align:middle;';
+        tdNumTop.textContent = i + 1;
 
-        const tdPlayer = document.createElement('td');
-        tdPlayer.className = 'vin-cell' + (i < VIN_CLIPS.length ? ' has-clip' : ' empty');
-        tdPlayer.style.cssText = 'border:1px solid #6e6e6e;border-bottom:none;text-align:center;vertical-align:middle;height:50px;';
+        const tdPlayerTop = document.createElement('td');
+        tdPlayerTop.style.cssText = 'border:none;text-align:center;vertical-align:middle;height:44px;' + (i < VIN_CLIPS.length ? 'cursor:pointer;' : '');
 
         if (i < VIN_CLIPS.length) {
-          tdPlayer.appendChild(makeSpeakerIcon(28));
-          tdPlayer.addEventListener('click', () => playVin(i, tdPlayer));
+          tdPlayerTop.appendChild(makeSpeakerIcon(28));
+          const clipIdx = i;
+          tdPlayerTop.addEventListener('click', () => playVin(clipIdx, tdPlayerTop));
         }
 
-        tr.appendChild(tdNum);
-        tr.appendChild(tdPlayer);
-        table.appendChild(tr);
+        trTop.appendChild(tdNumTop);
+        trTop.appendChild(tdPlayerTop);
+        table.appendChild(trTop);
 
-        // Dotted separator row
+        // Dotted divider row
         const trDot = document.createElement('tr');
-        const tdDot = document.createElement('td');
-        tdDot.colSpan = 2;
-        tdDot.style.cssText = 'border-bottom:1px dotted #333;height:8px;padding:0;border-left:1px solid #6e6e6e;border-right:1px solid #6e6e6e;';
-        trDot.appendChild(tdDot);
+        const tdDotNum = document.createElement('td');
+        tdDotNum.style.cssText = 'border:none;border-right:1px solid #6e6e6e;border-bottom:1px dotted #444;height:0;padding:0;';
+        const tdDotPlayer = document.createElement('td');
+        tdDotPlayer.style.cssText = 'border:none;border-bottom:1px dotted #444;height:0;padding:0;';
+        trDot.appendChild(tdDotNum);
+        trDot.appendChild(tdDotPlayer);
         table.appendChild(trDot);
+
+        // Bottom 1/3 row — empty (substitute name area)
+        const trBot = document.createElement('tr');
+        const tdNumBot = document.createElement('td');
+        tdNumBot.style.cssText = 'width:50px;border:none;border-right:1px solid #6e6e6e;border-bottom:1px solid #6e6e6e;height:22px;padding:0;';
+        const tdPlayerBot = document.createElement('td');
+        tdPlayerBot.style.cssText = 'border:none;border-bottom:1px solid #6e6e6e;height:22px;padding:0;';
+        trBot.appendChild(tdNumBot);
+        trBot.appendChild(tdPlayerBot);
+        table.appendChild(trBot);
       }
     }
   }
