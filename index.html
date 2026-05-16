@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Dodger HRs">
+  <meta name="apple-mobile-web-app-title" content="Stats+">
   <meta name="theme-color" content="#000000">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <title>Dodger Home Runs</title>
@@ -620,7 +620,123 @@
       flex-shrink: 0;
     }
 
-    /* WS screen — hide year btn, show ws elements */
+    #vin-label {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      white-space: nowrap;
+      display: none;
+      margin-left: 11px;
+    }
+
+    /* Vin Scully screen */
+    #vin-screen { display: none; }
+
+    /* Vin scorecard grid */
+    #vin-photo {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    #vin-grid {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5em;
+    }
+
+    .vin-header-row th {
+      font-size: 13px;
+      font-weight: 400;
+      color: #6e6e6e;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      border: 0.5px solid #6e6e6e;
+      padding: 6px 0;
+      text-align: center;
+    }
+
+    .vin-cell {
+      border: 0.5px solid #6e6e6e;
+      text-align: center;
+      vertical-align: middle;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .vin-cell.has-clip {
+      cursor: pointer;
+    }
+
+    .vin-cell.empty {
+      cursor: default;
+    }
+
+    /* Diamond shape inside cell */
+    .vin-diamond {
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      position: relative;
+      margin: 8px;
+    }
+
+    .vin-diamond svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Playing state */
+    .vin-cell.playing .vin-diamond svg path,
+    .vin-cell.playing .vin-diamond svg rect {
+      stroke: #0977cc;
+    }
+
+    /* Vin mode */
+    body.vin-mode #year-btn { display: none; }
+    body.vin-mode #last-updated { display: none; }
+    body.vin-mode #vin-label { display: inline-block; }
+    body.vin-mode #home-runs-label { display: none !important; }
+    body.vin-mode #title-text { display: none !important; }
+    body.vin-mode #dodger-logo { display: inline-block; }
+    body.vin-mode #hr-screen { display: none; }
+    body.vin-mode #ws-screen { display: none; }
+    body.vin-mode #ops-screen { display: none; }
+    body.vin-mode #vin-screen { display: block; }
+    body.vin-mode #portrait-note { display: none !important; }
+    body.vin-mode #ws-tally { display: none; }
+    body.vin-mode #ws-clear-btn { display: none; }
+    body.vin-mode #ws-label { display: none; }
+    body.vin-mode #ops-label { display: none; }
+
+    @media (orientation: portrait) {
+      body.vin-mode #dodger-logo { display: none !important; }
+      body.vin-mode #vin-label { display: inline-block !important; }
+      body.vin-mode #title { display: none; }
+      #vin-photo { height: auto; }
+    }
+
+    @media (orientation: landscape) {
+      #vin-screen {
+        display: none;
+        flex-direction: row;
+        gap: 32px;
+        align-items: flex-start;
+        padding-top: 1.5em;
+      }
+      body.vin-mode #vin-screen { display: flex; }
+      #vin-photo-wrap {
+        flex: 0 0 auto;
+        width: 38%;
+      }
+      #vin-grid-wrap {
+        flex: 1;
+      }
+      #vin-grid { margin-top: 0; }
+      .vin-diamond { width: 70px; height: 70px; }
+    }
     body.ws-mode #year-btn { display: none; }
     body.ws-mode #last-updated { display: none; }
     body.ws-mode #ws-tally { display: block; }
@@ -649,7 +765,7 @@
     body.ops-mode #ws-clear-btn { display: none; }
     body.ops-mode #ws-label { display: none; }
 
-    /* Portrait WS mode */
+    /* Portrait WS/OPS/Vin mode */
     @media (orientation: portrait) {
       body.ws-mode #dodger-logo { display: none !important; }
       body.ws-mode #ws-label { display: inline-block !important; }
@@ -658,7 +774,7 @@
       body.ops-mode #ops-label { display: inline-block !important; }
       body.ops-mode #title { display: none; }
       body.ops-mode #portrait-note { display: block !important; }
-      #ops-labels { display: none; } /* hide threshold numbers in portrait */
+      #ops-labels { display: none; }
     }
   </style>
 </head>
@@ -674,6 +790,7 @@
         <span id="home-runs-label">Home Runs</span>
         <span id="ws-label">World Series Challenge</span>
         <span id="ops-label">On-base Plus Slugging</span>
+        <span id="vin-label">Vin Scully</span>
         <button id="year-btn">2026</button>
         <span id="ws-tally">Total 0/57</span>
         <button id="ws-clear-btn">Clear</button>
@@ -707,8 +824,16 @@
       <div id="ops-list"></div>
     </div>
 
-    <div id="portrait-note">Best in landscape view</div>
-    <div id="version">V113</div>
+    <!-- Vin Scully Screen -->
+    <div id="vin-screen">
+      <div id="vin-photo-wrap">
+        <img id="vin-photo" src="vin_photo.jpg" alt="Vin Scully">
+      </div>
+      <div id="vin-grid-wrap">
+        <table id="vin-grid"></table>
+      </div>
+    </div>
+    <div id="version">V114</div>
   </div>
 </div>
 
@@ -722,6 +847,7 @@
       <div class="nav-btn-row"><button class="nav-btn" data-screen="hr">Home Runs</button></div>
       <div class="nav-btn-row"><button class="nav-btn" data-screen="ops">On-base Plus Slugging</button></div>
       <div class="nav-btn-row"><button class="nav-btn" data-screen="ws">World Series Challenge</button></div>
+      <div class="nav-btn-row"><button class="nav-btn" data-screen="vin">Vin Scully</button></div>
     </div>
   </div>
 </div>
@@ -950,6 +1076,9 @@
           });
         });
       }
+      if (currentScreen === 'vin') {
+        buildVinGrid();
+      }
     }, 300);
   });
 
@@ -979,23 +1108,20 @@
   let loadedOPSYear = null;
 
   function navigateTo(screen) {
-    document.body.classList.remove('ws-mode', 'ops-mode');
+    document.body.classList.remove('ws-mode', 'ops-mode', 'vin-mode');
     currentScreen = screen;
     if (screen === 'hr') {
       document.getElementById('last-updated').style.display = '';
-      // Reload if year has changed since last HR load
-      if (loadedHRYear !== selectedYear) {
-        loadYear(selectedYear);
-      }
+      if (loadedHRYear !== selectedYear) loadYear(selectedYear);
     } else if (screen === 'ws') {
       document.body.classList.add('ws-mode');
       buildWSList();
     } else if (screen === 'ops') {
       document.body.classList.add('ops-mode');
-      // Reload if year has changed since last OPS load
-      if (loadedOPSYear !== selectedYear) {
-        loadOPS(selectedYear);
-      }
+      if (loadedOPSYear !== selectedYear) loadOPS(selectedYear);
+    } else if (screen === 'vin') {
+      document.body.classList.add('vin-mode');
+      buildVinGrid();
     }
   }
 
@@ -1691,7 +1817,195 @@
   // Initial position after fonts/layout settle
   setTimeout(positionHomeBtn, 100);
 
-  // ── Boot ──
+  // ── Vin Scully screen ──
+  const VIN_CLIPS = [
+    '1 ITFDB.mp3',
+    '2 Hi Everybody.mp3',
+    '3 High drive.mp3',
+    '4 Dueces.mp3',
+    '5 Swung on.mp3',
+    '6 Koufax.mp3',
+  ];
+
+  let vinAudio = null;
+  let vinPlayingCell = null;
+
+  function buildVinGrid() {
+    const table = document.getElementById('vin-grid');
+    table.innerHTML = '';
+    const isLandscape = window.innerWidth > window.innerHeight;
+
+    if (isLandscape) {
+      // Landscape: 5 cols × 2 rows, numbered across top
+      const headerRow = document.createElement('tr');
+      headerRow.className = 'vin-header-row';
+      // Empty corner
+      const cornerTh = document.createElement('th');
+      cornerTh.style.border = '0.5px solid #6e6e6e';
+      headerRow.appendChild(cornerTh);
+      for (let c = 1; c <= 5; c++) {
+        const th = document.createElement('th');
+        th.textContent = c;
+        headerRow.appendChild(th);
+      }
+      table.appendChild(headerRow);
+
+      // 2 data rows
+      for (let r = 0; r < 2; r++) {
+        const tr = document.createElement('tr');
+        // Row label cell (empty, scorecard style)
+        const labelTd = document.createElement('td');
+        labelTd.style.border = '0.5px solid #6e6e6e';
+        labelTd.style.padding = '4px 8px';
+        labelTd.style.width = '30px';
+        tr.appendChild(labelTd);
+
+        for (let c = 0; c < 5; c++) {
+          const clipIdx = r * 5 + c;
+          const td = document.createElement('td');
+          td.className = 'vin-cell' + (clipIdx < VIN_CLIPS.length ? ' has-clip' : ' empty');
+          td.style.border = '0.5px solid #6e6e6e';
+          td.style.padding = '4px';
+          td.style.height = '90px';
+
+          if (clipIdx < VIN_CLIPS.length) {
+            td.appendChild(makeDiamond(true));
+            td.addEventListener('click', () => playVin(clipIdx, td));
+          } else {
+            td.appendChild(makeDiamond(false));
+          }
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
+    } else {
+      // Portrait: 6 rows, # col + player col + speaker
+      const headerRow = document.createElement('tr');
+      headerRow.className = 'vin-header-row';
+      const thNum = document.createElement('th');
+      thNum.textContent = '#';
+      thNum.style.width = '40px';
+      const thPlayer = document.createElement('th');
+      thPlayer.textContent = 'Player';
+      headerRow.appendChild(thNum);
+      headerRow.appendChild(thPlayer);
+      table.appendChild(headerRow);
+
+      for (let i = 0; i < 6; i++) {
+        const tr = document.createElement('tr');
+        const tdNum = document.createElement('td');
+        tdNum.className = 'vin-cell';
+        tdNum.style.cssText = 'border:0.5px solid #6e6e6e;border-bottom:none;text-align:center;font-size:13px;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;padding:4px;width:40px;height:50px;vertical-align:middle;';
+        tdNum.textContent = i + 1;
+
+        const tdPlayer = document.createElement('td');
+        tdPlayer.className = 'vin-cell' + (i < VIN_CLIPS.length ? ' has-clip' : ' empty');
+        tdPlayer.style.cssText = 'border:0.5px solid #6e6e6e;border-bottom:none;text-align:center;vertical-align:middle;height:50px;cursor:pointer;';
+
+        if (i < VIN_CLIPS.length) {
+          tdPlayer.appendChild(makeDiamond(true, true));
+          tdPlayer.addEventListener('click', () => playVin(i, tdPlayer));
+        } else {
+          tdPlayer.appendChild(makeDiamond(false, true));
+        }
+        tr.appendChild(tdNum);
+        tr.appendChild(tdPlayer);
+        table.appendChild(tr);
+
+        // Dotted separator row
+        const trDot = document.createElement('tr');
+        const tdDot = document.createElement('td');
+        tdDot.colSpan = 2;
+        tdDot.style.cssText = 'border-bottom:1px dotted #333;height:6px;padding:0;';
+        trDot.appendChild(tdDot);
+        table.appendChild(trDot);
+      }
+    }
+  }
+
+  function makeDiamond(hasClip, small) {
+    const size = small ? 44 : 60;
+    const wrap = document.createElement('div');
+    wrap.className = 'vin-diamond';
+    wrap.style.width = size + 'px';
+    wrap.style.height = size + 'px';
+    wrap.style.display = 'inline-flex';
+    wrap.style.alignItems = 'center';
+    wrap.style.justifyContent = 'center';
+    wrap.style.position = 'relative';
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 60 60');
+    svg.setAttribute('width', size);
+    svg.setAttribute('height', size);
+
+    // Diamond outline
+    const diamond = document.createElementNS(svgNS, 'polygon');
+    diamond.setAttribute('points', '30,4 56,30 30,56 4,30');
+    diamond.setAttribute('fill', 'none');
+    diamond.setAttribute('stroke', hasClip ? '#ffffff' : '#333333');
+    diamond.setAttribute('stroke-width', '1.5');
+    svg.appendChild(diamond);
+
+    if (hasClip) {
+      // Speaker icon
+      const g = document.createElementNS(svgNS, 'g');
+      g.setAttribute('transform', 'translate(18, 18)');
+      // Speaker body
+      const body = document.createElementNS(svgNS, 'path');
+      body.setAttribute('d', 'M2,9 L2,15 L7,15 L14,21 L14,3 L7,9 Z');
+      body.setAttribute('fill', '#ffffff');
+      g.appendChild(body);
+      // Sound waves
+      const wave1 = document.createElementNS(svgNS, 'path');
+      wave1.setAttribute('d', 'M17,9 Q20,12 17,15');
+      wave1.setAttribute('fill', 'none');
+      wave1.setAttribute('stroke', '#ffffff');
+      wave1.setAttribute('stroke-width', '1.5');
+      wave1.setAttribute('stroke-linecap', 'round');
+      g.appendChild(wave1);
+      const wave2 = document.createElementNS(svgNS, 'path');
+      wave2.setAttribute('d', 'M20,6 Q25,12 20,18');
+      wave2.setAttribute('fill', 'none');
+      wave2.setAttribute('stroke', '#ffffff');
+      wave2.setAttribute('stroke-width', '1.5');
+      wave2.setAttribute('stroke-linecap', 'round');
+      g.appendChild(wave2);
+      svg.appendChild(g);
+    }
+
+    wrap.appendChild(svg);
+    return wrap;
+  }
+
+  function playVin(idx, cell) {
+    const filename = VIN_CLIPS[idx];
+
+    // Stop current audio if playing
+    if (vinAudio) {
+      vinAudio.pause();
+      vinAudio.currentTime = 0;
+      if (vinPlayingCell) vinPlayingCell.style.opacity = '1';
+      // If tapping same cell, just stop
+      if (vinPlayingCell === cell) {
+        vinAudio = null;
+        vinPlayingCell = null;
+        return;
+      }
+    }
+
+    vinAudio = new Audio(filename);
+    vinPlayingCell = cell;
+    cell.style.opacity = '0.5';
+
+    vinAudio.play().catch(e => console.log('Audio play failed:', e));
+    vinAudio.addEventListener('ended', () => {
+      cell.style.opacity = '1';
+      vinAudio = null;
+      vinPlayingCell = null;
+    });
+  }
   document.getElementById('year-btn').textContent = CURRENT_YEAR;
   const container = document.getElementById('player-list');
   container.style.opacity = '0';
