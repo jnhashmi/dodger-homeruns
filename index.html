@@ -653,46 +653,29 @@
       font-weight: 400;
       color: #6e6e6e;
       font-family: 'Bricolage Grotesque', sans-serif;
-      border: 0.5px solid #6e6e6e;
+      border: 1px solid #6e6e6e;
       padding: 6px 0;
       text-align: center;
     }
 
     .vin-cell {
-      border: 0.5px solid #6e6e6e;
+      border: 1px solid #6e6e6e;
       text-align: center;
       vertical-align: middle;
-      cursor: pointer;
       position: relative;
     }
 
-    .vin-cell.has-clip {
-      cursor: pointer;
-    }
+    .vin-cell.has-clip { cursor: pointer; }
+    .vin-cell.empty { cursor: default; }
 
-    .vin-cell.empty {
-      cursor: default;
-    }
-
-    /* Diamond shape inside cell */
     .vin-diamond {
-      display: inline-block;
-      width: 60px;
-      height: 60px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       position: relative;
-      margin: 8px;
     }
 
-    .vin-diamond svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Playing state */
-    .vin-cell.playing .vin-diamond svg path,
-    .vin-cell.playing .vin-diamond svg rect {
-      stroke: #0977cc;
-    }
+    .vin-diamond svg { display: block; }
 
     /* Vin mode */
     body.vin-mode #year-btn { display: none; }
@@ -735,7 +718,8 @@
         flex: 1;
       }
       #vin-grid { margin-top: 0; }
-      .vin-diamond { width: 70px; height: 70px; }
+      .vin-diamond { width: 80px; height: 80px; }
+      .vin-cell { height: 100px; }
     }
     body.ws-mode #year-btn { display: none; }
     body.ws-mode #last-updated { display: none; }
@@ -833,7 +817,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version">V114</div>
+    <div id="version">V116</div>
   </div>
 </div>
 
@@ -1830,18 +1814,53 @@
   let vinAudio = null;
   let vinPlayingCell = null;
 
+  function makeSpeakerIcon(size) {
+    // Plain speaker icon for portrait rows
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 28 28');
+    svg.setAttribute('width', size);
+    svg.setAttribute('height', size);
+
+    const g = document.createElementNS(svgNS, 'g');
+    g.setAttribute('transform', 'translate(2, 2)');
+
+    const body = document.createElementNS(svgNS, 'path');
+    body.setAttribute('d', 'M2,8 L2,16 L8,16 L16,22 L16,2 L8,8 Z');
+    body.setAttribute('fill', '#ffffff');
+    g.appendChild(body);
+
+    const wave1 = document.createElementNS(svgNS, 'path');
+    wave1.setAttribute('d', 'M19,9 Q23,12 19,15');
+    wave1.setAttribute('fill', 'none');
+    wave1.setAttribute('stroke', '#ffffff');
+    wave1.setAttribute('stroke-width', '2');
+    wave1.setAttribute('stroke-linecap', 'round');
+    g.appendChild(wave1);
+
+    const wave2 = document.createElementNS(svgNS, 'path');
+    wave2.setAttribute('d', 'M22,5 Q28,12 22,19');
+    wave2.setAttribute('fill', 'none');
+    wave2.setAttribute('stroke', '#ffffff');
+    wave2.setAttribute('stroke-width', '2');
+    wave2.setAttribute('stroke-linecap', 'round');
+    g.appendChild(wave2);
+
+    svg.appendChild(g);
+    return svg;
+  }
+
   function buildVinGrid() {
     const table = document.getElementById('vin-grid');
     table.innerHTML = '';
     const isLandscape = window.innerWidth > window.innerHeight;
 
     if (isLandscape) {
-      // Landscape: 5 cols × 2 rows, numbered across top
+      // Landscape: 5 cols × 2 rows with baseball diamond in each cell
       const headerRow = document.createElement('tr');
       headerRow.className = 'vin-header-row';
-      // Empty corner
       const cornerTh = document.createElement('th');
-      cornerTh.style.border = '0.5px solid #6e6e6e';
+      cornerTh.style.border = '1px solid #6e6e6e';
       headerRow.appendChild(cornerTh);
       for (let c = 1; c <= 5; c++) {
         const th = document.createElement('th');
@@ -1850,41 +1869,34 @@
       }
       table.appendChild(headerRow);
 
-      // 2 data rows
       for (let r = 0; r < 2; r++) {
         const tr = document.createElement('tr');
-        // Row label cell (empty, scorecard style)
         const labelTd = document.createElement('td');
-        labelTd.style.border = '0.5px solid #6e6e6e';
-        labelTd.style.padding = '4px 8px';
-        labelTd.style.width = '30px';
+        labelTd.style.cssText = 'border:1px solid #6e6e6e;width:30px;';
         tr.appendChild(labelTd);
 
         for (let c = 0; c < 5; c++) {
           const clipIdx = r * 5 + c;
           const td = document.createElement('td');
           td.className = 'vin-cell' + (clipIdx < VIN_CLIPS.length ? ' has-clip' : ' empty');
-          td.style.border = '0.5px solid #6e6e6e';
-          td.style.padding = '4px';
-          td.style.height = '90px';
+          td.style.cssText = 'border:1px solid #6e6e6e;height:100px;text-align:center;vertical-align:middle;';
 
+          td.appendChild(makeDiamond(clipIdx < VIN_CLIPS.length));
           if (clipIdx < VIN_CLIPS.length) {
-            td.appendChild(makeDiamond(true));
             td.addEventListener('click', () => playVin(clipIdx, td));
-          } else {
-            td.appendChild(makeDiamond(false));
           }
           tr.appendChild(td);
         }
         table.appendChild(tr);
       }
+
     } else {
-      // Portrait: 6 rows, # col + player col + speaker
+      // Portrait: player list section — # col + Player col, plain speaker icons
       const headerRow = document.createElement('tr');
       headerRow.className = 'vin-header-row';
       const thNum = document.createElement('th');
       thNum.textContent = '#';
-      thNum.style.width = '40px';
+      thNum.style.width = '50px';
       const thPlayer = document.createElement('th');
       thPlayer.textContent = 'Player';
       headerRow.appendChild(thNum);
@@ -1893,21 +1905,20 @@
 
       for (let i = 0; i < 6; i++) {
         const tr = document.createElement('tr');
+
         const tdNum = document.createElement('td');
-        tdNum.className = 'vin-cell';
-        tdNum.style.cssText = 'border:0.5px solid #6e6e6e;border-bottom:none;text-align:center;font-size:13px;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;padding:4px;width:40px;height:50px;vertical-align:middle;';
+        tdNum.style.cssText = 'border:1px solid #6e6e6e;border-bottom:none;text-align:center;font-size:13px;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;width:50px;height:50px;vertical-align:middle;';
         tdNum.textContent = i + 1;
 
         const tdPlayer = document.createElement('td');
         tdPlayer.className = 'vin-cell' + (i < VIN_CLIPS.length ? ' has-clip' : ' empty');
-        tdPlayer.style.cssText = 'border:0.5px solid #6e6e6e;border-bottom:none;text-align:center;vertical-align:middle;height:50px;cursor:pointer;';
+        tdPlayer.style.cssText = 'border:1px solid #6e6e6e;border-bottom:none;text-align:center;vertical-align:middle;height:50px;';
 
         if (i < VIN_CLIPS.length) {
-          tdPlayer.appendChild(makeDiamond(true, true));
+          tdPlayer.appendChild(makeSpeakerIcon(28));
           tdPlayer.addEventListener('click', () => playVin(i, tdPlayer));
-        } else {
-          tdPlayer.appendChild(makeDiamond(false, true));
         }
+
         tr.appendChild(tdNum);
         tr.appendChild(tdPlayer);
         table.appendChild(tr);
@@ -1916,7 +1927,7 @@
         const trDot = document.createElement('tr');
         const tdDot = document.createElement('td');
         tdDot.colSpan = 2;
-        tdDot.style.cssText = 'border-bottom:1px dotted #333;height:6px;padding:0;';
+        tdDot.style.cssText = 'border-bottom:1px dotted #333;height:8px;padding:0;border-left:1px solid #6e6e6e;border-right:1px solid #6e6e6e;';
         trDot.appendChild(tdDot);
         table.appendChild(trDot);
       }
@@ -1924,54 +1935,55 @@
   }
 
   function makeDiamond(hasClip, small) {
-    const size = small ? 44 : 60;
+    const size = small ? 50 : 80;
     const wrap = document.createElement('div');
     wrap.className = 'vin-diamond';
     wrap.style.width = size + 'px';
     wrap.style.height = size + 'px';
-    wrap.style.display = 'inline-flex';
-    wrap.style.alignItems = 'center';
-    wrap.style.justifyContent = 'center';
-    wrap.style.position = 'relative';
 
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('viewBox', '0 0 60 60');
+    svg.setAttribute('viewBox', '0 0 80 80');
     svg.setAttribute('width', size);
     svg.setAttribute('height', size);
 
-    // Diamond outline
+    // Diamond outline — prominent, centered
     const diamond = document.createElementNS(svgNS, 'polygon');
-    diamond.setAttribute('points', '30,4 56,30 30,56 4,30');
+    diamond.setAttribute('points', '40,6 74,40 40,74 6,40');
     diamond.setAttribute('fill', 'none');
-    diamond.setAttribute('stroke', hasClip ? '#ffffff' : '#333333');
+    diamond.setAttribute('stroke', hasClip ? '#ffffff' : '#2a2a2a');
     diamond.setAttribute('stroke-width', '1.5');
     svg.appendChild(diamond);
 
     if (hasClip) {
-      // Speaker icon
+      // Speaker icon centered in diamond
       const g = document.createElementNS(svgNS, 'g');
-      g.setAttribute('transform', 'translate(18, 18)');
+      g.setAttribute('transform', 'translate(24, 26)');
+
       // Speaker body
       const body = document.createElementNS(svgNS, 'path');
-      body.setAttribute('d', 'M2,9 L2,15 L7,15 L14,21 L14,3 L7,9 Z');
+      body.setAttribute('d', 'M2,8 L2,20 L9,20 L18,27 L18,1 L9,8 Z');
       body.setAttribute('fill', '#ffffff');
       g.appendChild(body);
-      // Sound waves
+
+      // Sound wave 1
       const wave1 = document.createElementNS(svgNS, 'path');
-      wave1.setAttribute('d', 'M17,9 Q20,12 17,15');
+      wave1.setAttribute('d', 'M22,10 Q26,14 22,18');
       wave1.setAttribute('fill', 'none');
       wave1.setAttribute('stroke', '#ffffff');
-      wave1.setAttribute('stroke-width', '1.5');
+      wave1.setAttribute('stroke-width', '2');
       wave1.setAttribute('stroke-linecap', 'round');
       g.appendChild(wave1);
+
+      // Sound wave 2
       const wave2 = document.createElementNS(svgNS, 'path');
-      wave2.setAttribute('d', 'M20,6 Q25,12 20,18');
+      wave2.setAttribute('d', 'M26,6 Q33,14 26,22');
       wave2.setAttribute('fill', 'none');
       wave2.setAttribute('stroke', '#ffffff');
-      wave2.setAttribute('stroke-width', '1.5');
+      wave2.setAttribute('stroke-width', '2');
       wave2.setAttribute('stroke-linecap', 'round');
       g.appendChild(wave2);
+
       svg.appendChild(g);
     }
 
