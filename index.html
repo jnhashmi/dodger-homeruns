@@ -710,8 +710,9 @@
 
       /* Scorecard: 500px max, centered, no outer border */
       #vin-grid-wrap {
-        max-width: 500px;
+        max-width: 350px;
         margin: 16px auto 0;
+        padding-right: 20px; /* horizontal lines extend 20px past right vertical */
       }
 
       /* Portrait scorecard rows */
@@ -856,7 +857,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version">V117</div>
+    <div id="version">V118</div>
   </div>
 </div>
 
@@ -1939,24 +1940,27 @@
       thNum.style.cssText = 'width:50px;border:none;border-bottom:1px solid #6e6e6e;border-right:1px solid #6e6e6e;font-size:13px;font-weight:400;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;';
       const thPlayer = document.createElement('th');
       thPlayer.textContent = 'Player';
-      thPlayer.style.cssText = 'border:none;border-bottom:1px solid #6e6e6e;font-size:13px;font-weight:400;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;';
+      thPlayer.style.cssText = 'border:none;border-bottom:1px solid #6e6e6e;border-right:1px solid #6e6e6e;font-size:13px;font-weight:400;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;';
       headerRow.appendChild(thNum);
       headerRow.appendChild(thPlayer);
       table.appendChild(headerRow);
+
+      const topH = 84;  // top 2/3 height (was 44 + 40)
+      const botH = 42;  // bottom 1/3 height (was 22 + 20)
 
       for (let i = 0; i < 6; i++) {
         // Top 2/3 row — speaker icon
         const trTop = document.createElement('tr');
 
         const tdNumTop = document.createElement('td');
-        tdNumTop.style.cssText = 'width:50px;border:none;border-right:1px solid #6e6e6e;text-align:center;font-size:13px;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;height:44px;vertical-align:middle;';
+        tdNumTop.style.cssText = `width:50px;border:none;border-right:1px solid #6e6e6e;text-align:center;font-size:13px;color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;height:${topH}px;vertical-align:middle;`;
         tdNumTop.textContent = i + 1;
 
         const tdPlayerTop = document.createElement('td');
-        tdPlayerTop.style.cssText = 'border:none;text-align:center;vertical-align:middle;height:44px;' + (i < VIN_CLIPS.length ? 'cursor:pointer;' : '');
+        tdPlayerTop.style.cssText = `border:none;border-right:1px solid #6e6e6e;text-align:center;vertical-align:middle;height:${topH}px;` + (i < VIN_CLIPS.length ? 'cursor:pointer;' : '');
 
         if (i < VIN_CLIPS.length) {
-          tdPlayerTop.appendChild(makeSpeakerIcon(28));
+          tdPlayerTop.appendChild(makeSpeakerIcon(32));
           const clipIdx = i;
           tdPlayerTop.addEventListener('click', () => playVin(clipIdx, tdPlayerTop));
         }
@@ -1965,26 +1969,36 @@
         trTop.appendChild(tdPlayerTop);
         table.appendChild(trTop);
 
-        // Dotted divider row
+        // Dotted divider — more visible dashes
         const trDot = document.createElement('tr');
         const tdDotNum = document.createElement('td');
-        tdDotNum.style.cssText = 'border:none;border-right:1px solid #6e6e6e;border-bottom:1px dotted #444;height:0;padding:0;';
+        tdDotNum.style.cssText = 'border:none;border-right:1px solid #6e6e6e;border-bottom:2px dashed #555;height:0;padding:0;';
         const tdDotPlayer = document.createElement('td');
-        tdDotPlayer.style.cssText = 'border:none;border-bottom:1px dotted #444;height:0;padding:0;';
+        tdDotPlayer.style.cssText = 'border:none;border-right:1px solid #6e6e6e;border-bottom:2px dashed #555;height:0;padding:0;';
         trDot.appendChild(tdDotNum);
         trDot.appendChild(tdDotPlayer);
         table.appendChild(trDot);
 
-        // Bottom 1/3 row — empty (substitute name area)
+        // Bottom 1/3 row — empty substitute area
         const trBot = document.createElement('tr');
         const tdNumBot = document.createElement('td');
-        tdNumBot.style.cssText = 'width:50px;border:none;border-right:1px solid #6e6e6e;border-bottom:1px solid #6e6e6e;height:22px;padding:0;';
+        tdNumBot.style.cssText = `width:50px;border:none;border-right:1px solid #6e6e6e;border-bottom:1px solid #6e6e6e;height:${botH}px;padding:0;`;
         const tdPlayerBot = document.createElement('td');
-        tdPlayerBot.style.cssText = 'border:none;border-bottom:1px solid #6e6e6e;height:22px;padding:0;';
+        tdPlayerBot.style.cssText = `border:none;border-right:1px solid #6e6e6e;border-bottom:1px solid #6e6e6e;height:${botH}px;padding:0;`;
         trBot.appendChild(tdNumBot);
         trBot.appendChild(tdPlayerBot);
         table.appendChild(trBot);
       }
+
+      // Footer row: vertical lines extending 20px below last horizontal line
+      const trFoot = document.createElement('tr');
+      const tdFootNum = document.createElement('td');
+      tdFootNum.style.cssText = 'width:50px;border:none;border-right:1px solid #6e6e6e;height:20px;padding:0;';
+      const tdFootPlayer = document.createElement('td');
+      tdFootPlayer.style.cssText = 'border:none;border-right:1px solid #6e6e6e;height:20px;padding:0;';
+      trFoot.appendChild(tdFootNum);
+      trFoot.appendChild(tdFootPlayer);
+      table.appendChild(trFoot);
     }
   }
 
