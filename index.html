@@ -700,12 +700,12 @@
       body.vin-mode #title { display: none; }
 
       /* Photo: centered, scaled down, top aligned with first HR row */
-      /* Scorecard: 200px, centered, no outer border */
+      /* Scorecard: 220px, centered, no outer border */
       #vin-grid-wrap {
-        width: 200px;
-        max-width: 200px;
+        width: 220px;
+        max-width: 220px;
         margin: 49px auto 0;
-        margin-left: calc(50% - 100px - 6px);
+        margin-left: calc(50% - 110px - 6px);
         position: relative;
         overflow: visible;
       }
@@ -717,7 +717,7 @@
         margin: 1.5em auto 0;
       }
       #vin-grid {
-        width: 200px;
+        width: 220px;
         border-collapse: collapse;
         margin-top: 0;
         table-layout: fixed;
@@ -865,7 +865,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version">V127</div>
+    <div id="version">V128</div>
   </div>
 </div>
 
@@ -1944,22 +1944,22 @@
       }
 
     } else {
-      const topH = 51;
-      const botH = 26;
+      const topH = 41;
+      const botH = 21;
       const numColW = 33;
-      const rowH = topH + botH; // total row height
+      const rowH = topH + botH;
       const headerH = 28;
-      const overhang = 20;
+      const overhang = 10;
 
       // Build table with NO borders — all lines drawn via SVG
       const headerRow = document.createElement('tr');
       headerRow.className = 'vin-header-row';
       const thNum = document.createElement('th');
       thNum.textContent = '#';
-      thNum.style.cssText = `width:${numColW}px;border:none;font-size:15px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;height:${headerH}px;`;
+      thNum.style.cssText = `width:${numColW}px;border:none;font-size:12px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;height:${headerH}px;`;
       const thPlayer = document.createElement('th');
       thPlayer.textContent = 'Player';
-      thPlayer.style.cssText = `border:none;font-size:15px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;height:${headerH}px;`;
+      thPlayer.style.cssText = `border:none;font-size:12px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;height:${headerH}px;`;
       headerRow.appendChild(thNum);
       headerRow.appendChild(thPlayer);
       table.appendChild(headerRow);
@@ -1974,12 +1974,12 @@
         tdPlayerTop.style.cssText = `border:none;text-align:center;vertical-align:middle;height:${topH}px;position:relative;` + (i < VIN_CLIPS.length ? 'cursor:pointer;' : '');
 
         const orderNum = document.createElement('div');
-        orderNum.style.cssText = 'position:absolute;top:8px;left:12px;font-size:15px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;line-height:1;';
+        orderNum.style.cssText = 'position:absolute;top:8px;left:12px;font-size:12px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;line-height:1;';
         orderNum.textContent = i + 1;
         tdPlayerTop.appendChild(orderNum);
 
         if (i < VIN_CLIPS.length) {
-          tdPlayerTop.appendChild(makeSpeakerIcon(32));
+          tdPlayerTop.appendChild(makeSpeakerIcon(29));
           const clipIdx = i;
           tdPlayerTop.addEventListener('click', () => playVin(clipIdx, tdPlayerTop));
         }
@@ -2029,7 +2029,7 @@
           l.setAttribute('x1', x1); l.setAttribute('y1', y);
           l.setAttribute('x2', x2); l.setAttribute('y2', y);
           l.setAttribute('stroke', stroke); l.setAttribute('stroke-width', sw);
-          if (dashed) l.setAttribute('stroke-dasharray', '3,3');
+          if (dashed) l.setAttribute('stroke-dasharray', '2,2');
           svg.appendChild(l);
         }
         function vline(x, y1, y2) {
@@ -2124,7 +2124,30 @@
     return wrap;
   }
 
+  // Web Audio context for instant click sound
+  let vinAudioCtx = null;
+  function playAnalogClick() {
+    try {
+      if (!vinAudioCtx) vinAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = vinAudioCtx;
+      const buf = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        // White noise with fast exponential decay — chunky analog click
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 8);
+      }
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const gain = ctx.createGain();
+      gain.gain.value = 0.6;
+      src.connect(gain);
+      gain.connect(ctx.destination);
+      src.start();
+    } catch(e) {}
+  }
+
   function playVin(idx, cell) {
+    playAnalogClick(); // instant tactile click
     const filename = VIN_CLIPS[idx];
 
     // Stop current audio if playing
