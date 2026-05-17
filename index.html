@@ -696,16 +696,16 @@
 
     @media (orientation: portrait) {
       body.vin-mode #dodger-logo { display: none !important; }
-      body.vin-mode #vin-label { display: inline-block !important; }
+      body.vin-mode #vin-label { display: inline-block !important; font-size: 15px !important; margin-left: 0 !important; }
       body.vin-mode #title { display: none; }
 
       /* Photo: centered, scaled down, top aligned with first HR row */
-      /* Scorecard: 250px, shifted left 15px, no outer border */
+      /* Scorecard: 200px, centered, no outer border */
       #vin-grid-wrap {
-        width: 250px;
-        max-width: 250px;
+        width: 200px;
+        max-width: 200px;
         margin: 49px auto 0;
-        margin-left: calc(50% - 125px - 6px);
+        margin-left: calc(50% - 100px - 6px);
         position: relative;
         overflow: visible;
       }
@@ -717,7 +717,7 @@
         margin: 1.5em auto 0;
       }
       #vin-grid {
-        width: 250px;
+        width: 200px;
         border-collapse: collapse;
         margin-top: 0;
         table-layout: fixed;
@@ -865,7 +865,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version">V124</div>
+    <div id="version">V125</div>
   </div>
 </div>
 
@@ -1863,38 +1863,43 @@
   let vinPlayingCell = null;
 
   function makeSpeakerIcon(size) {
-    // Plain speaker icon for portrait rows
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('viewBox', '0 0 28 28');
     svg.setAttribute('width', size);
     svg.setAttribute('height', size);
 
-    const g = document.createElementNS(svgNS, 'g');
-    g.setAttribute('transform', 'translate(2, 2)');
-
+    // Speaker body with rounded corners using path
     const body = document.createElementNS(svgNS, 'path');
-    body.setAttribute('d', 'M2,8 L2,16 L8,16 L16,22 L16,2 L8,8 Z');
+    body.setAttribute('d', 'M3,10 Q3,8 5,8 L9,8 L15,3 Q16,2 16,4 L16,24 Q16,26 15,25 L9,20 L5,20 Q3,20 3,18 Z');
     body.setAttribute('fill', '#ffffff');
-    g.appendChild(body);
+    body.setAttribute('stroke', 'none');
+    svg.appendChild(body);
 
+    // Concentric arcs — same center point (16, 14), different radii
+    const arcs = [
+      { r: 5, start: [-3, 9], end: [-3, 19] },   // inner arc
+      { r: 8, start: [-5, 6], end: [-5, 22] },   // outer arc
+    ];
+
+    // Inner arc
     const wave1 = document.createElementNS(svgNS, 'path');
-    wave1.setAttribute('d', 'M19,9 Q23,12 19,15');
+    wave1.setAttribute('d', 'M 19,10 A 5,5 0 0,1 19,18');
     wave1.setAttribute('fill', 'none');
     wave1.setAttribute('stroke', '#ffffff');
-    wave1.setAttribute('stroke-width', '2');
+    wave1.setAttribute('stroke-width', '1.8');
     wave1.setAttribute('stroke-linecap', 'round');
-    g.appendChild(wave1);
+    svg.appendChild(wave1);
 
+    // Outer arc
     const wave2 = document.createElementNS(svgNS, 'path');
-    wave2.setAttribute('d', 'M22,5 Q28,12 22,19');
+    wave2.setAttribute('d', 'M 22,7 A 9,9 0 0,1 22,21');
     wave2.setAttribute('fill', 'none');
     wave2.setAttribute('stroke', '#ffffff');
-    wave2.setAttribute('stroke-width', '2');
+    wave2.setAttribute('stroke-width', '1.8');
     wave2.setAttribute('stroke-linecap', 'round');
-    g.appendChild(wave2);
+    svg.appendChild(wave2);
 
-    svg.appendChild(g);
     return svg;
   }
 
@@ -1943,26 +1948,27 @@
       headerRow.className = 'vin-header-row';
       const thNum = document.createElement('th');
       thNum.textContent = '#';
-      thNum.style.cssText = 'width:50px;border:none;border-bottom:1px solid #707070;border-right:1px solid #707070;font-size:15px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;';
+      thNum.style.cssText = `width:${numColW}px;border:none;border-bottom:0.5px solid #707070;border-right:0.5px solid #707070;font-size:15px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;`;
       const thPlayer = document.createElement('th');
       thPlayer.textContent = 'Player';
-      thPlayer.style.cssText = 'border:none;border-bottom:1px solid #707070;border-right:1px solid #707070;font-size:15px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;';
+      thPlayer.style.cssText = 'border:none;border-bottom:0.5px solid #707070;border-right:0.5px solid #707070;font-size:15px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;padding:4px 0;text-align:center;';
       headerRow.appendChild(thNum);
       headerRow.appendChild(thPlayer);
       table.appendChild(headerRow);
 
-      const topH = 68;  // top 2/3 height
-      const botH = 34;  // bottom 1/3 height (true 1/3: 34/102)
+      const topH = 51;  // top 2/3 (68 * 0.75)
+      const botH = 26;  // bottom 1/3 (34 * 0.75)
+      const numColW = 33; // # column 33% narrower than 50px
 
       for (let i = 0; i < 6; i++) {
         // Top 2/3 row — batting order number top-left, speaker icon centered
         const trTop = document.createElement('tr');
 
         const tdNumTop = document.createElement('td');
-        tdNumTop.style.cssText = `width:50px;border:none;border-right:1px solid #707070;height:${topH}px;vertical-align:middle;`;
+        tdNumTop.style.cssText = `width:${numColW}px;border:none;border-right:0.5px solid #707070;height:${topH}px;vertical-align:middle;`;
 
         const tdPlayerTop = document.createElement('td');
-        tdPlayerTop.style.cssText = `border:none;border-right:1px solid #707070;text-align:center;vertical-align:middle;height:${topH}px;position:relative;` + (i < VIN_CLIPS.length ? 'cursor:pointer;' : '');
+        tdPlayerTop.style.cssText = `border:none;border-right:0.5px solid #707070;text-align:center;vertical-align:middle;height:${topH}px;position:relative;` + (i < VIN_CLIPS.length ? 'cursor:pointer;' : '');
 
         // Batting order number — top-left of player cell, more padding
         const orderNum = document.createElement('div');
@@ -1983,9 +1989,9 @@
         // Dotted divider
         const trDot = document.createElement('tr');
         const tdDotNum = document.createElement('td');
-        tdDotNum.style.cssText = 'border:none;border-right:1px solid #707070;border-bottom:1px dashed #707070;height:0;padding:0;';
+        tdDotNum.style.cssText = 'border:none;border-right:0.5px solid #707070;border-bottom:0.5px dashed #707070;height:0;padding:0;';
         const tdDotPlayer = document.createElement('td');
-        tdDotPlayer.style.cssText = 'border:none;border-right:1px solid #707070;border-bottom:1px dashed #707070;height:0;padding:0;';
+        tdDotPlayer.style.cssText = 'border:none;border-right:0.5px solid #707070;border-bottom:0.5px dashed #707070;height:0;padding:0;';
         trDot.appendChild(tdDotNum);
         trDot.appendChild(tdDotPlayer);
         table.appendChild(trDot);
@@ -1993,9 +1999,9 @@
         // Bottom 1/3 row — empty substitute area
         const trBot = document.createElement('tr');
         const tdNumBot = document.createElement('td');
-        tdNumBot.style.cssText = `width:50px;border:none;border-right:1px solid #707070;border-bottom:1px solid #707070;height:${botH}px;padding:0;`;
+        tdNumBot.style.cssText = `width:${numColW}px;border:none;border-right:0.5px solid #707070;border-bottom:0.5px solid #707070;height:${botH}px;padding:0;`;
         const tdPlayerBot = document.createElement('td');
-        tdPlayerBot.style.cssText = `border:none;border-right:1px solid #707070;border-bottom:1px solid #707070;height:${botH}px;padding:0;`;
+        tdPlayerBot.style.cssText = `border:none;border-right:0.5px solid #707070;border-bottom:0.5px solid #707070;height:${botH}px;padding:0;`;
         trBot.appendChild(tdNumBot);
         trBot.appendChild(tdPlayerBot);
         table.appendChild(trBot);
@@ -2004,9 +2010,9 @@
       // Footer row: vertical lines extending 20px below
       const trFoot = document.createElement('tr');
       const tdFootNum = document.createElement('td');
-      tdFootNum.style.cssText = 'width:50px;border:none;border-right:1px solid #707070;height:20px;padding:0;';
+      tdFootNum.style.cssText = `width:${numColW}px;border:none;border-right:0.5px solid #707070;height:20px;padding:0;`;
       const tdFootPlayer = document.createElement('td');
-      tdFootPlayer.style.cssText = 'border:none;border-right:1px solid #707070;height:20px;padding:0;';
+      tdFootPlayer.style.cssText = 'border:none;border-right:0.5px solid #707070;height:20px;padding:0;';
       trFoot.appendChild(tdFootNum);
       trFoot.appendChild(tdFootPlayer);
       table.appendChild(trFoot);
