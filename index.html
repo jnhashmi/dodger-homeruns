@@ -865,7 +865,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version">V129</div>
+    <div id="version">V130</div>
   </div>
 </div>
 
@@ -1971,7 +1971,7 @@
         tdNumTop.style.cssText = `width:${numColW}px;border:none;height:${topH}px;vertical-align:middle;`;
 
         const tdPlayerTop = document.createElement('td');
-        tdPlayerTop.style.cssText = `border:none;text-align:center;vertical-align:middle;height:${topH}px;position:relative;` + (i < VIN_CLIPS.length ? 'cursor:pointer;' : '');
+        tdPlayerTop.style.cssText = `border:none;text-align:center;vertical-align:middle;height:${topH}px;position:relative;padding-top:2px;` + (i < VIN_CLIPS.length ? 'cursor:pointer;' : '');
 
         const orderNum = document.createElement('div');
         orderNum.style.cssText = 'position:absolute;top:8px;left:12px;font-size:12px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;line-height:1;';
@@ -2126,14 +2126,30 @@
 
   // Web Audio context for instant click sound
   let vinAudioCtx = null;
+
+  function initAudioCtx() {
+    if (!vinAudioCtx) {
+      vinAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (vinAudioCtx.state === 'suspended') {
+      vinAudioCtx.resume();
+    }
+  }
+
+  // Prime AudioContext on first touch anywhere — iOS requires user gesture
+  document.addEventListener('touchstart', function primeAudio() {
+    initAudioCtx();
+    document.removeEventListener('touchstart', primeAudio);
+  }, { once: true });
+
   function playAnalogClick() {
     try {
-      if (!vinAudioCtx) vinAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      initAudioCtx();
       const ctx = vinAudioCtx;
+      if (ctx.state === 'suspended') return; // not ready yet, skip gracefully
       const buf = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
       const data = buf.getChannelData(0);
       for (let i = 0; i < data.length; i++) {
-        // White noise with fast exponential decay — chunky analog click
         data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 8);
       }
       const src = ctx.createBufferSource();
