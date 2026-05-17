@@ -865,7 +865,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version">V132</div>
+    <div id="version" style="margin-top:40px;">V133</div>
   </div>
 </div>
 
@@ -2136,11 +2136,22 @@
     }
   }
 
-  // Prime AudioContext on first touch anywhere — iOS requires user gesture
+  // Prime AudioContext on first touch — play a silent buffer to fully unlock iOS audio
   document.addEventListener('touchstart', function primeAudio() {
-    initAudioCtx();
+    try {
+      initAudioCtx();
+      const ctx = vinAudioCtx;
+      ctx.resume().then(() => {
+        // Play a silent buffer to fully unlock the audio system
+        const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+      });
+    } catch(e) {}
     document.removeEventListener('touchstart', primeAudio);
-  }, { once: true });
+  }, { once: true, passive: true });
 
   function playAnalogClick() {
     try {
