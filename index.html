@@ -704,7 +704,7 @@
       #vin-grid-wrap {
         width: 220px;
         max-width: 220px;
-        margin: 49px auto 0;
+        margin: 34px auto 0;
         margin-left: calc(50% - 110px - 6px);
         position: relative;
         overflow: visible;
@@ -865,7 +865,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version">V128</div>
+    <div id="version">V129</div>
   </div>
 </div>
 
@@ -1944,8 +1944,8 @@
       }
 
     } else {
-      const topH = 41;
-      const botH = 21;
+      const topH = 47;
+      const botH = 23;
       const numColW = 33;
       const rowH = topH + botH;
       const headerH = 28;
@@ -1979,7 +1979,7 @@
         tdPlayerTop.appendChild(orderNum);
 
         if (i < VIN_CLIPS.length) {
-          tdPlayerTop.appendChild(makeSpeakerIcon(29));
+          tdPlayerTop.appendChild(makeSpeakerIcon(23));
           const clipIdx = i;
           tdPlayerTop.addEventListener('click', () => playVin(clipIdx, tdPlayerTop));
         }
@@ -2029,7 +2029,7 @@
           l.setAttribute('x1', x1); l.setAttribute('y1', y);
           l.setAttribute('x2', x2); l.setAttribute('y2', y);
           l.setAttribute('stroke', stroke); l.setAttribute('stroke-width', sw);
-          if (dashed) l.setAttribute('stroke-dasharray', '2,2');
+          if (dashed) l.setAttribute('stroke-dasharray', '2,4');
           svg.appendChild(l);
         }
         function vline(x, y1, y2) {
