@@ -722,11 +722,11 @@
         margin: 0;
       }
 
-      /* Grid fills remaining space minus 60px (12px per col) */
+      /* Grid fills remaining space minus 80px (16px × 5 cols) */
       #vin-grid-wrap {
         flex: 1;
         min-width: 0;
-        max-width: calc(100% - 60px);
+        max-width: calc(100% - 80px);
         position: relative;
         overflow: visible;
         margin: 0;
@@ -834,7 +834,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V136</div>
+    <div id="version" style="margin-top:40px;">V137</div>
   </div>
 </div>
 
@@ -1899,8 +1899,8 @@
       const nCols = 5;
       const nRows = 2;
       const headerH = 32;
-      const cellH = 113; // 125 - 12px
-      const bleed = 10; // overhang amount
+      const cellH = 113; // initial height, will be made square after render
+      const bleed = 10;
 
       // Header row
       const headerRow = document.createElement('tr');
@@ -1931,11 +1931,23 @@
         table.appendChild(tr);
       }
 
-      // Draw all grid lines via SVG after render
+      // Draw all grid lines via SVG after render — also square up cells
       requestAnimationFrame(() => {
         const wrap = document.getElementById('vin-grid-wrap');
         const tbl = document.getElementById('vin-grid');
         if (!wrap || !tbl) return;
+
+        // Make cells square: measure actual column width, set row height to match
+        const firstHeaderCells = Array.from(tbl.querySelectorAll('tr:first-child th')).slice(1);
+        if (firstHeaderCells.length > 0) {
+          const colW = firstHeaderCells[0].getBoundingClientRect().width;
+          tbl.querySelectorAll('tr:not(:first-child) td').forEach(td => {
+            td.style.height = colW + 'px';
+          });
+        }
+
+        // Second rAF to draw SVG after cell heights are applied
+        requestAnimationFrame(() => {
         const tblRect = tbl.getBoundingClientRect();
         const svgNS = 'http://www.w3.org/2000/svg';
         const svg = document.createElementNS(svgNS, 'svg');
@@ -1973,35 +1985,37 @@
         const rowYs = rows.map(row => row.getBoundingClientRect().bottom - tblRect.top);
         const topY = rows[0].getBoundingClientRect().top - tblRect.top;
 
-        const xLeft = colXs[0];         // left edge of col 1
-        const xRight = colXs[colXs.length - 1]; // right edge of col 5
-        const yTop = rowYs[0];          // bottom of header
-        const yMid = rowYs[1];          // between row 1 and 2
+        const xLeft = colXs[0];
+        const xRight = colXs[colXs.length - 1];
+        const yHeader = rows[0].getBoundingClientRect().top - tblRect.top; // top of header row
+        const yTop = rowYs[0];          // bottom of header = top of row 1
+        const yMid = rowYs[1];          // bottom of row 1
         const yBot = rowYs[rowYs.length - 1]; // bottom of row 2
 
-        // Left edge vertical — no bleed left, bleed right (downward only, from header bottom)
-        vline(xLeft, yTop, yBot + bleed);
+        // Left edge vertical — from top of header, no bleed below bottom
+        vline(xLeft, yHeader, yBot);
 
-        // Right edge vertical — bleed down
-        vline(xRight, yTop, yBot + bleed);
+        // Right edge vertical — from top of header, bleed below bottom
+        vline(xRight, yHeader, yBot + bleed);
 
-        // Inner column dividers — bleed top and bottom
+        // Inner column dividers — bleed UP into header, bleed DOWN below bottom
         for (let i = 1; i < colXs.length - 1; i++) {
-          vline(colXs[i], yTop - bleed, yBot + bleed);
+          vline(colXs[i], yHeader - bleed, yBot + bleed);
         }
 
-        // Header bottom line — from left edge to right edge (no bleed needed)
-        hline(yTop, xLeft, xRight);
+        // Header bottom line — from left edge to right+bleed, no left bleed
+        hline(yTop, xLeft, xRight + bleed);
 
-        // Row divider — bleed left and right
-        hline(yMid, xLeft - bleed, xRight + bleed);
+        // Row divider — from left edge, bleed right only
+        hline(yMid, xLeft, xRight + bleed);
 
-        // Bottom edge line — bleed left and right
-        hline(yBot, xLeft - bleed, xRight + bleed);
+        // Bottom edge line — from left edge, bleed right only
+        hline(yBot, xLeft, xRight + bleed);
 
         wrap.style.position = 'relative';
         wrap.appendChild(svg);
-      });
+        }); // end second rAF
+      }); // end first rAF
 
     } else {
       const topH = 47;
