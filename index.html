@@ -834,7 +834,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V141</div>
+    <div id="version" style="margin-top:40px;">V142</div>
   </div>
 </div>
 
@@ -2171,8 +2171,9 @@
     });
 
     if (hasClip) {
-      // Speaker icon — same visual size as portrait (23px) scaled to 80 viewBox
-      // Portrait speaker is ~23/28 of its viewBox, so scale similarly here
+      // Speaker icon wrapped in a group we can target
+      const speakerG = document.createElementNS(svgNS, 'g');
+      speakerG.setAttribute('class', 'vin-speaker');
       const g = document.createElementNS(svgNS, 'g');
       g.setAttribute('transform', 'translate(26, 30) scale(0.82)');
 
@@ -2198,7 +2199,8 @@
       wave2.setAttribute('stroke-linecap', 'round');
       g.appendChild(wave2);
 
-      svg.appendChild(g);
+      speakerG.appendChild(g);
+      svg.appendChild(speakerG);
     }
 
     wrap.appendChild(svg);
@@ -2259,14 +2261,14 @@
 
   function playVin(idx, cell) {
     const filename = VIN_CLIPS[idx];
-    const speakerEl = cell.querySelector('svg');
+    // In landscape the speaker is a .vin-speaker group; in portrait it's the svg itself
+    const speakerEl = cell.querySelector('.vin-speaker') || cell.querySelector('svg');
 
-    // Stop current audio if playing
     if (vinAudio) {
       vinAudio.pause();
       vinAudio.currentTime = 0;
       if (vinPlayingCell) {
-        const prevSpeaker = vinPlayingCell.querySelector('svg');
+        const prevSpeaker = vinPlayingCell.querySelector('.vin-speaker') || vinPlayingCell.querySelector('svg');
         if (prevSpeaker) prevSpeaker.style.opacity = '1';
       }
       if (vinPlayingCell === cell) {
