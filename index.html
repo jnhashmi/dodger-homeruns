@@ -834,7 +834,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V138</div>
+    <div id="version" style="margin-top:40px;">V139</div>
   </div>
 </div>
 
@@ -2140,8 +2140,8 @@
     }
   }
 
-  function makeDiamond(hasClip, small) {
-    const size = small ? 50 : 80;
+  function makeDiamond(hasClip) {
+    const size = 80;
     const wrap = document.createElement('div');
     wrap.className = 'vin-diamond';
     wrap.style.width = size + 'px';
@@ -2153,40 +2153,58 @@
     svg.setAttribute('width', size);
     svg.setAttribute('height', size);
 
-    // Diamond outline — prominent, centered
+    const lineColor = hasClip ? '#707070' : '#2a2a2a';
+    const sw = '0.75';
+
+    // Main diamond outline
     const diamond = document.createElementNS(svgNS, 'polygon');
     diamond.setAttribute('points', '40,6 74,40 40,74 6,40');
     diamond.setAttribute('fill', 'none');
-    diamond.setAttribute('stroke', hasClip ? '#707070' : '#2a2a2a');
-    diamond.setAttribute('stroke-width', '0.75');
+    diamond.setAttribute('stroke', lineColor);
+    diamond.setAttribute('stroke-width', sw);
     svg.appendChild(diamond);
 
-    if (hasClip) {
-      // Speaker icon centered in diamond
-      const g = document.createElementNS(svgNS, 'g');
-      g.setAttribute('transform', 'translate(24, 26)');
+    // Base diamonds at 3 corners (1st=right, 2nd=top, 3rd=left) — no home plate (bottom)
+    const baseSize = 6; // half-width of small diamond
+    const bases = [
+      { cx: 74, cy: 40 }, // 1st base (right)
+      { cx: 40, cy: 6  }, // 2nd base (top)
+      { cx: 6,  cy: 40 }, // 3rd base (left)
+    ];
+    bases.forEach(({ cx, cy }) => {
+      const b = document.createElementNS(svgNS, 'polygon');
+      b.setAttribute('points', `${cx},${cy - baseSize} ${cx + baseSize},${cy} ${cx},${cy + baseSize} ${cx - baseSize},${cy}`);
+      b.setAttribute('fill', 'none');
+      b.setAttribute('stroke', lineColor);
+      b.setAttribute('stroke-width', sw);
+      svg.appendChild(b);
+    });
 
-      // Speaker body
+    if (hasClip) {
+      // Speaker icon — same visual size as portrait (23px) scaled to 80 viewBox
+      // Portrait speaker is ~23/28 of its viewBox, so scale similarly here
+      const g = document.createElementNS(svgNS, 'g');
+      g.setAttribute('transform', 'translate(26, 30) scale(0.82)');
+
       const body = document.createElementNS(svgNS, 'path');
-      body.setAttribute('d', 'M2,8 L2,20 L9,20 L18,27 L18,1 L9,8 Z');
+      body.setAttribute('d', 'M3,10 Q3,8 5,8 L9,8 L15,3 Q16,2 16,4 L16,24 Q16,26 15,25 L9,20 L5,20 Q3,20 3,18 Z');
       body.setAttribute('fill', '#ffffff');
+      body.setAttribute('stroke', 'none');
       g.appendChild(body);
 
-      // Sound wave 1
       const wave1 = document.createElementNS(svgNS, 'path');
-      wave1.setAttribute('d', 'M22,10 Q26,14 22,18');
+      wave1.setAttribute('d', 'M 19,10 A 5,5 0 0,1 19,18');
       wave1.setAttribute('fill', 'none');
       wave1.setAttribute('stroke', '#ffffff');
-      wave1.setAttribute('stroke-width', '2');
+      wave1.setAttribute('stroke-width', '1.8');
       wave1.setAttribute('stroke-linecap', 'round');
       g.appendChild(wave1);
 
-      // Sound wave 2
       const wave2 = document.createElementNS(svgNS, 'path');
-      wave2.setAttribute('d', 'M26,6 Q33,14 26,22');
+      wave2.setAttribute('d', 'M 22,7 A 9,9 0 0,1 22,21');
       wave2.setAttribute('fill', 'none');
       wave2.setAttribute('stroke', '#ffffff');
-      wave2.setAttribute('stroke-width', '2');
+      wave2.setAttribute('stroke-width', '1.8');
       wave2.setAttribute('stroke-linecap', 'round');
       g.appendChild(wave2);
 
