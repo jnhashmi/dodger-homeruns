@@ -760,14 +760,28 @@
       body.vin-mode #vin-screen { display: flex; }
       #vin-photo-wrap {
         flex: 0 0 auto;
-        width: 38%;
+        align-self: flex-start;
+      }
+      #vin-photo {
+        display: block;
+        width: auto;
+        height: calc(100vh - 120px); /* fill available height */
+        max-height: 320px;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        object-position: center top;
       }
       #vin-grid-wrap {
         flex: 1;
+        min-width: 0;
+        position: relative;
       }
-      #vin-grid { margin-top: 0; }
-      .vin-diamond { width: 80px; height: 80px; }
-      .vin-cell { height: 100px; }
+      #vin-grid {
+        width: 100%;
+        margin-top: 0;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
     }
     body.ws-mode #year-btn { display: none; }
     body.ws-mode #last-updated { display: none; }
@@ -865,7 +879,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V133</div>
+    <div id="version" style="margin-top:40px;">V134</div>
   </div>
 </div>
 
@@ -1872,7 +1886,7 @@
     // Speaker body with rounded corners using path
     const body = document.createElementNS(svgNS, 'path');
     body.setAttribute('d', 'M3,10 Q3,8 5,8 L9,8 L15,3 Q16,2 16,4 L16,24 Q16,26 15,25 L9,20 L5,20 Q3,20 3,18 Z');
-    body.setAttribute('fill', '#ffffff');
+    body.setAttribute('fill', '#707070');
     body.setAttribute('stroke', 'none');
     svg.appendChild(body);
 
@@ -1886,7 +1900,7 @@
     const wave1 = document.createElementNS(svgNS, 'path');
     wave1.setAttribute('d', 'M 19,10 A 5,5 0 0,1 19,18');
     wave1.setAttribute('fill', 'none');
-    wave1.setAttribute('stroke', '#ffffff');
+    wave1.setAttribute('stroke', '#707070');
     wave1.setAttribute('stroke-width', '1.8');
     wave1.setAttribute('stroke-linecap', 'round');
     svg.appendChild(wave1);
@@ -1895,7 +1909,7 @@
     const wave2 = document.createElementNS(svgNS, 'path');
     wave2.setAttribute('d', 'M 22,7 A 9,9 0 0,1 22,21');
     wave2.setAttribute('fill', 'none');
-    wave2.setAttribute('stroke', '#ffffff');
+    wave2.setAttribute('stroke', '#707070');
     wave2.setAttribute('stroke-width', '1.8');
     wave2.setAttribute('stroke-linecap', 'round');
     svg.appendChild(wave2);
@@ -1909,39 +1923,119 @@
     const isLandscape = window.innerWidth > window.innerHeight;
 
     if (isLandscape) {
-      // Landscape: 5 cols × 2 rows with baseball diamond in each cell
+      // Landscape: pure SVG grid, no CSS borders
+      // Photo is square — set via JS after render
+      const photo = document.getElementById('vin-photo');
+      if (photo) {
+        const photoWrap = document.getElementById('vin-photo-wrap');
+        requestAnimationFrame(() => {
+          const h = photoWrap ? photoWrap.getBoundingClientRect().height : 200;
+          photo.style.width = h + 'px';
+          photo.style.height = h + 'px';
+          photo.style.objectFit = 'cover';
+          photo.style.objectPosition = 'center top';
+        });
+      }
+
+      // Build borderless table — 5 cols × 2 rows
+      const nCols = 5;
+      const nRows = 2;
+      const headerH = 32;
+      const cellH = 100 + 25; // 50px taller split across rows
+
+      // Header row
       const headerRow = document.createElement('tr');
       headerRow.className = 'vin-header-row';
       const cornerTh = document.createElement('th');
-      cornerTh.style.border = '1px solid #6e6e6e';
+      cornerTh.style.cssText = 'border:none;width:0;padding:0;';
       headerRow.appendChild(cornerTh);
-      for (let c = 1; c <= 5; c++) {
+      for (let c = 1; c <= nCols; c++) {
         const th = document.createElement('th');
         th.textContent = c;
+        th.style.cssText = `border:none;font-size:13px;font-weight:400;color:#707070;font-family:Bricolage Grotesque,sans-serif;text-align:center;height:${headerH}px;`;
         headerRow.appendChild(th);
       }
       table.appendChild(headerRow);
 
-      for (let r = 0; r < 2; r++) {
+      for (let r = 0; r < nRows; r++) {
         const tr = document.createElement('tr');
-        const labelTd = document.createElement('td');
-        labelTd.style.cssText = 'border:1px solid #6e6e6e;width:30px;';
-        tr.appendChild(labelTd);
-
-        for (let c = 0; c < 5; c++) {
-          const clipIdx = r * 5 + c;
+        for (let c = 0; c < nCols; c++) {
+          const clipIdx = r * nCols + c;
           const td = document.createElement('td');
-          td.className = 'vin-cell' + (clipIdx < VIN_CLIPS.length ? ' has-clip' : ' empty');
-          td.style.cssText = 'border:1px solid #6e6e6e;height:100px;text-align:center;vertical-align:middle;';
-
+          td.style.cssText = `border:none;height:${cellH}px;text-align:center;vertical-align:middle;` + (clipIdx < VIN_CLIPS.length ? 'cursor:pointer;' : '');
           td.appendChild(makeDiamond(clipIdx < VIN_CLIPS.length));
           if (clipIdx < VIN_CLIPS.length) {
-            td.addEventListener('click', () => playVin(clipIdx, td));
+            td.addEventListener('click', () => { playAnalogClick(); playVin(clipIdx, td); });
           }
           tr.appendChild(td);
         }
         table.appendChild(tr);
       }
+
+      // Draw all grid lines via SVG after render
+      requestAnimationFrame(() => {
+        const wrap = document.getElementById('vin-grid-wrap');
+        const tbl = document.getElementById('vin-grid');
+        if (!wrap || !tbl) return;
+        const tblRect = tbl.getBoundingClientRect();
+        const W = tblRect.width;
+        const H = tblRect.height;
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.style.cssText = 'position:absolute;top:0;left:0;width:0;height:0;pointer-events:none;overflow:visible;';
+
+        const stroke = '#707070';
+        const sw = '0.75';
+
+        function hline(y, x1, x2) {
+          const l = document.createElementNS(svgNS, 'line');
+          l.setAttribute('x1', x1); l.setAttribute('y1', y);
+          l.setAttribute('x2', x2); l.setAttribute('y2', y);
+          l.setAttribute('stroke', stroke); l.setAttribute('stroke-width', sw);
+          svg.appendChild(l);
+        }
+        function vline(x, y1, y2) {
+          const l = document.createElementNS(svgNS, 'line');
+          l.setAttribute('x1', x); l.setAttribute('y1', y1);
+          l.setAttribute('x2', x); l.setAttribute('y2', y2);
+          l.setAttribute('stroke', stroke); l.setAttribute('stroke-width', sw);
+          svg.appendChild(l);
+        }
+
+        // Get column positions from actual rendered cells
+        const headerCells = tbl.querySelectorAll('tr:first-child th');
+        const colXs = [];
+        headerCells.forEach((th, i) => {
+          if (i === 0) return; // skip corner
+          const r = th.getBoundingClientRect();
+          colXs.push(r.left - tblRect.left);
+          if (i === headerCells.length - 1) colXs.push(r.right - tblRect.left);
+        });
+
+        // Get row positions
+        const rows = tbl.querySelectorAll('tr');
+        const rowYs = [0];
+        rows.forEach(row => {
+          const r = row.getBoundingClientRect();
+          rowYs.push(r.bottom - tblRect.top);
+        });
+
+        // Vertical lines — inner only (between columns, not outer edges)
+        for (let i = 1; i < colXs.length - 1; i++) {
+          vline(colXs[i], rowYs[0], rowYs[rowYs.length - 1]);
+        }
+
+        // Horizontal lines — inner only (between rows, not top/bottom edges)
+        // Header bottom line
+        hline(rowYs[1], colXs[0], colXs[colXs.length - 1]);
+        // Row divider
+        if (rowYs.length > 2) {
+          hline(rowYs[2], colXs[0], colXs[colXs.length - 1]);
+        }
+
+        wrap.style.position = 'relative';
+        wrap.appendChild(svg);
+      });
 
     } else {
       const topH = 47;
@@ -2084,8 +2178,8 @@
     const diamond = document.createElementNS(svgNS, 'polygon');
     diamond.setAttribute('points', '40,6 74,40 40,74 6,40');
     diamond.setAttribute('fill', 'none');
-    diamond.setAttribute('stroke', hasClip ? '#ffffff' : '#2a2a2a');
-    diamond.setAttribute('stroke-width', '1.5');
+    diamond.setAttribute('stroke', hasClip ? '#707070' : '#2a2a2a');
+    diamond.setAttribute('stroke-width', '0.75');
     svg.appendChild(diamond);
 
     if (hasClip) {
@@ -2124,8 +2218,11 @@
     return wrap;
   }
 
-  // Web Audio context for instant click sound
+  // Initialize AudioContext immediately at boot — will be suspended until first gesture
   let vinAudioCtx = null;
+  try {
+    vinAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) {}
 
   function initAudioCtx() {
     if (!vinAudioCtx) {
