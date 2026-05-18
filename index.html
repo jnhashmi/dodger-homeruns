@@ -834,7 +834,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V140</div>
+    <div id="version" style="margin-top:40px;">V141</div>
   </div>
 </div>
 
@@ -1909,7 +1909,7 @@
           td.style.cssText = `border:none;height:${cellH}px;text-align:center;vertical-align:middle;` + (clipIdx < VIN_CLIPS.length ? 'cursor:pointer;' : '');
           td.appendChild(makeDiamond(clipIdx < VIN_CLIPS.length));
           if (clipIdx < VIN_CLIPS.length) {
-            td.addEventListener('click', () => { playAnalogClick(); playVin(clipIdx, td); });
+            td.addEventListener('click', () => { playVin(clipIdx, td); });
           }
           tr.appendChild(td);
         }
@@ -2142,7 +2142,7 @@
     svg.setAttribute('width', size);
     svg.setAttribute('height', size);
 
-    const lineColor = hasClip ? '#707070' : '#2a2a2a';
+    const lineColor = '#707070';
     const sw = '0.75';
 
     // Main diamond outline
@@ -2258,15 +2258,17 @@
   }
 
   function playVin(idx, cell) {
-    playAnalogClick(); // instant tactile click
     const filename = VIN_CLIPS[idx];
+    const speakerEl = cell.querySelector('svg');
 
     // Stop current audio if playing
     if (vinAudio) {
       vinAudio.pause();
       vinAudio.currentTime = 0;
-      if (vinPlayingCell) vinPlayingCell.style.opacity = '1';
-      // If tapping same cell, just stop
+      if (vinPlayingCell) {
+        const prevSpeaker = vinPlayingCell.querySelector('svg');
+        if (prevSpeaker) prevSpeaker.style.opacity = '1';
+      }
       if (vinPlayingCell === cell) {
         vinAudio = null;
         vinPlayingCell = null;
@@ -2276,11 +2278,11 @@
 
     vinAudio = new Audio(filename);
     vinPlayingCell = cell;
-    cell.style.opacity = '0.5';
+    if (speakerEl) speakerEl.style.opacity = '0.4';
 
     vinAudio.play().catch(e => console.log('Audio play failed:', e));
     vinAudio.addEventListener('ended', () => {
-      cell.style.opacity = '1';
+      if (speakerEl) speakerEl.style.opacity = '1';
       vinAudio = null;
       vinPlayingCell = null;
     });
