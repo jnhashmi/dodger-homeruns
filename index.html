@@ -327,6 +327,32 @@
     }
     .ws-team.revealed { opacity: 1; }
 
+    /* vs. label — landscape only */
+    .ws-vs {
+      display: none;
+      font-size: 13px;
+      font-weight: 700;
+      color: #707070;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .ws-loser {
+      display: none;
+      min-width: 200px;
+    }
+
+    @media (orientation: landscape) {
+      .ws-vs { display: block; }
+      .ws-loser { display: block; }
+      .ws-row {
+        position: relative;
+      }
+    }
+
     /* ── Misc ── */
     #status-msg {
       font-family: 'Bricolage Grotesque', sans-serif;
@@ -362,7 +388,23 @@
     @media (orientation: landscape) {
       #dodger-logo { display: inline-block; }
       #home-runs-label { display: inline-block; }
-      body.ws-mode .ws-year { min-width: 190px; width: 190px; }
+      body.ws-mode .ws-year { min-width: 140px; width: 140px; } /* shifted left ~50px */
+      body.ws-mode .ws-row {
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
+      body.ws-mode .ws-team:not(.ws-loser) {
+        min-width: 220px;
+        width: 220px;
+      }
+      body.ws-mode .ws-vs {
+        min-width: 60px;
+        text-align: center;
+      }
+      body.ws-mode .ws-loser {
+        margin-left: 140px; /* ~200px from vs. center */
+      }
     }
 
     @media (orientation: portrait) {
@@ -834,7 +876,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V143</div>
+    <div id="version" style="margin-top:40px;">V144</div>
   </div>
 </div>
 
@@ -948,8 +990,69 @@
   const WS_YEARS = Object.keys(WS_WINNERS).map(Number).sort((a,b) => a - b);
   const WS_TOTAL = WS_YEARS.length;
 
+  const WS_LOSERS = {
+    1969: { team: 'Baltimore Orioles',      color: '#e36a30' },
+    1970: { team: 'Cincinnati Reds',        color: '#cc2509' },
+    1971: { team: 'Baltimore Orioles',      color: '#e36a30' },
+    1972: { team: 'Cincinnati Reds',        color: '#cc2509' },
+    1973: { team: 'New York Mets',          color: '#0f65ff' },
+    1974: { team: 'Los Angeles Dodgers',    color: '#0977cc' },
+    1975: { team: 'Boston Red Sox',         color: '#b92e24' },
+    1976: { team: 'New York Yankees',       color: '#a6a8ab' },
+    1977: { team: 'Los Angeles Dodgers',    color: '#0977cc' },
+    1978: { team: 'Los Angeles Dodgers',    color: '#0977cc' },
+    1979: { team: 'Baltimore Orioles',      color: '#e36a30' },
+    1980: { team: 'Kansas City Royals',     color: '#0f65ff' },
+    1981: { team: 'New York Yankees',       color: '#a6a8ab' },
+    1982: { team: 'Milwaukee Brewers',      color: '#0b5c2a' },
+    1983: { team: 'Philadelphia Phillies',  color: '#cc2509' },
+    1984: { team: 'San Diego Padres',       color: '#e3aa30' },
+    1985: { team: 'St. Louis Cardinals',    color: '#b92e24' },
+    1986: { team: 'Boston Red Sox',         color: '#b92e24' },
+    1987: { team: 'St. Louis Cardinals',    color: '#b92e24' },
+    1988: { team: 'Oakland Athletics',      color: '#09951f' },
+    1989: { team: 'San Francisco Giants',   color: '#e36a30' },
+    1990: { team: 'Oakland Athletics',      color: '#09951f' },
+    1991: { team: 'Atlanta Braves',         color: '#cc2509' },
+    1992: { team: 'Atlanta Braves',         color: '#cc2509' },
+    1993: { team: 'Philadelphia Phillies',  color: '#cc2509' },
+    1994: { team: '',                       color: '#a6a8ab' },
+    1995: { team: 'Cleveland Indians',      color: '#cc2509' },
+    1996: { team: 'Atlanta Braves',         color: '#cc2509' },
+    1997: { team: 'Cleveland Indians',      color: '#cc2509' },
+    1998: { team: 'San Diego Padres',       color: '#e3aa30' },
+    1999: { team: 'Atlanta Braves',         color: '#cc2509' },
+    2000: { team: 'New York Mets',          color: '#0f65ff' },
+    2001: { team: 'New York Yankees',       color: '#a6a8ab' },
+    2002: { team: 'San Francisco Giants',   color: '#e36a30' },
+    2003: { team: 'New York Yankees',       color: '#a6a8ab' },
+    2004: { team: 'St. Louis Cardinals',    color: '#b92e24' },
+    2005: { team: 'Houston Astros',         color: '#cc6909' },
+    2006: { team: 'Detroit Tigers',         color: '#0f65ff' },
+    2007: { team: 'Colorado Rockies',       color: '#8b5cf6' },
+    2008: { team: 'Tampa Bay Rays',         color: '#0f65ff' },
+    2009: { team: 'Philadelphia Phillies',  color: '#cc2509' },
+    2010: { team: 'Texas Rangers',          color: '#0f65ff' },
+    2011: { team: 'Texas Rangers',          color: '#0f65ff' },
+    2012: { team: 'Detroit Tigers',         color: '#0f65ff' },
+    2013: { team: 'St. Louis Cardinals',    color: '#b92e24' },
+    2014: { team: 'Kansas City Royals',     color: '#0f65ff' },
+    2015: { team: 'New York Mets',          color: '#0f65ff' },
+    2016: { team: 'Cleveland Indians',      color: '#cc2509' },
+    2017: { team: 'Los Angeles Dodgers',    color: '#0977cc' },
+    2018: { team: 'Los Angeles Dodgers',    color: '#0977cc' },
+    2019: { team: 'Houston Astros',         color: '#cc6909' },
+    2020: { team: 'Tampa Bay Rays',         color: '#0f65ff' },
+    2021: { team: 'Houston Astros',         color: '#cc6909' },
+    2022: { team: 'Philadelphia Phillies',  color: '#cc2509' },
+    2023: { team: 'Arizona Diamondbacks',   color: '#9939ff' },
+    2024: { team: 'New York Yankees',       color: '#a6a8ab' },
+    2025: { team: 'New York Yankees',       color: '#a6a8ab' },
+  };
+
   // Revealed state
   let wsRevealed = {};
+  let wsRevealedLoser = {};
   let wsRevealedCount = 0;
 
   // HR state
@@ -1132,12 +1235,10 @@
   // ── WS Clear button ──
   document.getElementById('ws-clear-btn').addEventListener('click', () => {
     wsRevealed = {};
+    wsRevealedLoser = {};
     wsRevealedCount = 0;
     updateWSTally();
-    document.querySelectorAll('.ws-team').forEach(el => {
-      el.classList.remove('revealed');
-      el.textContent = '';
-    });
+    buildWSList();
   });
 
   function updateWSTally() {
@@ -1148,8 +1249,11 @@
   function buildWSList() {
     const list = document.getElementById('ws-list');
     list.innerHTML = '';
+    const isLandscape = window.innerWidth > window.innerHeight;
+
     WS_YEARS.forEach(year => {
       const data = WS_WINNERS[year];
+      const loserData = WS_LOSERS[year];
       const row = document.createElement('div');
       row.className = 'ws-row';
       row.dataset.year = year;
@@ -1161,17 +1265,40 @@
       const teamEl = document.createElement('div');
       teamEl.className = 'ws-team';
       teamEl.style.color = data.color;
-
       if (wsRevealed[year]) {
         teamEl.textContent = data.team;
         teamEl.classList.add('revealed');
+      }
+      if (!wsRevealed[year]) {
+        teamEl.addEventListener('click', () => revealWS(year, teamEl, data));
       }
 
       row.appendChild(yearEl);
       row.appendChild(teamEl);
 
-      if (!wsRevealed[year]) {
-        row.addEventListener('click', () => revealWS(year, teamEl, data));
+      if (isLandscape && !data.noWS) {
+        // vs. label
+        const vsEl = document.createElement('div');
+        vsEl.className = 'ws-vs';
+        vsEl.textContent = 'vs.';
+
+        // Loser team
+        const loserEl = document.createElement('div');
+        loserEl.className = 'ws-team ws-loser';
+        if (loserData) loserEl.style.color = loserData.color;
+        if (wsRevealedLoser[year] && loserData) {
+          loserEl.textContent = loserData.team;
+          loserEl.classList.add('revealed');
+        }
+        if (!wsRevealedLoser[year] && loserData && loserData.team) {
+          loserEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            revealWSLoser(year, loserEl, loserData);
+          });
+        }
+
+        row.appendChild(vsEl);
+        row.appendChild(loserEl);
       }
 
       list.appendChild(row);
@@ -1182,10 +1309,17 @@
   function revealWS(year, teamEl, data) {
     if (wsRevealed[year]) return;
     wsRevealed[year] = true;
-    wsRevealedCount++; // count all years including 1994
+    wsRevealedCount++;
     teamEl.textContent = data.team;
     teamEl.classList.add('revealed');
     updateWSTally();
+  }
+
+  function revealWSLoser(year, loserEl, data) {
+    if (wsRevealedLoser[year]) return;
+    wsRevealedLoser[year] = true;
+    loserEl.textContent = data.team;
+    loserEl.classList.add('revealed');
   }
 
   // ── HR utilities ──
