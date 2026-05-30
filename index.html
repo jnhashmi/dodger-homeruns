@@ -739,135 +739,7 @@
 
     /* Postseason table layout */
     #ps-list { width: 100%; margin-top: calc(1.5em - 40px); }
-
-    .ps-header-row {
-      display: flex;
-      align-items: flex-end; /* bottom-align text, shifts labels down */
-      height: 45px; /* 5px taller to push labels lower */
-      padding-bottom: 5px;
-      border-bottom: 0.5px solid #6e6e6e;
-      /* NO border-top — nothing above 1969 */
-    }
-
-    .ps-header-cell {
-      font-size: 13px;
-      font-weight: 700;
-      color: #6e6e6e;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .ps-row {
-      display: flex;
-      align-items: center;
-      height: 40px;
-      border-bottom: 0.5px solid #6e6e6e;
-    }
-
-    /* Explicitly remove any top border from first data row */
-    .ps-row:first-of-type { border-top: none; }
-
-    .ps-year-cell {
-      font-size: 18px;
-      font-weight: 400;
-      color: #fff;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      width: 70px;
-      min-width: 70px;
-      flex-shrink: 0;
-    }
-
-    /* W/L base — layout only */
-    .ps-wl-cell {
-      font-family: 'Bricolage Grotesque', sans-serif;
-      width: 80px;
-      min-width: 80px;
-      flex-shrink: 0;
-      padding-left: 15px;
-    }
-
-    /* W/L header — same size/style as other column headers */
-    .ps-header-cell.ps-wl-cell {
-      font-size: 13px;
-      font-weight: 700;
-      color: #6e6e6e;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    /* W/L data row — record text */
-    .ps-row .ps-wl-cell {
-      font-size: 13px;
-      font-weight: 400;
-      color: #6e6e6e;
-    }
-
-    /* Round cells — vertical line on ALL rows including empty ones */
-    .ps-round-cell {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 150px;
-      min-width: 150px;
-      flex-shrink: 0;
-      padding-left: 12px;
-      border-left: 0.5px solid #6e6e6e;
-    }
-
-    /* Header round cells — NO border (lines start at 1969) */
-    .ps-header-cell.ps-round-cell {
-      border-left: none !important;
-      padding-left: 12px;
-    }
-
-    /* Landscape: W/L gets left+right borders, same height as round cell borders */
-    @media (orientation: landscape) {
-      .ps-wl-cell {
-        border-left: 0.5px solid #6e6e6e;
-        border-right: 0.5px solid #6e6e6e;
-        padding-right: 8px;
-      }
-      /* Header W/L — no border in header */
-      .ps-header-cell.ps-wl-cell {
-        border-left: none !important;
-        border-right: none !important;
-      }
-    }
-
-    .ps-icon {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .ps-icon.win { background: #2d7a2d; }
-    .ps-icon.loss { background: #cc2509; }
-    .ps-icon svg { width: 14px; height: 14px; }
-
-    .ps-result-text { display: flex; flex-direction: column; line-height: 1.2; }
-    .ps-opponent {
-      font-size: 13px; font-weight: 700; color: #6e6e6e;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap;
-    }
-    .ps-series {
-      font-size: 11px; color: #555;
-      font-family: 'Bricolage Grotesque', sans-serif; white-space: nowrap;
-    }
-
-    @media (orientation: portrait) {
-      .ps-result-text { display: none; }
-      .ps-round-cell { width: 60px; min-width: 60px; justify-content: center; padding-left: 0; border-left: 0.5px solid #6e6e6e; }
-      .ps-header-cell.ps-round-cell { border-left: none !important; padding-left: 0; }
-      .ps-year-cell  { width: 50px; min-width: 50px; font-size: 15px; }
-      .ps-wl-cell    { width: 60px; min-width: 60px; font-size: 13px; padding-left: 0; border-left: none; border-right: none; }
-    }
+    /* PS styles injected via JS to bypass cache */
     body.vin-mode #year-btn { display: none; }
     body.vin-mode #last-updated { display: none; }
     body.vin-mode #vin-label { display: inline-block; }
@@ -1068,7 +940,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V163-TEST</div>
+    <div id="version" style="margin-top:40px;">V164</div>
   </div>
 </div>
 
@@ -2653,7 +2525,7 @@
 
   // ── Postseason ──
   const PS_ROUNDS = [
-    { key: 'WC', land: 'WILD CARD ✓',       port: 'WC'  },
+    { key: 'WC', land: 'WILD CARD',       port: 'WC'  },
     { key: 'DS', land: 'DIVISION SERIES', port: 'DS'  },
     { key: 'CS', land: 'PENNANT',         port: 'PEN' },
     { key: 'WS', land: 'WORLD SERIES',    port: 'WS'  },
@@ -2782,6 +2654,41 @@
     }
     renderPSList();
   }
+
+  // Inject PS CSS via JS to bypass any stylesheet caching
+  (function() {
+    const s = document.createElement('style');
+    s.textContent = `
+      .ps-header-row { display:flex; align-items:flex-end; height:45px; padding-bottom:5px; border-bottom:0.5px solid #6e6e6e; }
+      .ps-header-cell { font-size:13px; font-weight:700; color:#6e6e6e; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
+      .ps-row { display:flex; align-items:center; height:40px; border-bottom:0.5px solid #6e6e6e; border-top:none; }
+      .ps-year-cell { font-size:18px; font-weight:400; color:#fff; font-family:'Bricolage Grotesque',sans-serif; width:70px; min-width:70px; flex-shrink:0; }
+      .ps-wl-cell { font-family:'Bricolage Grotesque',sans-serif; width:80px; min-width:80px; flex-shrink:0; padding-left:15px; }
+      .ps-header-cell.ps-wl-cell { font-size:13px; font-weight:700; color:#6e6e6e; letter-spacing:0.05em; text-transform:uppercase; }
+      .ps-row .ps-wl-cell { font-size:13px; font-weight:400; color:#6e6e6e; }
+      .ps-round-cell { display:flex; align-items:center; gap:8px; width:150px; min-width:150px; flex-shrink:0; padding-left:12px; border-left:0.5px solid #6e6e6e; }
+      .ps-header-cell.ps-round-cell { border-left:none !important; padding-left:12px; }
+      .ps-icon { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+      .ps-icon.win { background:#2d7a2d; }
+      .ps-icon.loss { background:#cc2509; }
+      .ps-icon svg { width:14px; height:14px; }
+      .ps-result-text { display:flex; flex-direction:column; line-height:1.2; }
+      .ps-opponent { font-size:13px; font-weight:700; color:#6e6e6e; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; }
+      .ps-series { font-size:11px; color:#555; font-family:'Bricolage Grotesque',sans-serif; white-space:nowrap; }
+      @media (orientation:landscape) {
+        .ps-wl-cell { border-left:0.5px solid #6e6e6e; border-right:0.5px solid #6e6e6e; padding-right:8px; }
+        .ps-header-cell.ps-wl-cell { border-left:none !important; border-right:none !important; }
+      }
+      @media (orientation:portrait) {
+        .ps-result-text { display:none; }
+        .ps-round-cell { width:60px; min-width:60px; justify-content:center; padding-left:0; border-left:0.5px solid #6e6e6e; }
+        .ps-header-cell.ps-round-cell { border-left:none !important; padding-left:0; }
+        .ps-year-cell { width:50px; min-width:50px; font-size:15px; }
+        .ps-wl-cell { width:60px; min-width:60px; font-size:13px; padding-left:0; border-left:none !important; border-right:none !important; }
+      }
+    `;
+    document.head.appendChild(s);
+  })();
 
   document.getElementById('year-btn').textContent = CURRENT_YEAR;
   const container = document.getElementById('player-list');
