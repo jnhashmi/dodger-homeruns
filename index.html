@@ -876,7 +876,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V144</div>
+    <div id="version" style="margin-top:40px;">V145</div>
   </div>
 </div>
 
@@ -1269,12 +1269,14 @@
         teamEl.textContent = data.team;
         teamEl.classList.add('revealed');
       }
-      if (!wsRevealed[year]) {
-        teamEl.addEventListener('click', () => revealWS(year, teamEl, data));
-      }
 
       row.appendChild(yearEl);
       row.appendChild(teamEl);
+
+      // Winner: tap anywhere on row reveals winner
+      if (!wsRevealed[year]) {
+        row.addEventListener('click', () => revealWS(year, teamEl, data));
+      }
 
       if (isLandscape && !data.noWS) {
         // vs. label
