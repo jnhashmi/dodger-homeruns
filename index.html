@@ -33,17 +33,11 @@
     ::-webkit-scrollbar { display: none; }
     * { scrollbar-width: none; -ms-overflow-style: none; }
 
-    html, body {
-      overscroll-behavior: none;
-      overscroll-behavior-y: none;
-    }
-
     #app {
       min-height: 100vh;
       min-height: -webkit-fill-available;
       display: flex;
       flex-direction: column;
-      overscroll-behavior: none;
     }
 
     /* ── Sticky header bar ── */
@@ -949,7 +943,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V165</div>
+    <div id="version" style="margin-top:40px;">V166</div>
   </div>
 </div>
 
@@ -2449,7 +2443,21 @@
     return wrap;
   }
 
-  // Initialize AudioContext immediately at boot — will be suspended until first gesture
+  // Prevent iOS pull-to-refresh page reload while keeping bounce scroll
+  let touchStartY = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    const inner = document.getElementById('inner');
+    if (!inner) return;
+    const scrollTop = inner.scrollTop;
+    const scrollingUp = e.touches[0].clientY > touchStartY;
+    // Only prevent default if at the top and pulling down (would trigger refresh)
+    if (scrollTop <= 0 && scrollingUp) {
+      e.preventDefault();
+    }
+  }, { passive: false });
   let vinAudioCtx = null;
   try {
     vinAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
