@@ -331,6 +331,9 @@
     @media (orientation: landscape) {
       .ws-col-label { display: inline; }
     }
+
+    /* vs. label — landscape only */
+    .ws-vs {
       display: none;
       font-size: 13px;
       font-weight: 700;
@@ -512,7 +515,7 @@
     }
     /* 20px gap between rows using margin-top on all but first */
     .nav-btn-row + .nav-btn-row {
-      margin-top: 15px;
+      margin-top: 10px;
     }
 
     .nav-btn-row {
@@ -672,8 +675,154 @@
       flex-shrink: 0;
     }
 
-    #vin-label {
+    #ps-label {
       font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      white-space: nowrap;
+      display: none;
+      margin-left: 11px;
+    }
+
+    /* ── Postseason screen ── */
+    #ps-screen { display: none; margin-top: calc(1.5em - 40px); }
+
+    body.ps-mode #year-btn { display: none; }
+    body.ps-mode #last-updated { display: none; }
+    body.ps-mode #ps-label { display: inline-block; }
+    body.ps-mode #home-runs-label { display: none !important; }
+    body.ps-mode #title-text { display: none !important; }
+    body.ps-mode #dodger-logo { display: inline-block; }
+    body.ps-mode #hr-screen { display: none; }
+    body.ps-mode #ws-screen { display: none; }
+    body.ps-mode #ops-screen { display: none; }
+    body.ps-mode #vin-screen { display: none; }
+    body.ps-mode #ps-screen { display: block; }
+    body.ps-mode #portrait-note { display: none !important; }
+    body.ps-mode #ws-tally { display: none; }
+    body.ps-mode #ws-clear-btn { display: none; }
+    body.ps-mode #ws-label { display: none; }
+    body.ps-mode #ops-label { display: none; }
+    body.ps-mode #vin-label { display: none; }
+
+    @media (orientation: portrait) {
+      body.ps-mode #dodger-logo { display: none !important; }
+      body.ps-mode #ps-label { display: inline-block !important; font-size: 15px !important; margin-left: 0 !important; }
+      body.ps-mode #title { display: none; }
+    }
+
+    /* Postseason table */
+    #ps-list {
+      width: 100%;
+    }
+
+    .ps-header-row {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      border-bottom: 0.5px solid #6e6e6e;
+      position: sticky;
+      top: 0;
+      background: #111;
+      z-index: 5;
+    }
+
+    .ps-header-cell {
+      font-size: 13px;
+      font-weight: 700;
+      color: #6e6e6e;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ps-row {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      border-bottom: 0.5px solid #6e6e6e;
+    }
+
+    .ps-year-cell {
+      font-size: 18px;
+      font-weight: 400;
+      color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      flex-shrink: 0;
+    }
+
+    .ps-wl-cell {
+      font-size: 15px;
+      font-weight: 400;
+      color: #6e6e6e;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      flex-shrink: 0;
+    }
+
+    .ps-round-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .ps-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ps-icon.win { background: #2d7a2d; }
+    .ps-icon.loss { background: #cc2509; }
+
+    .ps-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .ps-result-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .ps-opponent {
+      font-size: 13px;
+      font-weight: 700;
+      color: #6e6e6e;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .ps-series {
+      font-size: 11px;
+      color: #555;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      white-space: nowrap;
+    }
+
+    /* Column widths */
+    .ps-year-cell  { width: 70px; min-width: 70px; }
+    .ps-wl-cell    { width: 80px; min-width: 80px; }
+    .ps-round-cell { width: 200px; min-width: 200px; }
+
+    @media (orientation: portrait) {
+      body.ps-mode .ps-result-text { display: none; }
+      .ps-round-cell { width: 80px; min-width: 80px; justify-content: center; }
+      .ps-year-cell  { width: 55px; min-width: 55px; font-size: 15px; }
+      .ps-wl-cell    { width: 65px; min-width: 65px; font-size: 13px; }
+      .ps-header-cell { font-size: 11px; }
+    }
       font-weight: 700;
       color: #fff;
       font-family: 'Bricolage Grotesque', sans-serif;
@@ -844,6 +993,7 @@
         <span id="ws-label">World Series Challenge</span>
         <span id="ops-label">On-base Plus Slugging</span>
         <span id="vin-label">Vin Scully</span>
+        <span id="ps-label">Postseason</span>
         <button id="year-btn">2026</button>
         <span id="ws-tally">Total 0/57</span>
         <button id="ws-clear-btn">Clear</button>
@@ -863,6 +1013,11 @@
     </div>
 
     <!-- World Series Screen -->
+    <!-- Postseason Screen -->
+    <div id="ps-screen">
+      <div id="ps-list"></div>
+    </div>
+
     <div id="ws-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
       <div id="ws-header-row" style="position:absolute;top:14px;left:0;right:0;height:40px;display:flex;align-items:center;">
         <span id="ws-tap-reveal" style="font-size:13px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;color:#6e6e6e;letter-spacing:0.08em;text-transform:uppercase;">TAP TO REVEAL</span>
@@ -888,7 +1043,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V153</div>
+    <div id="version" style="margin-top:40px;">V155</div>
   </div>
 </div>
 
@@ -901,6 +1056,7 @@
     <div id="nav-btn-container">
       <div class="nav-btn-row"><button class="nav-btn" data-screen="hr">Home Runs</button></div>
       <div class="nav-btn-row"><button class="nav-btn" data-screen="ops">On-base Plus Slugging</button></div>
+      <div class="nav-btn-row"><button class="nav-btn" data-screen="ps">Postseason</button></div>
       <div class="nav-btn-row"><button class="nav-btn" data-screen="ws">World Series Challenge</button></div>
       <div class="nav-btn-row"><button class="nav-btn" data-screen="vin">Vin Scully</button></div>
     </div>
@@ -1193,6 +1349,9 @@
       if (currentScreen === 'ws') {
         buildWSList();
       }
+      if (currentScreen === 'ps') {
+        renderPSList(PS_YEARS.map(y => psData[y]));
+      }
     }, 100);
   });
 
@@ -1222,9 +1381,8 @@
   let loadedOPSYear = null;
 
   function navigateTo(screen) {
-    document.body.classList.remove('ws-mode', 'ops-mode', 'vin-mode');
+    document.body.classList.remove('ws-mode', 'ops-mode', 'vin-mode', 'ps-mode');
     currentScreen = screen;
-    // Reset scroll on every navigation
     const app = document.getElementById('app');
     if (app) app.scrollTop = 0;
     if (screen === 'hr') {
@@ -1238,12 +1396,14 @@
       if (loadedOPSYear !== selectedYear) {
         loadOPS(selectedYear);
       } else {
-        // Always re-align dividers/dots when navigating to OPS
         requestAnimationFrame(() => requestAnimationFrame(() => alignOPSDividers()));
       }
     } else if (screen === 'vin') {
       document.body.classList.add('vin-mode');
       buildVinGrid();
+    } else if (screen === 'ps') {
+      document.body.classList.add('ps-mode');
+      loadPS();
     }
   }
 
@@ -2472,6 +2632,169 @@
       vinPlayingCell = null;
     });
   }
+
+  // ── Postseason screen ──
+  const PS_ROUNDS = [
+    { key: 'WC',  labelLand: 'WILD CARD',       labelPort: 'WC'  },
+    { key: 'DS',  labelLand: 'DIVISION SERIES',  labelPort: 'DS'  },
+    { key: 'CS',  labelLand: 'PENNANT',          labelPort: 'PEN' },
+    { key: 'WS',  labelLand: 'WORLD SERIES',     labelPort: 'WS'  },
+  ];
+  const PS_YEARS = [];
+  for (let y = 1969; y <= CURRENT_YEAR; y++) PS_YEARS.push(y);
+  let psData = {};
+  let psLoaded = false;
+
+  function makePSIcon(win) {
+    const div = document.createElement('div');
+    div.className = 'ps-icon ' + (win ? 'win' : 'loss');
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 16 16');
+    const path = document.createElementNS(svgNS, 'path');
+    if (win) {
+      path.setAttribute('d', 'M2 8 L6 12 L14 4');
+      path.setAttribute('stroke', '#fff');
+      path.setAttribute('stroke-width', '2.5');
+      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('stroke-linejoin', 'round');
+      path.setAttribute('fill', 'none');
+    } else {
+      path.setAttribute('d', 'M3 3 L13 13 M13 3 L3 13');
+      path.setAttribute('stroke', '#fff');
+      path.setAttribute('stroke-width', '2.5');
+      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('fill', 'none');
+    }
+    svg.appendChild(path);
+    div.appendChild(svg);
+    return div;
+  }
+
+  async function fetchPSYear(year) {
+    try {
+      // Regular season W/L
+      const recRes = await fetch(`https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=${year}&standingsTypes=regularSeason&hydrate=team`);
+      const recData = await recRes.json();
+      let wl = '';
+      for (const rec of recData.records || []) {
+        for (const tr of rec.teamRecords || []) {
+          if (tr.team?.id === TEAM_ID) { wl = `${tr.wins}-${tr.losses}`; break; }
+        }
+        if (wl) break;
+      }
+
+      // Postseason games
+      const psRes = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&season=${year}&gameType=F,D,L,W&hydrate=team,seriesSummary,linescore`);
+      const psSched = await psRes.json();
+      const seriesMap = {};
+
+      for (const date of psSched.dates || []) {
+        for (const game of date.games || []) {
+          const home = game.teams?.home?.team?.id;
+          const away = game.teams?.away?.team?.id;
+          if (home !== TEAM_ID && away !== TEAM_ID) continue;
+          const gt = game.gameType;
+          const roundKey = gt==='F'?'WC':gt==='D'?'DS':gt==='L'?'CS':gt==='W'?'WS':null;
+          if (!roundKey) continue;
+          if (!seriesMap[roundKey]) {
+            const opp = home === TEAM_ID ? game.teams.away?.team?.name : game.teams.home?.team?.name;
+            seriesMap[roundKey] = { opp: opp||'?', wins: 0, losses: 0 };
+          }
+          const s = seriesMap[roundKey];
+          const dScore = home===TEAM_ID ? game.teams.home?.score : game.teams.away?.score;
+          const oScore = home===TEAM_ID ? game.teams.away?.score : game.teams.home?.score;
+          if (game.status?.statusCode === 'F' && dScore != null && oScore != null) {
+            if (dScore > oScore) s.wins++; else if (oScore > dScore) s.losses++;
+          }
+        }
+      }
+
+      const rounds = {};
+      for (const [roundKey, s] of Object.entries(seriesMap)) {
+        rounds[roundKey] = {
+          win: s.wins > s.losses,
+          opp: s.opp,
+          series: `${s.wins}-${s.losses}`
+        };
+      }
+      return { wl, rounds };
+    } catch(e) { return { wl: '', rounds: {} }; }
+  }
+
+  function renderPSList(results) {
+    const list = document.getElementById('ps-list');
+    list.innerHTML = '';
+    const isLandscape = window.innerWidth > window.innerHeight;
+
+    // Header
+    const headerRow = document.createElement('div');
+    headerRow.className = 'ps-header-row';
+    const yearHdr = document.createElement('div');
+    yearHdr.className = 'ps-header-cell ps-year-cell';
+    headerRow.appendChild(yearHdr);
+    const wlHdr = document.createElement('div');
+    wlHdr.className = 'ps-header-cell ps-wl-cell';
+    wlHdr.textContent = 'W/L';
+    headerRow.appendChild(wlHdr);
+    PS_ROUNDS.forEach(r => {
+      const hdr = document.createElement('div');
+      hdr.className = 'ps-header-cell ps-round-cell';
+      hdr.textContent = isLandscape ? r.labelLand : r.labelPort;
+      headerRow.appendChild(hdr);
+    });
+    list.appendChild(headerRow);
+
+    PS_YEARS.forEach((year, i) => {
+      const d = results[i] || { wl: '', rounds: {} };
+      if (year === 1994) return; // skip strike year
+      const row = document.createElement('div');
+      row.className = 'ps-row';
+
+      const yearEl = document.createElement('div');
+      yearEl.className = 'ps-year-cell';
+      yearEl.textContent = year;
+      row.appendChild(yearEl);
+
+      const wlEl = document.createElement('div');
+      wlEl.className = 'ps-wl-cell';
+      wlEl.textContent = d.wl || '—';
+      row.appendChild(wlEl);
+
+      PS_ROUNDS.forEach(r => {
+        const cell = document.createElement('div');
+        cell.className = 'ps-round-cell';
+        const rd = d.rounds[r.key];
+        if (rd) {
+          cell.appendChild(makePSIcon(rd.win));
+          if (isLandscape) {
+            const text = document.createElement('div');
+            text.className = 'ps-result-text';
+            const opp = document.createElement('div');
+            opp.className = 'ps-opponent';
+            opp.textContent = rd.opp.split(' ').pop().toUpperCase();
+            const series = document.createElement('div');
+            series.className = 'ps-series';
+            series.textContent = rd.series;
+            text.appendChild(opp);
+            text.appendChild(series);
+            cell.appendChild(text);
+          }
+        }
+        row.appendChild(cell);
+      });
+      list.appendChild(row);
+    });
+  }
+
+  async function loadPS() {
+    if (psLoaded) { renderPSList(PS_YEARS.map(y => psData[y])); return; }
+    document.getElementById('ps-list').innerHTML = '<div style="color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;font-size:15px;padding:24px;">Loading…</div>';
+    const results = await Promise.all(PS_YEARS.map(y => fetchPSYear(y).then(d => { psData[y] = d; return d; })));
+    psLoaded = true;
+    renderPSList(results);
+  }
+
   document.getElementById('year-btn').textContent = CURRENT_YEAR;
   const container = document.getElementById('player-list');
   container.style.opacity = '0';
