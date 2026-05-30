@@ -780,16 +780,29 @@
       flex-shrink: 0;
     }
 
-    /* W/L — no borders by default, landscape adds left+right */
+    /* W/L base — layout only */
     .ps-wl-cell {
-      font-size: 15px;
-      font-weight: 400;
-      color: #6e6e6e;
       font-family: 'Bricolage Grotesque', sans-serif;
       width: 80px;
       min-width: 80px;
       flex-shrink: 0;
       padding-left: 15px;
+    }
+
+    /* W/L header — same size/style as other column headers */
+    .ps-header-cell.ps-wl-cell {
+      font-size: 13px;
+      font-weight: 700;
+      color: #6e6e6e;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* W/L data row — record text */
+    .ps-row .ps-wl-cell {
+      font-size: 13px;
+      font-weight: 400;
+      color: #6e6e6e;
     }
 
     /* Round cells — vertical line on ALL rows including empty ones */
@@ -1055,7 +1068,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V159</div>
+    <div id="version" style="margin-top:40px;">V161</div>
   </div>
 </div>
 
@@ -2646,7 +2659,7 @@
     { key: 'WS', land: 'WORLD SERIES',    port: 'WS'  },
   ];
   const PS_YEARS = [];
-  for (let y = 1969; y <= CURRENT_YEAR; y++) { if (y !== 1994) PS_YEARS.push(y); }
+  for (let y = 1969; y <= CURRENT_YEAR; y++) PS_YEARS.push(y);
   let psCache = {};
   let psLoaded = false;
 
