@@ -411,7 +411,7 @@
         text-align: center;
       }
       body.ws-mode .ws-loser-tap {
-        margin-left: 70px;
+        margin-left: 60px;
       }
     }
 
@@ -884,7 +884,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V149</div>
+    <div id="version" style="margin-top:40px;">V150</div>
   </div>
 </div>
 
@@ -1289,30 +1289,32 @@
         row.addEventListener('click', () => revealWS(year, teamEl, data));
       }
 
-      if (isLandscape && !data.noWS) {
-        // vs. label
+      if (isLandscape) {
         const vsEl = document.createElement('div');
         vsEl.className = 'ws-vs';
         vsEl.textContent = 'vs.';
 
-        // Loser team
+        // For 1994, loser side says "No World Series"
+        const loserEntry = data.noWS
+          ? { team: 'No World Series', color: '#a6a8ab' }
+          : loserData;
+
         const loserEl = document.createElement('div');
         loserEl.className = 'ws-team ws-loser';
-        if (loserData) loserEl.style.color = loserData.color;
-        if (wsRevealedLoser[year] && loserData) {
-          loserEl.textContent = loserData.team;
+        if (loserEntry) loserEl.style.color = loserEntry.color;
+        if (wsRevealedLoser[year] && loserEntry) {
+          loserEl.textContent = loserEntry.team;
           loserEl.classList.add('revealed');
         }
 
-        // Tap zone — full size, positioned over loser area
         const loserTap = document.createElement('div');
         loserTap.className = 'ws-loser-tap';
         loserTap.appendChild(loserEl);
 
-        if (!wsRevealedLoser[year] && loserData && loserData.team) {
+        if (!wsRevealedLoser[year] && loserEntry && loserEntry.team) {
           loserTap.addEventListener('click', (e) => {
             e.stopPropagation();
-            revealWSLoser(year, loserEl, loserData);
+            revealWSLoser(year, loserEl, loserEntry);
           });
         }
 
