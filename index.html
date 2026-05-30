@@ -775,6 +775,18 @@
       flex-shrink: 0;
     }
 
+    .ps-round-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 150px;
+      min-width: 150px;
+      flex-shrink: 0;
+      border-left: 0.5px solid #6e6e6e;
+      padding-left: 12px;
+    }
+
+    /* W/L cell also gets right border to separate from rounds */
     .ps-wl-cell {
       font-size: 15px;
       font-weight: 400;
@@ -783,15 +795,27 @@
       width: 80px;
       min-width: 80px;
       flex-shrink: 0;
+      border-right: 0.5px solid #6e6e6e;
+      padding-right: 8px;
     }
 
-    .ps-round-cell {
+    /* Header row — no top border, just bottom */
+    .ps-header-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      width: 200px;
-      min-width: 200px;
-      flex-shrink: 0;
+      height: 40px;
+      border-bottom: 0.5px solid #6e6e6e;
+      border-top: none;
+    }
+
+    /* Header round cells match data cells */
+    .ps-header-cell.ps-round-cell {
+      border-left: 0.5px solid #6e6e6e;
+      padding-left: 12px;
+    }
+    .ps-header-cell.ps-wl-cell {
+      border-right: 0.5px solid #6e6e6e;
+      padding-right: 8px;
     }
 
     .ps-icon {
@@ -820,9 +844,9 @@
 
     @media (orientation: portrait) {
       .ps-result-text { display: none; }
-      .ps-round-cell { width: 70px; min-width: 70px; justify-content: center; }
+      .ps-round-cell { width: 60px; min-width: 60px; justify-content: center; padding-left: 0; }
       .ps-year-cell  { width: 50px; min-width: 50px; font-size: 15px; }
-      .ps-wl-cell    { width: 60px; min-width: 60px; font-size: 13px; }
+      .ps-wl-cell    { width: 60px; min-width: 60px; font-size: 13px; padding-right: 0; }
     }
     body.vin-mode #year-btn { display: none; }
     body.vin-mode #last-updated { display: none; }
@@ -1024,7 +1048,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V156</div>
+    <div id="version" style="margin-top:40px;">V157</div>
   </div>
 </div>
 
