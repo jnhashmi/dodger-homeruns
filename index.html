@@ -745,6 +745,7 @@
       align-items: center;
       height: 40px;
       border-bottom: 0.5px solid #6e6e6e;
+      /* NO border-top — nothing above 1969 */
     }
 
     .ps-header-cell {
@@ -775,18 +776,7 @@
       flex-shrink: 0;
     }
 
-    .ps-round-cell {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 150px;
-      min-width: 150px;
-      flex-shrink: 0;
-      border-left: 0.5px solid #6e6e6e;
-      padding-left: 12px;
-    }
-
-    /* W/L cell also gets right border to separate from rounds */
+    /* W/L — no borders by default, landscape adds left border */
     .ps-wl-cell {
       font-size: 15px;
       font-weight: 400;
@@ -795,27 +785,37 @@
       width: 80px;
       min-width: 80px;
       flex-shrink: 0;
-      border-right: 0.5px solid #6e6e6e;
-      padding-right: 8px;
+      padding-left: 15px; /* 15px shift right */
     }
 
-    /* Header row — no top border, just bottom */
-    .ps-header-row {
+    /* Round cells — vertical line only on DATA rows, not header */
+    .ps-row .ps-round-cell {
+      border-left: 0.5px solid #6e6e6e;
+    }
+
+    .ps-round-cell {
       display: flex;
       align-items: center;
-      height: 40px;
-      border-bottom: 0.5px solid #6e6e6e;
-      border-top: none;
-    }
-
-    /* Header round cells match data cells */
-    .ps-header-cell.ps-round-cell {
-      border-left: 0.5px solid #6e6e6e;
+      gap: 8px;
+      width: 150px;
+      min-width: 150px;
+      flex-shrink: 0;
       padding-left: 12px;
     }
-    .ps-header-cell.ps-wl-cell {
-      border-right: 0.5px solid #6e6e6e;
-      padding-right: 8px;
+
+    /* Header round cells — NO border, text left-aligned */
+    .ps-header-cell.ps-round-cell {
+      border-left: none;
+      padding-left: 12px;
+    }
+
+    /* Landscape: W/L gets left border and right border */
+    @media (orientation: landscape) {
+      .ps-wl-cell {
+        border-left: 0.5px solid #6e6e6e;
+        border-right: 0.5px solid #6e6e6e;
+        padding-right: 8px;
+      }
     }
 
     .ps-icon {
@@ -845,8 +845,11 @@
     @media (orientation: portrait) {
       .ps-result-text { display: none; }
       .ps-round-cell { width: 60px; min-width: 60px; justify-content: center; padding-left: 0; }
+      .ps-header-cell.ps-round-cell { padding-left: 0; text-align: left; }
       .ps-year-cell  { width: 50px; min-width: 50px; font-size: 15px; }
-      .ps-wl-cell    { width: 60px; min-width: 60px; font-size: 13px; padding-right: 0; }
+      .ps-wl-cell    { width: 60px; min-width: 60px; font-size: 13px; padding-left: 0; border-left: none; border-right: none; }
+      /* Portrait round cell vertical lines still show on data rows */
+      .ps-row .ps-round-cell { border-left: 0.5px solid #6e6e6e; }
     }
     body.vin-mode #year-btn { display: none; }
     body.vin-mode #last-updated { display: none; }
@@ -1048,7 +1051,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V157</div>
+    <div id="version" style="margin-top:40px;">V158</div>
   </div>
 </div>
 
