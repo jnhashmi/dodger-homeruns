@@ -819,7 +819,7 @@
 
     /* Header round cells — NO border (lines start at 1969) */
     .ps-header-cell.ps-round-cell {
-      border-left: none;
+      border-left: none !important;
       padding-left: 12px;
     }
 
@@ -832,8 +832,8 @@
       }
       /* Header W/L — no border in header */
       .ps-header-cell.ps-wl-cell {
-        border-left: none;
-        border-right: none;
+        border-left: none !important;
+        border-right: none !important;
       }
     }
 
@@ -864,7 +864,7 @@
     @media (orientation: portrait) {
       .ps-result-text { display: none; }
       .ps-round-cell { width: 60px; min-width: 60px; justify-content: center; padding-left: 0; border-left: 0.5px solid #6e6e6e; }
-      .ps-header-cell.ps-round-cell { border-left: none; padding-left: 0; }
+      .ps-header-cell.ps-round-cell { border-left: none !important; padding-left: 0; }
       .ps-year-cell  { width: 50px; min-width: 50px; font-size: 15px; }
       .ps-wl-cell    { width: 60px; min-width: 60px; font-size: 13px; padding-left: 0; border-left: none; border-right: none; }
     }
@@ -1068,7 +1068,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V161</div>
+    <div id="version" style="margin-top:40px;">V162</div>
   </div>
 </div>
 
