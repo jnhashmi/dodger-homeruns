@@ -390,7 +390,7 @@
     #portrait-note {
       display: none;
       font-family: 'Bricolage Grotesque', sans-serif;
-      color: #6e6e6e;
+      color: #797878;
       font-size: 13px;
       font-weight: 700;
       letter-spacing: 0.05em;
@@ -402,7 +402,7 @@
     #version {
       display: block;
       font-family: 'Bricolage Grotesque', sans-serif;
-      color: #6e6e6e;
+      color: #797878;
       font-size: 11px;
       text-align: center;
       margin-top: 8px;
@@ -620,7 +620,7 @@
       font-size: 13px;
       font-weight: 700;
       font-family: 'Bricolage Grotesque', sans-serif;
-      color: #6e6e6e;
+      color: #797878;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       transform: none; /* left-aligned, not centered */
@@ -928,7 +928,7 @@
 
     <div id="ws-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
       <div id="ws-header-row" style="position:absolute;top:14px;left:0;right:0;height:40px;display:flex;align-items:center;">
-        <span id="ws-tap-reveal" style="font-size:13px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;color:#6e6e6e;letter-spacing:0.08em;text-transform:uppercase;">TAP TO REVEAL</span>
+        <span id="ws-tap-reveal" style="font-size:13px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;color:#797878;letter-spacing:0.08em;text-transform:uppercase;">TAP TO REVEAL</span>
       </div>
       <div id="ws-list" style="padding-top:40px;"></div>
     </div>
@@ -951,7 +951,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V175</div>
+    <div id="version" style="margin-top:40px;">V176</div>
   </div>
 </div>
 
@@ -1332,7 +1332,7 @@
     // Remove any previously added WINNER/LOSER labels
     headerRow.querySelectorAll('.ws-col-label').forEach(el => el.remove());
 
-    const labelStyle = 'font-size:13px;font-weight:700;font-family:Bricolage Grotesque,sans-serif;color:#6e6e6e;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;';
+    const labelStyle = 'font-size:13px;font-weight:700;font-family:Bricolage Grotesque,sans-serif;color:#797878;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;';
 
     if (isLandscape) {
       const winnerLbl = document.createElement('span');
@@ -2699,7 +2699,7 @@
 
   async function loadPS() {
     if (!psLoaded) {
-      document.getElementById('ps-list').innerHTML = '<div style="color:#6e6e6e;font-family:Bricolage Grotesque,sans-serif;font-size:15px;padding:24px 0;">Loading…</div>';
+      document.getElementById('ps-list').innerHTML = '<div style="color:#797878;font-family:Bricolage Grotesque,sans-serif;font-size:15px;padding:24px 0;">Loading…</div>';
       await Promise.all(PS_YEARS.map(y => fetchPSYear(y).then(d => { psCache[y]=d; })));
       psLoaded = true;
     }
@@ -2711,13 +2711,13 @@
     const s = document.createElement('style');
     s.textContent = `
       .ps-header-row { position:absolute; top:0; left:0; right:0; display:flex; align-items:flex-end; height:40px; padding-bottom:5px; border:none; }
-      .ps-header-cell { font-size:13px; font-weight:700; color:#6e6e6e; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
+      .ps-header-cell { font-size:13px; font-weight:700; color:#797878; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
       .ps-row { display:flex; align-items:center; height:40px; border-bottom:0.5px solid #6e6e6e; border-top:none; position:relative; }
       .ps-divider { position:absolute; top:3px; bottom:3px; width:0.5px; background:#6e6e6e; pointer-events:none; }
       .ps-year-cell { font-size:18px; font-weight:400; color:#fff; font-family:'Bricolage Grotesque',sans-serif; width:70px; min-width:70px; flex-shrink:0; }
       .ps-wl-cell { font-family:'Bricolage Grotesque',sans-serif; width:80px; min-width:80px; flex-shrink:0; padding-left:15px; }
-      .ps-header-cell.ps-wl-cell { font-size:13px; font-weight:700; color:#6e6e6e; letter-spacing:0.05em; text-transform:uppercase; }
-      .ps-row .ps-wl-cell { font-size:13px; font-weight:400; color:#6e6e6e; }
+      .ps-header-cell.ps-wl-cell { font-size:13px; font-weight:700; color:#797878; letter-spacing:0.05em; text-transform:uppercase; }
+      .ps-row .ps-wl-cell { font-size:13px; font-weight:400; color:#797878; }
       .ps-round-cell { display:flex; align-items:center; justify-content:flex-start; gap:8px; width:150px; min-width:150px; flex-shrink:0; padding-left:12px; }
       .ps-header-cell.ps-round-cell { justify-content:flex-start; padding-left:12px; }
       .ps-icon { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -2725,8 +2725,8 @@
       .ps-icon.loss { background:#cc2509; }
       .ps-icon svg { width:14px; height:14px; }
       .ps-result-text { display:flex; flex-direction:column; line-height:1.2; }
-      .ps-opponent { font-size:13px; font-weight:700; color:#6e6e6e; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; }
-      .ps-series { font-size:11px; color:#555; font-family:'Bricolage Grotesque',sans-serif; white-space:nowrap; }
+      .ps-opponent { font-size:13px; font-weight:700; color:#797878; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; }
+      .ps-series { font-size:11px; color:#707070; font-family:'Bricolage Grotesque',sans-serif; white-space:nowrap; }
       @media (orientation:landscape) { .ps-wl-cell { padding-right:8px; } }
       @media (orientation:portrait) {
         .ps-result-text { display:none; }
