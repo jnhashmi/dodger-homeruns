@@ -52,7 +52,6 @@
       font-family: 'Bricolage Grotesque', -apple-system, 'Helvetica Neue', sans-serif;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
-      overscroll-behavior-y: none; /* prevents pull-to-refresh page reload */
     }
 
     #app {
@@ -60,7 +59,6 @@
       min-height: -webkit-fill-available;
       display: flex;
       flex-direction: column;
-      overscroll-behavior-y: none;
     }
 
     #inner {
@@ -68,7 +66,6 @@
       padding-right: max(env(safe-area-inset-right), 24px);
       padding-bottom: max(env(safe-area-inset-bottom), 40px);
       flex: 1;
-      -webkit-overflow-scrolling: touch; /* keep elastic bounce */
     }
 
     /* ── Header ── */
@@ -725,7 +722,7 @@
     }
 
     /* ── Postseason screen — hidden by default ── */
-    #ps-screen { display: none; }
+    #ps-screen { display: none; position: relative; }
 
     /* ps-mode — explicitly hide ALL other screens and show only ps */
     body.ps-mode #year-btn { display: none; }
@@ -753,7 +750,7 @@
     }
 
     /* Postseason table layout */
-    #ps-list { width: 100%; margin-top: calc(1.5em - 40px); border-top: none; }
+    #ps-list { width: 100%; margin-top: calc(1.5em - 40px); }
     body.vin-mode #year-btn { display: none; }
     body.vin-mode #last-updated { display: none; }
     body.vin-mode #vin-label { display: inline-block; }
@@ -954,7 +951,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V172</div>
+    <div id="version" style="margin-top:40px;">V173</div>
   </div>
 </div>
 
@@ -2714,9 +2711,8 @@
       .ps-wl-cell { font-family:'Bricolage Grotesque',sans-serif; width:80px; min-width:80px; flex-shrink:0; padding-left:15px; }
       .ps-header-cell.ps-wl-cell { font-size:13px; font-weight:700; color:#6e6e6e; letter-spacing:0.05em; text-transform:uppercase; }
       .ps-row .ps-wl-cell { font-size:13px; font-weight:400; color:#6e6e6e; }
-      .ps-round-cell { display:flex; align-items:center; justify-content:center; gap:8px; width:150px; min-width:150px; flex-shrink:0; padding-left:0; }
-      .ps-header-cell.ps-round-cell { justify-content:flex-start; padding-left:4px; }
-      .ps-list-wrap { position:relative; }
+      .ps-round-cell { display:flex; align-items:center; justify-content:flex-start; gap:8px; width:150px; min-width:150px; flex-shrink:0; padding-left:12px; }
+      .ps-header-cell.ps-round-cell { justify-content:flex-start; padding-left:12px; }
       .ps-icon { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
       .ps-icon.win { background:#2d7a2d; }
       .ps-icon.loss { background:#cc2509; }
