@@ -750,7 +750,7 @@
     }
 
     /* Postseason table layout */
-    #ps-list { width: 100%; margin-top: calc(1.5em - 40px); }
+    #ps-list { width: 100%; }
     body.vin-mode #year-btn { display: none; }
     body.vin-mode #last-updated { display: none; }
     body.vin-mode #vin-label { display: inline-block; }
@@ -922,8 +922,8 @@
 
     <!-- World Series Screen -->
     <!-- Postseason Screen -->
-    <div id="ps-screen">
-      <div id="ps-list"></div>
+    <div id="ps-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
+      <div id="ps-list" style="padding-top:40px;"></div>
     </div>
 
     <div id="ws-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
@@ -951,7 +951,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V174</div>
+    <div id="version" style="margin-top:40px;">V175</div>
   </div>
 </div>
 
@@ -2621,7 +2621,10 @@
     mkHdr('', 'ps-year-cell');
     mkHdr('W/L', 'ps-wl-cell');
     PS_ROUNDS.forEach(r => mkHdr(isLand ? r.land : r.port, 'ps-round-cell'));
-    list.appendChild(hdr);
+    // Header rendered absolutely over ps-screen, not inside ps-list
+    const psScreen = document.getElementById('ps-screen');
+    psScreen.querySelectorAll('.ps-header-row').forEach(h => h.remove());
+    psScreen.insertBefore(hdr, list);
 
     PS_YEARS.forEach(year => {
       const d = psCache[year] || { wl:'', rounds:{} };
@@ -2643,7 +2646,6 @@
             opp.className = 'ps-opponent';
             const shortNames = {
               'Diamondbacks': "D'Backs",
-              'Nationals': 'Nats',
             };
             const lastName = rd.opp.split(' ').pop();
             opp.textContent = (shortNames[lastName] || lastName).toUpperCase();
@@ -2659,10 +2661,6 @@
       });
       list.appendChild(row);
     });
-
-    // Add border-top only to first data row — clean separator without line above header
-    const firstDataRow = list.querySelector('.ps-row');
-    if (firstDataRow) firstDataRow.style.borderTop = '0.5px solid #6e6e6e';
 
     // After render, measure column positions and add dividers to every row
     requestAnimationFrame(() => {
@@ -2712,7 +2710,7 @@
   (function() {
     const s = document.createElement('style');
     s.textContent = `
-      .ps-header-row { display:flex; align-items:flex-end; height:45px; padding-bottom:5px; }
+      .ps-header-row { position:absolute; top:0; left:0; right:0; display:flex; align-items:flex-end; height:40px; padding-bottom:5px; border:none; }
       .ps-header-cell { font-size:13px; font-weight:700; color:#6e6e6e; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
       .ps-row { display:flex; align-items:center; height:40px; border-bottom:0.5px solid #6e6e6e; border-top:none; position:relative; }
       .ps-divider { position:absolute; top:3px; bottom:3px; width:0.5px; background:#6e6e6e; pointer-events:none; }
