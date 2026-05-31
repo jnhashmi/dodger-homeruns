@@ -722,7 +722,7 @@
     }
 
     /* ── Postseason screen — hidden by default ── */
-    #ps-screen { display: none; position: relative; }
+    #ps-screen { display: none; }
 
     /* ps-mode — explicitly hide ALL other screens and show only ps */
     body.ps-mode #year-btn { display: none; }
@@ -951,7 +951,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V173</div>
+    <div id="version" style="margin-top:40px;">V174</div>
   </div>
 </div>
 
@@ -2641,7 +2641,12 @@
             txt.className = 'ps-result-text';
             const opp = document.createElement('div');
             opp.className = 'ps-opponent';
-            opp.textContent = rd.opp.split(' ').pop().toUpperCase();
+            const shortNames = {
+              'Diamondbacks': "D'Backs",
+              'Nationals': 'Nats',
+            };
+            const lastName = rd.opp.split(' ').pop();
+            opp.textContent = (shortNames[lastName] || lastName).toUpperCase();
             const ser = document.createElement('div');
             ser.className = 'ps-series';
             ser.textContent = rd.series;
@@ -2654,6 +2659,10 @@
       });
       list.appendChild(row);
     });
+
+    // Add border-top only to first data row — clean separator without line above header
+    const firstDataRow = list.querySelector('.ps-row');
+    if (firstDataRow) firstDataRow.style.borderTop = '0.5px solid #6e6e6e';
 
     // After render, measure column positions and add dividers to every row
     requestAnimationFrame(() => {
@@ -2703,9 +2712,9 @@
   (function() {
     const s = document.createElement('style');
     s.textContent = `
-      .ps-header-row { display:flex; align-items:flex-end; height:45px; padding-bottom:5px; border-bottom:0.5px solid #6e6e6e; }
+      .ps-header-row { display:flex; align-items:flex-end; height:45px; padding-bottom:5px; }
       .ps-header-cell { font-size:13px; font-weight:700; color:#6e6e6e; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
-      .ps-row { display:flex; align-items:center; height:40px; border-bottom:0.5px solid #6e6e6e; border-top:none !important; position:relative; }
+      .ps-row { display:flex; align-items:center; height:40px; border-bottom:0.5px solid #6e6e6e; border-top:none; position:relative; }
       .ps-divider { position:absolute; top:3px; bottom:3px; width:0.5px; background:#6e6e6e; pointer-events:none; }
       .ps-year-cell { font-size:18px; font-weight:400; color:#fff; font-family:'Bricolage Grotesque',sans-serif; width:70px; min-width:70px; flex-shrink:0; }
       .ps-wl-cell { font-family:'Bricolage Grotesque',sans-serif; width:80px; min-width:80px; flex-shrink:0; padding-left:15px; }
