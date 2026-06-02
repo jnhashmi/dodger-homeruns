@@ -531,6 +531,16 @@
       margin-top: 10px;
     }
 
+    @media (orientation: portrait) {
+      .nav-btn-row + .nav-btn-row {
+        margin-top: 4px;
+      }
+      /* Preserve divider spacing in portrait */
+      .nav-divider {
+        margin: 20px 0;
+      }
+    }
+
     /* Black divider bar — 1px, width matched to buttons by JS */
     .nav-divider {
       height: 1px;
@@ -1059,7 +1069,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V180</div>
+    <div id="version" style="margin-top:40px;">V181</div>
   </div>
 </div>
 
