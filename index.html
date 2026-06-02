@@ -718,65 +718,7 @@
     .vin-cell.has-clip { cursor: pointer; }
     .vin-cell.empty { cursor: default; }
 
-    #avg-label {
-      font-size: 18px; font-weight: 700; color: #fff;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      white-space: nowrap; display: none; margin-left: 11px;
-    }
-
-    #avg-screen { display: none; }
-    body.avg-mode #year-btn { display: inline-block; }
-    body.avg-mode #last-updated { display: none; }
-    body.avg-mode #avg-label { display: inline-block; }
-    body.avg-mode #home-runs-label { display: none !important; }
-    body.avg-mode #title-text { display: none !important; }
-    body.avg-mode #dodger-logo { display: inline-block; }
-    body.avg-mode #hr-screen { display: none !important; }
-    body.avg-mode #ws-screen { display: none !important; }
-    body.avg-mode #ops-screen { display: none !important; }
-    body.avg-mode #vin-screen { display: none !important; }
-    body.avg-mode #ps-screen { display: none !important; }
-    body.avg-mode #avg-screen { display: block; }
-    body.avg-mode #portrait-note { display: none !important; }
-    body.avg-mode #ws-tally { display: none; }
-    body.avg-mode #ws-clear-btn { display: none; }
-    body.avg-mode #ws-label { display: none; }
-    body.avg-mode #ops-label { display: none; }
-    body.avg-mode #vin-label { display: none; }
-    body.avg-mode #ps-label { display: none; }
-
-    @media (orientation: portrait) {
-      body.avg-mode #dodger-logo { display: none !important; }
-      body.avg-mode #avg-label { display: inline-block !important; font-size: 15px !important; margin-left: 0 !important; }
-      body.avg-mode #title { display: none; }
-    }
-
-    /* Make sure avg-screen is hidden by other modes */
-    body.vin-mode #avg-screen { display: none !important; }
-    body.ws-mode #avg-screen { display: none !important; }
-    body.ops-mode #avg-screen { display: none !important; }
-    body.ps-mode #avg-screen { display: none !important; }
-
-    #avg-list { width: 100%; }
-
-    .avg-header-row { position:absolute; top:0; left:0; right:0; display:flex; align-items:flex-end; height:40px; padding-bottom:5px; border:none; }
-    .avg-header-cell { font-size:13px; font-weight:700; color:#797878; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
-    .avg-row { display:flex; align-items:center; height:40px; border-bottom:0.5px solid #6e6e6e; border-top:none; position:relative; }
-    .avg-name-cell { font-size:18px; font-weight:400; color:#fff; font-family:'Bricolage Grotesque',sans-serif; flex:1; min-width:0; padding-right:8px; }
-    .avg-stat-cell { display:flex; align-items:center; gap:4px; flex-shrink:0; }
-    .avg-arrow { font-size:14px; flex-shrink:0; }
-    .avg-arrow.up { color: #2d7a2d; }
-    .avg-arrow.down { color: #cc2509; }
-    .avg-value { font-size:17px; font-weight:400; color:#fff; font-family:'Bricolage Grotesque',sans-serif; white-space:nowrap; }
-    .avg-divider { position:absolute; top:3px; bottom:3px; width:0.5px; background:#6e6e6e; pointer-events:none; }
-
-    /* Stat column widths */
-    .avg-stat-cell { width: 120px; min-width: 120px; }
-    @media (orientation: portrait) {
-      .avg-name-cell { font-size: 15px; }
-      .avg-stat-cell { width: 72px; min-width: 72px; }
-      .avg-value { font-size: 14px; }
-    }
+    #ps-label {
       font-size: 18px;
       font-weight: 700;
       color: #fff;
@@ -940,7 +882,101 @@
     body.ops-mode #ws-clear-btn { display: none; }
     body.ops-mode #ws-label { display: none; }
 
-    /* Portrait WS/OPS/Vin mode */
+    /* ── Averages screen ── */
+    #avg-label {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      white-space: nowrap;
+      display: none;
+      margin-left: 11px;
+    }
+
+    #avg-screen { display: none; }
+
+    body.avg-mode #year-btn { display: inline-block; }
+    body.avg-mode #last-updated { display: none; }
+    body.avg-mode #avg-label { display: inline-block; }
+    body.avg-mode #home-runs-label { display: none !important; }
+    body.avg-mode #title-text { display: none !important; }
+    body.avg-mode #dodger-logo { display: inline-block; }
+    body.avg-mode #hr-screen { display: none !important; }
+    body.avg-mode #ws-screen { display: none !important; }
+    body.avg-mode #ops-screen { display: none !important; }
+    body.avg-mode #vin-screen { display: none !important; }
+    body.avg-mode #ps-screen { display: none !important; }
+    body.avg-mode #avg-screen { display: block; }
+    body.avg-mode #portrait-note { display: none !important; }
+    body.avg-mode #ws-tally { display: none; }
+    body.avg-mode #ws-clear-btn { display: none; }
+    body.avg-mode #ws-label { display: none; }
+    body.avg-mode #ops-label { display: none; }
+    body.avg-mode #vin-label { display: none; }
+    body.avg-mode #ps-label { display: none; }
+
+    /* Hide avg-screen in all other modes */
+    body.vin-mode #avg-screen { display: none !important; }
+    body.ws-mode #avg-screen { display: none !important; }
+    body.ops-mode #avg-screen { display: none !important; }
+    body.ps-mode #avg-screen { display: none !important; }
+
+    @media (orientation: portrait) {
+      body.avg-mode #dodger-logo { display: none !important; }
+      body.avg-mode #avg-label { display: inline-block !important; font-size: 15px !important; margin-left: 0 !important; }
+      body.avg-mode #title { display: none; }
+    }
+
+    /* Averages table */
+    #avg-list { width: 100%; }
+
+    .avg-header-row {
+      position: absolute; top: 0; left: 0; right: 0;
+      display: flex; align-items: flex-end;
+      height: 40px; padding-bottom: 5px; border: none;
+    }
+    .avg-header-cell {
+      font-size: 13px; font-weight: 700; color: #797878;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .avg-row {
+      display: flex; align-items: center; height: 40px;
+      border-bottom: 0.5px solid #6e6e6e; border-top: none;
+      position: relative;
+    }
+    .avg-name-cell {
+      font-size: 18px; font-weight: 400; color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      width: 190px; min-width: 190px; flex-shrink: 0;
+    }
+    .avg-stat-cell {
+      display: flex; align-items: center; gap: 4px;
+      width: 120px; min-width: 120px; flex-shrink: 0;
+    }
+    .avg-stat-cell.wide { width: 150px; min-width: 150px; }
+    .avg-arrow { font-size: 13px; flex-shrink: 0; }
+    .avg-arrow.up { color: #2d7a2d; }
+    .avg-arrow.down { color: #cc2509; }
+    .avg-value {
+      font-size: 17px; font-weight: 400; color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      white-space: nowrap;
+    }
+    .avg-divider {
+      position: absolute; top: 3px; bottom: 3px;
+      width: 0.5px; background: #6e6e6e; pointer-events: none;
+    }
+
+    @media (orientation: portrait) {
+      body.avg-mode #dodger-logo { display: none !important; }
+      .avg-name-cell { width: 130px; min-width: 130px; font-size: 15px; }
+      .avg-stat-cell { width: 58px; min-width: 58px; }
+      .avg-stat-cell.wide { width: 74px; min-width: 74px; }
+      .avg-value { font-size: 14px; }
+      .avg-arrow { display: none; }
+    }
     @media (orientation: portrait) {
       body.ws-mode #dodger-logo { display: none !important; }
       body.ws-mode #ws-label { display: inline-block !important; }
@@ -1022,7 +1058,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V177</div>
+    <div id="version" style="margin-top:40px;">V178</div>
   </div>
 </div>
 
@@ -2819,85 +2855,69 @@
 
   // ── Averages screen ──
   const AVG_COLS = [
-    { key: 'avg',      labelLand: 'BATTING AVERAGE', labelPort: 'AVG',        sitCode: null },
-    { key: 'risp',     labelLand: 'W/ RISP',         labelPort: 'W/ RISP',    sitCode: 'risp' },
-    { key: 'risp2out', labelLand: 'W/ RISP + 2 OUT', labelPort: 'W/RISP 2OT', sitCode: 'risp2out' },
-    { key: 'career',   labelLand: 'LIFETIME',         labelPort: 'LIFE',       sitCode: null },
+    { key: 'avg',      labelLand: 'BATTING AVERAGE', labelPort: 'AVG',       wide: false },
+    { key: 'risp',     labelLand: 'W/ RISP',         labelPort: 'RISP',      wide: false },
+    { key: 'risp2out', labelLand: 'W/ RISP + 2 OUT', labelPort: 'RISP 2OT',  wide: true  },
+    { key: 'career',   labelLand: 'LIFETIME',         labelPort: 'LIFE',      wide: false },
   ];
-
   let avgData = null;
   let loadedAvgYear = null;
 
+  function fmtAvg(val) {
+    if (val === null || val === undefined || isNaN(val)) return '—';
+    return val.toFixed(3).replace(/^0/, '');
+  }
+
   async function loadAvg(year) {
-    document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:Bricolage Grotesque,sans-serif;font-size:15px;padding:24px 0;">Loading…</div>';
-
+    document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:\'Bricolage Grotesque\',sans-serif;font-size:15px;padding:24px 0;">Loading…</div>';
     try {
-      // Fetch roster
-      const rosterRes = await fetch(`https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person`);
-      const rosterData = await rosterRes.json();
-      const players = (rosterData.roster || []).filter(p => {
-        const pos = p.position?.abbreviation;
-        return pos !== 'P' || p.person?.id === 660271; // Ohtani always
-      });
-      const playerIds = players.map(p => p.person.id);
-
-      // Fetch current year batting avg + splits
-      const [statRes, careerRes] = await Promise.all([
-        fetch(`https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=risp,risp2out&group=hitting&season=${year}&playerPool=All&teamId=${TEAM_ID}&hydrate=person`),
+      const [rosterRes, seasonRes, splitRes, careerRes] = await Promise.all([
+        fetch(`https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person`),
+        fetch(`https://statsapi.mlb.com/api/v1/stats?stats=season&group=hitting&season=${year}&teamId=${TEAM_ID}&hydrate=person`),
+        fetch(`https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=risp,risp2out&group=hitting&season=${year}&teamId=${TEAM_ID}&hydrate=person`),
         fetch(`https://statsapi.mlb.com/api/v1/stats?stats=career&group=hitting&teamId=${TEAM_ID}&hydrate=person`),
       ]);
-      const statData = await statRes.json();
-      const careerData = await careerRes.json();
+      const [rosterData, seasonData, splitData, careerData] = await Promise.all([
+        rosterRes.json(), seasonRes.json(), splitRes.json(), careerRes.json()
+      ]);
 
-      // Regular season avg
-      const seasonRes = await fetch(`https://statsapi.mlb.com/api/v1/stats?stats=season&group=hitting&season=${year}&teamId=${TEAM_ID}&hydrate=person`);
-      const seasonData = await seasonRes.json();
+      // Position players + Ohtani
+      const validIds = new Set((rosterData.roster || [])
+        .filter(p => p.position?.abbreviation !== 'P' || p.person?.id === 660271)
+        .map(p => p.person.id));
 
-      // Build player map
-      const playerMap = {};
-      for (const split of seasonData.stats?.[0]?.splits || []) {
-        const id = split.player?.id;
-        if (!id || !playerIds.includes(id)) continue;
-        playerMap[id] = {
-          name: split.player.fullName,
-          avg: parseFloat(split.stat?.avg) || null,
-          risp: null, risp2out: null, career: null,
-        };
+      // Build map from season stats
+      const map = {};
+      for (const sp of seasonData.stats?.[0]?.splits || []) {
+        const id = sp.player?.id;
+        if (!id || !validIds.has(id)) continue;
+        map[id] = { name: sp.player.fullName, avg: parseFloat(sp.stat?.avg) || null, risp: null, risp2out: null, career: null };
       }
 
       // RISP splits
-      for (const group of statData.stats || []) {
-        for (const split of group.splits || []) {
-          const id = split.player?.id;
-          if (!id || !playerMap[id]) continue;
-          const sit = split.split?.code;
-          if (sit === 'risp') playerMap[id].risp = parseFloat(split.stat?.avg) || null;
-          if (sit === 'risp2out') playerMap[id].risp2out = parseFloat(split.stat?.avg) || null;
+      for (const group of splitData.stats || []) {
+        for (const sp of group.splits || []) {
+          const id = sp.player?.id;
+          if (!id || !map[id]) continue;
+          const code = sp.split?.code;
+          if (code === 'risp') map[id].risp = parseFloat(sp.stat?.avg) ?? null;
+          if (code === 'risp2out') map[id].risp2out = parseFloat(sp.stat?.avg) ?? null;
         }
       }
 
-      // Career avg
-      for (const split of careerData.stats?.[0]?.splits || []) {
-        const id = split.player?.id;
-        if (!id || !playerMap[id]) continue;
-        playerMap[id].career = parseFloat(split.stat?.avg) || null;
+      // Career
+      for (const sp of careerData.stats?.[0]?.splits || []) {
+        const id = sp.player?.id;
+        if (!id || !map[id]) continue;
+        map[id].career = parseFloat(sp.stat?.avg) ?? null;
       }
 
-      // Sort by batting average desc
-      avgData = Object.values(playerMap)
-        .filter(p => p.avg !== null)
-        .sort((a, b) => (b.avg || 0) - (a.avg || 0));
-
+      avgData = Object.values(map).filter(p => p.avg !== null).sort((a, b) => (b.avg || 0) - (a.avg || 0));
       loadedAvgYear = year;
       renderAvgList();
     } catch(e) {
-      document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:Bricolage Grotesque,sans-serif;font-size:15px;padding:24px 0;">Error loading data</div>';
+      document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:\'Bricolage Grotesque\',sans-serif;font-size:15px;padding:24px 0;">Error loading data</div>';
     }
-  }
-
-  function fmtAvg(val) {
-    if (val === null || val === undefined) return '—';
-    return val.toFixed(3).replace(/^0/, '');
   }
 
   function renderAvgList() {
@@ -2905,27 +2925,24 @@
     list.innerHTML = '';
     if (!avgData) return;
     const isLand = window.innerWidth > window.innerHeight;
-
-    // Header — absolutely positioned over avg-screen
     const avgScreen = document.getElementById('avg-screen');
+
+    // Header — absolutely positioned
     avgScreen.querySelectorAll('.avg-header-row').forEach(h => h.remove());
     const hdr = document.createElement('div');
     hdr.className = 'avg-header-row';
-    // Name spacer
     const nameHdr = document.createElement('div');
-    nameHdr.style.cssText = 'flex:1;min-width:0;';
+    nameHdr.style.cssText = 'width:' + (isLand ? '190' : '130') + 'px;min-width:' + (isLand ? '190' : '130') + 'px;flex-shrink:0;';
     hdr.appendChild(nameHdr);
-
     AVG_COLS.forEach(col => {
       const cell = document.createElement('div');
-      cell.className = 'avg-header-cell avg-stat-cell';
-      cell.dataset.col = col.key;
+      cell.className = 'avg-header-cell' + (col.wide ? ' avg-stat-cell wide' : ' avg-stat-cell');
       cell.textContent = isLand ? col.labelLand : col.labelPort;
       hdr.appendChild(cell);
     });
     avgScreen.insertBefore(hdr, list);
 
-    // Data rows
+    // Rows
     avgData.forEach((p, idx) => {
       const row = document.createElement('div');
       row.className = 'avg-row';
@@ -2938,54 +2955,37 @@
 
       AVG_COLS.forEach(col => {
         const cell = document.createElement('div');
-        cell.className = 'avg-stat-cell';
-        cell.dataset.col = col.key;
+        cell.className = 'avg-stat-cell' + (col.wide ? ' wide' : '');
+        const val = col.key === 'career' ? p.career : p[col.key];
+        const showArrow = col.key !== 'avg' && isLand && val !== null && p.avg !== null;
 
-        if (col.key === 'avg') {
-          // No arrow — just the value
-          const val = document.createElement('span');
-          val.className = 'avg-value';
-          val.textContent = fmtAvg(p.avg);
-          cell.appendChild(val);
-        } else {
-          const splitVal = col.key === 'career' ? p.career : p[col.key];
-          if (splitVal !== null && p.avg !== null) {
-            const arrow = document.createElement('span');
-            arrow.className = 'avg-arrow ' + (splitVal >= p.avg ? 'up' : 'down');
-            arrow.textContent = splitVal >= p.avg ? '↑' : '↓';
-            const val = document.createElement('span');
-            val.className = 'avg-value';
-            val.textContent = fmtAvg(splitVal);
-            cell.appendChild(arrow);
-            cell.appendChild(val);
-          } else {
-            const val = document.createElement('span');
-            val.className = 'avg-value';
-            val.textContent = '—';
-            cell.appendChild(val);
-          }
+        if (showArrow) {
+          const arrow = document.createElement('span');
+          arrow.className = 'avg-arrow ' + (val >= p.avg ? 'up' : 'down');
+          arrow.textContent = val >= p.avg ? '↑' : '↓';
+          cell.appendChild(arrow);
         }
+        const valEl = document.createElement('span');
+        valEl.className = 'avg-value';
+        valEl.textContent = fmtAvg(val);
+        cell.appendChild(valEl);
         row.appendChild(cell);
       });
       list.appendChild(row);
     });
 
-    // Add dividers after render
+    // Dividers
     requestAnimationFrame(() => {
       const firstRow = list.querySelector('.avg-row');
       if (!firstRow) return;
       const rowRect = firstRow.getBoundingClientRect();
-      const dividerXs = [];
-
-      firstRow.querySelectorAll('.avg-stat-cell[data-col]').forEach(cell => {
-        const r = cell.getBoundingClientRect();
-        dividerXs.push(r.left - rowRect.left);
+      const xs = [];
+      firstRow.querySelectorAll('.avg-stat-cell').forEach(cell => {
+        xs.push(cell.getBoundingClientRect().left - rowRect.left);
       });
-
       list.querySelectorAll('.avg-row').forEach(row => {
-        // Remove old dividers
         row.querySelectorAll('.avg-divider').forEach(d => d.remove());
-        dividerXs.forEach(x => {
+        xs.forEach(x => {
           const div = document.createElement('div');
           div.className = 'avg-divider';
           div.style.left = x + 'px';
