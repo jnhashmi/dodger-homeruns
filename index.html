@@ -531,13 +531,11 @@
       margin-top: 10px;
     }
 
-    /* Black divider bar with 4x spacing */
+    /* Black divider bar — 1px, width matched to buttons by JS */
     .nav-divider {
-      width: 100%;
-      height: 4px;
+      height: 1px;
       background: #000;
-      margin: 20px 0; /* ~quadruple the 10px button gap */
-      border-radius: 2px;
+      margin: 20px 0;
     }
 
     .nav-btn-row {
@@ -1061,7 +1059,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V179</div>
+    <div id="version" style="margin-top:40px;">V180</div>
   </div>
 </div>
 
@@ -1338,6 +1336,8 @@
         btns.forEach(b => b.style.width = '');
         const maxW = Math.max(...Array.from(btns).map(b => b.getBoundingClientRect().width));
         btns.forEach(b => b.style.width = maxW + 'px');
+        // Match divider width to buttons
+        document.querySelectorAll('.nav-divider').forEach(d => d.style.width = maxW + 'px');
       });
     });
   }
@@ -1756,6 +1756,7 @@
 
   // ── Batter sprite animation ──
   function playBatterAnimation(onComplete) {
+    if (currentScreen !== 'hr') { onComplete(); return; }
     const firstRow = document.querySelector('.player-row');
     if (!firstRow) { onComplete(); return; }
     const rowRect = firstRow.getBoundingClientRect();
