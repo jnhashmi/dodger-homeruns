@@ -526,6 +526,13 @@
       align-items: center;
     }
     /* 20px gap between rows using margin-top on all but first */
+    .nav-divider {
+      width: 100%;
+      height: 0.5px;
+      background: rgba(255,255,255,0.3);
+      margin: 6px 0;
+    }
+
     .nav-btn-row + .nav-btn-row {
       margin-top: 10px;
     }
@@ -711,7 +718,65 @@
     .vin-cell.has-clip { cursor: pointer; }
     .vin-cell.empty { cursor: default; }
 
-    #ps-label {
+    #avg-label {
+      font-size: 18px; font-weight: 700; color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      white-space: nowrap; display: none; margin-left: 11px;
+    }
+
+    #avg-screen { display: none; }
+    body.avg-mode #year-btn { display: inline-block; }
+    body.avg-mode #last-updated { display: none; }
+    body.avg-mode #avg-label { display: inline-block; }
+    body.avg-mode #home-runs-label { display: none !important; }
+    body.avg-mode #title-text { display: none !important; }
+    body.avg-mode #dodger-logo { display: inline-block; }
+    body.avg-mode #hr-screen { display: none !important; }
+    body.avg-mode #ws-screen { display: none !important; }
+    body.avg-mode #ops-screen { display: none !important; }
+    body.avg-mode #vin-screen { display: none !important; }
+    body.avg-mode #ps-screen { display: none !important; }
+    body.avg-mode #avg-screen { display: block; }
+    body.avg-mode #portrait-note { display: none !important; }
+    body.avg-mode #ws-tally { display: none; }
+    body.avg-mode #ws-clear-btn { display: none; }
+    body.avg-mode #ws-label { display: none; }
+    body.avg-mode #ops-label { display: none; }
+    body.avg-mode #vin-label { display: none; }
+    body.avg-mode #ps-label { display: none; }
+
+    @media (orientation: portrait) {
+      body.avg-mode #dodger-logo { display: none !important; }
+      body.avg-mode #avg-label { display: inline-block !important; font-size: 15px !important; margin-left: 0 !important; }
+      body.avg-mode #title { display: none; }
+    }
+
+    /* Make sure avg-screen is hidden by other modes */
+    body.vin-mode #avg-screen { display: none !important; }
+    body.ws-mode #avg-screen { display: none !important; }
+    body.ops-mode #avg-screen { display: none !important; }
+    body.ps-mode #avg-screen { display: none !important; }
+
+    #avg-list { width: 100%; }
+
+    .avg-header-row { position:absolute; top:0; left:0; right:0; display:flex; align-items:flex-end; height:40px; padding-bottom:5px; border:none; }
+    .avg-header-cell { font-size:13px; font-weight:700; color:#797878; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
+    .avg-row { display:flex; align-items:center; height:40px; border-bottom:0.5px solid #6e6e6e; border-top:none; position:relative; }
+    .avg-name-cell { font-size:18px; font-weight:400; color:#fff; font-family:'Bricolage Grotesque',sans-serif; flex:1; min-width:0; padding-right:8px; }
+    .avg-stat-cell { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+    .avg-arrow { font-size:14px; flex-shrink:0; }
+    .avg-arrow.up { color: #2d7a2d; }
+    .avg-arrow.down { color: #cc2509; }
+    .avg-value { font-size:17px; font-weight:400; color:#fff; font-family:'Bricolage Grotesque',sans-serif; white-space:nowrap; }
+    .avg-divider { position:absolute; top:3px; bottom:3px; width:0.5px; background:#6e6e6e; pointer-events:none; }
+
+    /* Stat column widths */
+    .avg-stat-cell { width: 120px; min-width: 120px; }
+    @media (orientation: portrait) {
+      .avg-name-cell { font-size: 15px; }
+      .avg-stat-cell { width: 72px; min-width: 72px; }
+      .avg-value { font-size: 14px; }
+    }
       font-size: 18px;
       font-weight: 700;
       color: #fff;
@@ -902,6 +967,7 @@
         <span id="ops-label">On-base Plus Slugging</span>
         <span id="vin-label">Vin Scully</span>
         <span id="ps-label">Postseason</span>
+        <span id="avg-label">Averages</span>
         <button id="year-btn">2026</button>
         <span id="ws-tally">Total 0/57</span>
         <button id="ws-clear-btn">Clear</button>
@@ -921,6 +987,11 @@
     </div>
 
     <!-- World Series Screen -->
+    <!-- Averages Screen -->
+    <div id="avg-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
+      <div id="avg-list" style="padding-top:40px;"></div>
+    </div>
+
     <!-- Postseason Screen -->
     <div id="ps-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
       <div id="ps-list" style="padding-top:40px;"></div>
@@ -951,7 +1022,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V176</div>
+    <div id="version" style="margin-top:40px;">V177</div>
   </div>
 </div>
 
@@ -962,11 +1033,13 @@
 <div id="nav-overlay">
   <div id="nav-panel">
     <div id="nav-btn-container">
-      <div class="nav-btn-row"><button class="nav-btn" data-screen="hr">Home Runs</button></div>
       <div class="nav-btn-row"><button class="nav-btn" data-screen="ops">On-base Plus Slugging</button></div>
+      <div class="nav-btn-row"><button class="nav-btn" data-screen="avg">Averages</button></div>
+      <div class="nav-btn-row"><button class="nav-btn" data-screen="hr">Home Runs</button></div>
+      <div class="nav-divider"></div>
       <div class="nav-btn-row"><button class="nav-btn" data-screen="ps">Postseason</button></div>
-      <div class="nav-btn-row"><button class="nav-btn" data-screen="ws">World Series Challenge</button></div>
       <div class="nav-btn-row"><button class="nav-btn" data-screen="vin">Vin Scully</button></div>
+      <div class="nav-btn-row"><button class="nav-btn" data-screen="ws">World Series Challenge</button></div>
     </div>
   </div>
 </div>
@@ -1138,7 +1211,7 @@
   let dataLoaded = false;
   let selectedYear = CURRENT_YEAR;
   let pollTimer = null;
-  let currentScreen = 'hr'; // 'hr' or 'ws'
+  let currentScreen = 'ops';
 
   // ── Build year dropdown ──
   const dropdown = document.getElementById('year-dropdown');
@@ -1256,6 +1329,7 @@
       }
       if (currentScreen === 'ws') buildWSList();
       if (currentScreen === 'ps') renderPSList();
+      if (currentScreen === 'avg') renderAvgList();
     }, 100);
   });
 
@@ -1285,7 +1359,7 @@
   let loadedOPSYear = null;
 
   function navigateTo(screen) {
-    document.body.classList.remove('ws-mode', 'ops-mode', 'vin-mode', 'ps-mode');
+    document.body.classList.remove('ws-mode', 'ops-mode', 'vin-mode', 'ps-mode', 'avg-mode');
     currentScreen = screen;
     const app = document.getElementById('app');
     if (app) app.scrollTop = 0;
@@ -1305,6 +1379,10 @@
     } else if (screen === 'ps') {
       document.body.classList.add('ps-mode');
       loadPS();
+    } else if (screen === 'avg') {
+      document.body.classList.add('avg-mode');
+      if (loadedAvgYear !== selectedYear) loadAvg(selectedYear);
+      else renderAvgList();
     }
   }
 
@@ -2739,9 +2817,188 @@
     document.head.appendChild(s);
   })();
 
+  // ── Averages screen ──
+  const AVG_COLS = [
+    { key: 'avg',      labelLand: 'BATTING AVERAGE', labelPort: 'AVG',        sitCode: null },
+    { key: 'risp',     labelLand: 'W/ RISP',         labelPort: 'W/ RISP',    sitCode: 'risp' },
+    { key: 'risp2out', labelLand: 'W/ RISP + 2 OUT', labelPort: 'W/RISP 2OT', sitCode: 'risp2out' },
+    { key: 'career',   labelLand: 'LIFETIME',         labelPort: 'LIFE',       sitCode: null },
+  ];
+
+  let avgData = null;
+  let loadedAvgYear = null;
+
+  async function loadAvg(year) {
+    document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:Bricolage Grotesque,sans-serif;font-size:15px;padding:24px 0;">Loading…</div>';
+
+    try {
+      // Fetch roster
+      const rosterRes = await fetch(`https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person`);
+      const rosterData = await rosterRes.json();
+      const players = (rosterData.roster || []).filter(p => {
+        const pos = p.position?.abbreviation;
+        return pos !== 'P' || p.person?.id === 660271; // Ohtani always
+      });
+      const playerIds = players.map(p => p.person.id);
+
+      // Fetch current year batting avg + splits
+      const [statRes, careerRes] = await Promise.all([
+        fetch(`https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=risp,risp2out&group=hitting&season=${year}&playerPool=All&teamId=${TEAM_ID}&hydrate=person`),
+        fetch(`https://statsapi.mlb.com/api/v1/stats?stats=career&group=hitting&teamId=${TEAM_ID}&hydrate=person`),
+      ]);
+      const statData = await statRes.json();
+      const careerData = await careerRes.json();
+
+      // Regular season avg
+      const seasonRes = await fetch(`https://statsapi.mlb.com/api/v1/stats?stats=season&group=hitting&season=${year}&teamId=${TEAM_ID}&hydrate=person`);
+      const seasonData = await seasonRes.json();
+
+      // Build player map
+      const playerMap = {};
+      for (const split of seasonData.stats?.[0]?.splits || []) {
+        const id = split.player?.id;
+        if (!id || !playerIds.includes(id)) continue;
+        playerMap[id] = {
+          name: split.player.fullName,
+          avg: parseFloat(split.stat?.avg) || null,
+          risp: null, risp2out: null, career: null,
+        };
+      }
+
+      // RISP splits
+      for (const group of statData.stats || []) {
+        for (const split of group.splits || []) {
+          const id = split.player?.id;
+          if (!id || !playerMap[id]) continue;
+          const sit = split.split?.code;
+          if (sit === 'risp') playerMap[id].risp = parseFloat(split.stat?.avg) || null;
+          if (sit === 'risp2out') playerMap[id].risp2out = parseFloat(split.stat?.avg) || null;
+        }
+      }
+
+      // Career avg
+      for (const split of careerData.stats?.[0]?.splits || []) {
+        const id = split.player?.id;
+        if (!id || !playerMap[id]) continue;
+        playerMap[id].career = parseFloat(split.stat?.avg) || null;
+      }
+
+      // Sort by batting average desc
+      avgData = Object.values(playerMap)
+        .filter(p => p.avg !== null)
+        .sort((a, b) => (b.avg || 0) - (a.avg || 0));
+
+      loadedAvgYear = year;
+      renderAvgList();
+    } catch(e) {
+      document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:Bricolage Grotesque,sans-serif;font-size:15px;padding:24px 0;">Error loading data</div>';
+    }
+  }
+
+  function fmtAvg(val) {
+    if (val === null || val === undefined) return '—';
+    return val.toFixed(3).replace(/^0/, '');
+  }
+
+  function renderAvgList() {
+    const list = document.getElementById('avg-list');
+    list.innerHTML = '';
+    if (!avgData) return;
+    const isLand = window.innerWidth > window.innerHeight;
+
+    // Header — absolutely positioned over avg-screen
+    const avgScreen = document.getElementById('avg-screen');
+    avgScreen.querySelectorAll('.avg-header-row').forEach(h => h.remove());
+    const hdr = document.createElement('div');
+    hdr.className = 'avg-header-row';
+    // Name spacer
+    const nameHdr = document.createElement('div');
+    nameHdr.style.cssText = 'flex:1;min-width:0;';
+    hdr.appendChild(nameHdr);
+
+    AVG_COLS.forEach(col => {
+      const cell = document.createElement('div');
+      cell.className = 'avg-header-cell avg-stat-cell';
+      cell.dataset.col = col.key;
+      cell.textContent = isLand ? col.labelLand : col.labelPort;
+      hdr.appendChild(cell);
+    });
+    avgScreen.insertBefore(hdr, list);
+
+    // Data rows
+    avgData.forEach((p, idx) => {
+      const row = document.createElement('div');
+      row.className = 'avg-row';
+      if (idx === 0) row.style.borderTop = '0.5px solid #6e6e6e';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'avg-name-cell';
+      nameEl.textContent = p.name;
+      row.appendChild(nameEl);
+
+      AVG_COLS.forEach(col => {
+        const cell = document.createElement('div');
+        cell.className = 'avg-stat-cell';
+        cell.dataset.col = col.key;
+
+        if (col.key === 'avg') {
+          // No arrow — just the value
+          const val = document.createElement('span');
+          val.className = 'avg-value';
+          val.textContent = fmtAvg(p.avg);
+          cell.appendChild(val);
+        } else {
+          const splitVal = col.key === 'career' ? p.career : p[col.key];
+          if (splitVal !== null && p.avg !== null) {
+            const arrow = document.createElement('span');
+            arrow.className = 'avg-arrow ' + (splitVal >= p.avg ? 'up' : 'down');
+            arrow.textContent = splitVal >= p.avg ? '↑' : '↓';
+            const val = document.createElement('span');
+            val.className = 'avg-value';
+            val.textContent = fmtAvg(splitVal);
+            cell.appendChild(arrow);
+            cell.appendChild(val);
+          } else {
+            const val = document.createElement('span');
+            val.className = 'avg-value';
+            val.textContent = '—';
+            cell.appendChild(val);
+          }
+        }
+        row.appendChild(cell);
+      });
+      list.appendChild(row);
+    });
+
+    // Add dividers after render
+    requestAnimationFrame(() => {
+      const firstRow = list.querySelector('.avg-row');
+      if (!firstRow) return;
+      const rowRect = firstRow.getBoundingClientRect();
+      const dividerXs = [];
+
+      firstRow.querySelectorAll('.avg-stat-cell[data-col]').forEach(cell => {
+        const r = cell.getBoundingClientRect();
+        dividerXs.push(r.left - rowRect.left);
+      });
+
+      list.querySelectorAll('.avg-row').forEach(row => {
+        // Remove old dividers
+        row.querySelectorAll('.avg-divider').forEach(d => d.remove());
+        dividerXs.forEach(x => {
+          const div = document.createElement('div');
+          div.className = 'avg-divider';
+          div.style.left = x + 'px';
+          row.appendChild(div);
+        });
+      });
+    });
+  }
+
   document.getElementById('year-btn').textContent = CURRENT_YEAR;
   const container = document.getElementById('player-list');
   container.style.opacity = '0';
+  navigateTo('ops');
   loadYear(CURRENT_YEAR, true);
 </script>
 </body>
