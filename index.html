@@ -1069,7 +1069,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V188</div>
+    <div id="version" style="margin-top:40px;">V189</div>
   </div>
 </div>
 
@@ -2887,13 +2887,12 @@
   async function loadAvg(year) {
     document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:\'Bricolage Grotesque\',sans-serif;font-size:15px;padding:24px 0;">Loading…</div>';
     try {
-      const [rosterRes, splitRes, careerRes] = await Promise.all([
+      const [rosterRes, splitRes] = await Promise.all([
         fetch(`https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person(stats(type=season,season=${year},group=hitting))`),
         fetch(`https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=risp,lc&group=hitting&season=${year}&playerPool=All&teamId=${TEAM_ID}`),
-        fetch(`https://statsapi.mlb.com/api/v1/stats?stats=career&group=hitting&playerPool=All&teamId=${TEAM_ID}`),
       ]);
-      const [rosterData, splitData, careerData] = await Promise.all([
-        rosterRes.json(), splitRes.json(), careerRes.json()
+      const [rosterData, splitData] = await Promise.all([
+        rosterRes.json(), splitRes.json()
       ]);
 
       // Build valid player set (position players + Ohtani, 10+ AB)
@@ -2931,15 +2930,16 @@
         }
       }
 
-      // Career
-      for (const group of careerData.stats || []) {
-        for (const sp of group.splits || []) {
-          const id = sp.player?.id;
-          if (!map[id]) continue;
-          const avg = parseFloat(sp.stat?.avg);
+      // Career — fetch per-player (team-level career endpoint unreliable)
+      const ids = Object.keys(map);
+      await Promise.all(ids.map(async id => {
+        try {
+          const res = await fetch(`https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=career&group=hitting`);
+          const data = await res.json();
+          const avg = parseFloat(data.stats?.[0]?.splits?.[0]?.stat?.avg);
           if (!isNaN(avg)) map[id].career = avg;
-        }
-      }
+        } catch(e) {}
+      }));
 
       avgData = Object.values(map).filter(p => p.avg !== null).sort((a,b) => (b.avg||0)-(a.avg||0));
       loadedAvgYear = year;
