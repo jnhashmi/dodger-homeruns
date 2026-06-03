@@ -1075,7 +1075,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V194</div>
+    <div id="version" style="margin-top:40px;">V195-DEBUG</div>
   </div>
 </div>
 
@@ -2951,7 +2951,7 @@
       loadedAvgYear = year;
       renderAvgList();
     } catch(e) {
-      document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:\'Bricolage Grotesque\',sans-serif;font-size:15px;padding:24px 0;">Error loading data</div>';
+      document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:\'Bricolage Grotesque\',sans-serif;font-size:15px;padding:24px 0;">Error: ' + e.message + '</div>';
     }
   }
 
