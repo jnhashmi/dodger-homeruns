@@ -1069,7 +1069,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V187-DEBUG</div>
+    <div id="version" style="margin-top:40px;">V188</div>
   </div>
 </div>
 
@@ -2873,7 +2873,7 @@
   const AVG_COLS = [
     { key: 'avg',      labelLand: 'BATTING AVERAGE', labelPort: 'AVG',       wide: false },
     { key: 'risp',     labelLand: 'W/ RISP',         labelPort: 'RISP',      wide: false },
-    { key: 'risp2out', labelLand: 'W/ RISP + 2 OUT', labelPort: 'RISP 2OT',  wide: true  },
+    { key: 'lc',       labelLand: 'LATE + CLOSE',    labelPort: 'LT+CLS',    wide: false },
     { key: 'career',   labelLand: 'LIFETIME',         labelPort: 'LIFE',      wide: false },
   ];
   let avgData = null;
@@ -2887,17 +2887,16 @@
   async function loadAvg(year) {
     document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:\'Bricolage Grotesque\',sans-serif;font-size:15px;padding:24px 0;">Loading…</div>';
     try {
-      // Fetch season stats + RISP splits using the stats endpoint (known to work)
-      const [rosterRes, rispRes, careerRes] = await Promise.all([
+      const [rosterRes, splitRes, careerRes] = await Promise.all([
         fetch(`https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person(stats(type=season,season=${year},group=hitting))`),
-        fetch(`https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=risp,risp2out&group=hitting&season=${year}&playerPool=All&teamId=${TEAM_ID}`),
+        fetch(`https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=risp,lc&group=hitting&season=${year}&playerPool=All&teamId=${TEAM_ID}`),
         fetch(`https://statsapi.mlb.com/api/v1/stats?stats=career&group=hitting&playerPool=All&teamId=${TEAM_ID}`),
       ]);
-      const [rosterData, rispData, careerData] = await Promise.all([
-        rosterRes.json(), rispRes.json(), careerRes.json()
+      const [rosterData, splitData, careerData] = await Promise.all([
+        rosterRes.json(), splitRes.json(), careerRes.json()
       ]);
 
-      // Build set of valid player IDs (position players + Ohtani with 10+ AB)
+      // Build valid player set (position players + Ohtani, 10+ AB)
       const validIds = new Set();
       for (const p of rosterData.roster || []) {
         const name = p.person?.fullName;
@@ -2909,37 +2908,28 @@
         if (ab >= 10) validIds.add(p.person.id);
       }
 
-      // Build base map from roster season stats
+      // Build base map from season stats
       const map = {};
       for (const p of rosterData.roster || []) {
         const id = p.person?.id;
         if (!validIds.has(id)) continue;
         const stat = p.person?.stats?.[0]?.splits?.[0]?.stat;
         const avg = parseFloat(stat?.avg);
-        map[id] = {
-          name: p.person?.fullName,
-          avg: isNaN(avg) ? null : avg,
-          risp: null, risp2out: null, career: null,
-        };
+        map[id] = { name: p.person?.fullName, avg: isNaN(avg) ? null : avg, risp: null, lc: null, career: null };
       }
 
-      // Show debug: what split codes came back
-      const debugInfo = [];
-      for (const group of rispData.stats || []) {
+      // RISP + Late & Close splits
+      for (const group of splitData.stats || []) {
         for (const sp of group.splits || []) {
-          const code = sp.split?.code;
           const id = sp.player?.id;
           if (!map[id]) continue;
+          const code = sp.split?.code;
           const avg = parseFloat(sp.stat?.avg);
           if (isNaN(avg)) continue;
-          if (!debugInfo.includes(code)) debugInfo.push(code + ':' + sp.split?.description);
           if (code === 'risp') map[id].risp = avg;
-          if (code === 'risp2out' || code === 'rspwo') map[id].risp2out = avg;
+          if (code === 'lc') map[id].lc = avg;
         }
       }
-
-      // Display debug codes on screen
-      document.getElementById('avg-list').innerHTML = '<div style="color:#fff;font-family:monospace;font-size:11px;padding:8px;word-break:break-all;">CODES: ' + (debugInfo.join(' | ') || 'NONE') + '</div>';
 
       // Career
       for (const group of careerData.stats || []) {
@@ -2953,9 +2943,9 @@
 
       avgData = Object.values(map).filter(p => p.avg !== null).sort((a,b) => (b.avg||0)-(a.avg||0));
       loadedAvgYear = year;
-      // Don't call renderAvgList yet — show debug first
+      renderAvgList();
     } catch(e) {
-      document.getElementById('avg-list').innerHTML = '<div style="color:#f00;font-family:monospace;font-size:13px;padding:8px;">ERROR: ' + e.message + '</div>';
+      document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:\'Bricolage Grotesque\',sans-serif;font-size:15px;padding:24px 0;">Error loading data</div>';
     }
   }
 
@@ -2995,7 +2985,7 @@
       AVG_COLS.forEach(col => {
         const cell = document.createElement('div');
         cell.className = 'avg-stat-cell' + (col.wide ? ' wide' : '');
-        const val = col.key === 'career' ? p.career : p[col.key];
+        const val = col.key === 'career' ? p.career : col.key === 'lc' ? p.lc : p[col.key];
         const showArrow = col.key !== 'avg' && isLand && val !== null && p.avg !== null;
 
         if (showArrow) {
