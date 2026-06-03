@@ -1022,7 +1022,7 @@
         <span id="ps-label">Postseason</span>
         <span id="avg-label">Averages</span>
         <button id="year-btn">2026</button>
-        <span id="ws-tally">Total 0/57</span>
+        <span id="ws-tally">Total 0/114</span>
         <button id="ws-clear-btn">Clear</button>
       </div>
       <div id="header-right">
@@ -1075,7 +1075,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V202</div>
+    <div id="version" style="margin-top:40px;">V204</div>
   </div>
 </div>
 
@@ -1256,6 +1256,7 @@
   let wsRevealed = {};
   let wsRevealedLoser = {};
   let wsRevealedCount = 0;
+  let wsRevealedLoserCount = 0;
 
   // HR state
   let sortMode = 'most';
@@ -1448,12 +1449,16 @@
     wsRevealed = {};
     wsRevealedLoser = {};
     wsRevealedCount = 0;
+    wsRevealedLoserCount = 0;
     updateWSTally();
     buildWSList();
   });
 
   function updateWSTally() {
-    document.getElementById('ws-tally').textContent = `Total ${wsRevealedCount}/${WS_TOTAL}`;
+    const isLand = window.innerWidth > window.innerHeight;
+    const revealed = isLand ? wsRevealedCount + wsRevealedLoserCount : wsRevealedCount;
+    const total = isLand ? WS_TOTAL * 2 : WS_TOTAL;
+    document.getElementById('ws-tally').textContent = `Total ${revealed}/${total}`;
   }
 
   // ── Build WS list ──
@@ -1560,8 +1565,10 @@
   function revealWSLoser(year, loserEl, data) {
     if (wsRevealedLoser[year]) return;
     wsRevealedLoser[year] = true;
+    wsRevealedLoserCount++;
     loserEl.textContent = data.team;
     loserEl.classList.add('revealed');
+    updateWSTally();
   }
 
   // ── HR utilities ──
