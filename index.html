@@ -964,10 +964,16 @@
     }
     .avg-stat-cell {
       display: flex; align-items: center; gap: 4px;
-      width: 120px; min-width: 120px; flex-shrink: 0;
+      flex: 1; flex-shrink: 0;
+      padding-left: 10px; /* ~1 number width of padding */
     }
-    .avg-stat-cell.wide { width: 150px; min-width: 150px; }
-    .avg-arrow { font-size: 13px; flex-shrink: 0; }
+    .avg-arrow {
+      font-size: 17px; /* match number size */
+      flex-shrink: 0;
+      position: relative;
+      top: -1px; /* bump up 1px */
+      line-height: 1;
+    }
     .avg-arrow.up { color: #2d7a2d; }
     .avg-arrow.down { color: #cc2509; }
     .avg-value {
@@ -983,10 +989,9 @@
     @media (orientation: portrait) {
       body.avg-mode #dodger-logo { display: none !important; }
       .avg-name-cell { width: 130px; min-width: 130px; font-size: 15px; }
-      .avg-stat-cell { width: 58px; min-width: 58px; }
-      .avg-stat-cell.wide { width: 74px; min-width: 74px; }
+      .avg-stat-cell { padding-left: 4px; }
       .avg-value { font-size: 14px; }
-      .avg-arrow { display: none; }
+      .avg-arrow { display: none; font-size: 14px; }
     }
     @media (orientation: portrait) {
       body.ws-mode #dodger-logo { display: none !important; }
@@ -1069,7 +1074,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V189</div>
+    <div id="version" style="margin-top:40px;">V190</div>
   </div>
 </div>
 
@@ -2871,7 +2876,7 @@
 
   // ── Averages screen ──
   const AVG_COLS = [
-    { key: 'avg',      labelLand: 'BATTING AVERAGE', labelPort: 'AVG',       wide: false },
+    { key: 'avg',      labelLand: 'AVERAGE',      labelPort: 'AVG',       wide: false },
     { key: 'risp',     labelLand: 'W/ RISP',         labelPort: 'RISP',      wide: false },
     { key: 'lc',       labelLand: 'LATE + CLOSE',    labelPort: 'LT+CLS',    wide: false },
     { key: 'career',   labelLand: 'LIFETIME',         labelPort: 'LIFE',      wide: false },
@@ -2965,7 +2970,8 @@
     hdr.appendChild(nameHdr);
     AVG_COLS.forEach(col => {
       const cell = document.createElement('div');
-      cell.className = 'avg-header-cell' + (col.wide ? ' avg-stat-cell wide' : ' avg-stat-cell');
+      cell.className = 'avg-header-cell';
+      cell.style.cssText = 'flex:1; padding-left:' + (isLand ? '10' : '4') + 'px;';
       cell.textContent = isLand ? col.labelLand : col.labelPort;
       hdr.appendChild(cell);
     });
@@ -2984,7 +2990,7 @@
 
       AVG_COLS.forEach(col => {
         const cell = document.createElement('div');
-        cell.className = 'avg-stat-cell' + (col.wide ? ' wide' : '');
+        cell.className = 'avg-stat-cell';
         const val = col.key === 'career' ? p.career : col.key === 'lc' ? p.lc : p[col.key];
         const showArrow = col.key !== 'avg' && isLand && val !== null && p.avg !== null;
 
