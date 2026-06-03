@@ -1069,7 +1069,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V184</div>
+    <div id="version" style="margin-top:40px;">V185</div>
   </div>
 </div>
 
@@ -2921,17 +2921,24 @@
       await Promise.all(ids.map(async id => {
         try {
           const [splitRes, careerRes] = await Promise.all([
-            fetch(`https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=statSplits&group=hitting&season=${year}&sitCodes=risp,risp2out`),
+            fetch(`https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=statSplits&group=hitting&season=${year}`),
             fetch(`https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=career&group=hitting`),
           ]);
           const [splitData, careerData] = await Promise.all([splitRes.json(), careerRes.json()]);
 
           for (const group of splitData.stats || []) {
             for (const split of group.splits || []) {
-              const code = split.split?.code;
+              const code = split.split?.code || '';
+              const desc = (split.split?.description || '').toLowerCase();
               const avg = parseFloat(split.stat?.avg);
-              if (code === 'risp' && !isNaN(avg)) map[id].risp = avg;
-              if (code === 'risp2out' && !isNaN(avg)) map[id].risp2out = avg;
+              if (isNaN(avg)) continue;
+              // RISP: code 'risp' or description contains 'scoring position' but not '2 out'
+              if (code === 'risp') map[id].risp = avg;
+              // RISP+2out: description contains both 'scoring position' and '2 out'
+              if ((desc.includes('scoring position') && desc.includes('2 out')) ||
+                  code === 'risp2out' || code === 'rspwo' || code === 'wo_risp') {
+                map[id].risp2out = avg;
+              }
             }
           }
 
