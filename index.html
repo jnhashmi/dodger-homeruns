@@ -1069,7 +1069,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V186-DEBUG</div>
+    <div id="version" style="margin-top:40px;">V186-DEBUG2</div>
   </div>
 </div>
 
@@ -2926,20 +2926,23 @@
           ]);
           const [splitData, careerData] = await Promise.all([splitRes.json(), careerRes.json()]);
 
+          const debugCodes = [];
           for (const group of splitData.stats || []) {
             for (const split of group.splits || []) {
               const code = split.split?.code || '';
               const desc = (split.split?.description || '').toLowerCase();
               const avg = parseFloat(split.stat?.avg);
               if (isNaN(avg)) continue;
-              // Log all codes for first player to debug
-              if (id === ids[0]) console.log('split code:', code, '| desc:', split.split?.description, '| avg:', avg);
+              if (id === ids[0]) debugCodes.push(code + ':' + split.stat?.avg);
               if (code === 'risp') map[id].risp = avg;
               if ((desc.includes('scoring position') && desc.includes('2 out')) ||
                   code === 'risp2out' || code === 'rspwo' || code === 'wo_risp') {
                 map[id].risp2out = avg;
               }
             }
+          }
+          if (id === ids[0] && debugCodes.length) {
+            document.getElementById('avg-list').innerHTML = '<div style="color:#fff;font-family:monospace;font-size:11px;padding:8px;word-break:break-all;">' + debugCodes.join(' | ') + '</div>';
           }
 
           const careerAvg = parseFloat(careerData.stats?.[0]?.splits?.[0]?.stat?.avg);
