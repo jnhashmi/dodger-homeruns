@@ -989,8 +989,8 @@
 
     @media (orientation: portrait) {
       body.avg-mode #dodger-logo { display: none !important; }
-      .avg-name-cell { width: 130px; min-width: 130px; font-size: 15px; }
-      .avg-stat-cell { padding-left: 4px; }
+      .avg-name-cell { width: 138px; min-width: 138px; font-size: 15px; }
+      .avg-stat-cell { padding-left: 6px; }
       .avg-value { font-size: 14px; }
       .avg-arrow { display: none; font-size: 14px; }
     }
@@ -1013,7 +1013,7 @@
       <div id="header-left">
         <div id="title">
           <img id="dodger-logo" src="Dodger-script.png" alt="Los Angeles Dodgers">
-          <span id="title-text">Dodger Home Runs</span>
+          <span id="title-text">Home Runs</span>
         </div>
         <span id="home-runs-label">Home Runs</span>
         <span id="ws-label">World Series Challenge</span>
@@ -1075,7 +1075,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V198</div>
+    <div id="version" style="margin-top:40px;">V199</div>
   </div>
 </div>
 
@@ -2879,7 +2879,7 @@
   const AVG_COLS = [
     { key: 'avg',      labelLand: 'AVERAGE',      labelPort: 'AVG',       wide: false },
     { key: 'risp',     labelLand: 'W/ RISP',         labelPort: 'RISP',      wide: false },
-    { key: 'lc',       labelLand: 'LATE + CLOSE',    labelPort: 'LT+CLS',    wide: false },
+    { key: 'lc',       labelLand: 'LATE + CLOSE',    labelPort: 'LT+CL',     wide: false },
     { key: 'career',   labelLand: 'LIFETIME',         labelPort: 'LIFE',      wide: false },
   ];
   let avgData = null;
@@ -2967,7 +2967,7 @@
     const hdr = document.createElement('div');
     hdr.className = 'avg-header-row';
     const nameHdr = document.createElement('div');
-    nameHdr.style.cssText = 'width:' + (isLand ? '206' : '130') + 'px;min-width:' + (isLand ? '206' : '130') + 'px;flex-shrink:0;';
+    nameHdr.style.cssText = 'width:' + (isLand ? '206' : '138') + 'px;min-width:' + (isLand ? '206' : '138') + 'px;flex-shrink:0;';
     hdr.appendChild(nameHdr);
     AVG_COLS.forEach(col => {
       const cell = document.createElement('div');
