@@ -1069,7 +1069,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V185</div>
+    <div id="version" style="margin-top:40px;">V186-DEBUG</div>
   </div>
 </div>
 
@@ -2932,9 +2932,9 @@
               const desc = (split.split?.description || '').toLowerCase();
               const avg = parseFloat(split.stat?.avg);
               if (isNaN(avg)) continue;
-              // RISP: code 'risp' or description contains 'scoring position' but not '2 out'
+              // Log all codes for first player to debug
+              if (id === ids[0]) console.log('split code:', code, '| desc:', split.split?.description, '| avg:', avg);
               if (code === 'risp') map[id].risp = avg;
-              // RISP+2out: description contains both 'scoring position' and '2 out'
               if ((desc.includes('scoring position') && desc.includes('2 out')) ||
                   code === 'risp2out' || code === 'rspwo' || code === 'wo_risp') {
                 map[id].risp2out = avg;
