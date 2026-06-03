@@ -1075,7 +1075,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V193</div>
+    <div id="version" style="margin-top:40px;">V194</div>
   </div>
 </div>
 
@@ -2893,13 +2893,9 @@
   async function loadAvg(year) {
     document.getElementById('avg-list').innerHTML = '<div style="color:#797878;font-family:\'Bricolage Grotesque\',sans-serif;font-size:15px;padding:24px 0;">Loading…</div>';
     try {
-      const [rosterRes, splitRes] = await Promise.all([
-        fetch(`https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person(stats(type=season,season=${year},group=hitting))`),
-        fetch(`https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=risp,lc&group=hitting&season=${year}&playerPool=All&teamId=${TEAM_ID}`),
-      ]);
-      const [rosterData, splitData] = await Promise.all([
-        rosterRes.json(), splitRes.json()
-      ]);
+      // Roster with season stats
+      const rosterRes = await fetch(`https://statsapi.mlb.com/api/v1/teams/${TEAM_ID}/roster?rosterType=active&season=${year}&hydrate=person(stats(type=season,season=${year},group=hitting))`);
+      const rosterData = await rosterRes.json();
 
       // Build valid player set (position players + Ohtani, 10+ AB)
       const validIds = new Set();
@@ -2923,20 +2919,24 @@
         map[id] = { name: p.person?.fullName, avg: isNaN(avg) ? null : avg, risp: null, lc: null, career: null };
       }
 
-      // RISP + Late & Close splits
-      for (const group of splitData.stats || []) {
-        for (const sp of group.splits || []) {
-          const id = sp.player?.id;
-          if (!map[id]) continue;
-          const code = sp.split?.code;
-          const avg = parseFloat(sp.stat?.avg);
-          if (isNaN(avg)) continue;
-          if (code === 'risp') map[id].risp = avg;
-          if (code === 'lc') map[id].lc = avg;
+      // RISP + Late & Close splits — non-fatal
+      try {
+        const splitRes = await fetch(`https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=risp,lc&group=hitting&season=${year}&playerPool=All&teamId=${TEAM_ID}`);
+        const splitData = await splitRes.json();
+        for (const group of splitData.stats || []) {
+          for (const sp of group.splits || []) {
+            const id = sp.player?.id;
+            if (!map[id]) continue;
+            const code = sp.split?.code;
+            const avg = parseFloat(sp.stat?.avg);
+            if (isNaN(avg)) continue;
+            if (code === 'risp') map[id].risp = avg;
+            if (code === 'lc') map[id].lc = avg;
+          }
         }
-      }
+      } catch(e) {}
 
-      // Career — fetch per-player (team-level career endpoint unreliable)
+      // Career — fetch per-player
       const ids = Object.keys(map);
       await Promise.all(ids.map(async id => {
         try {
