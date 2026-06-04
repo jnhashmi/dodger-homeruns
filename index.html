@@ -601,7 +601,7 @@
     }
 
     #ops-list {
-      padding-top: 55px; /* 40px for scale + 15px to compensate negative margin */
+      padding-top: 40px;
       margin-top: 0;
     }
 
@@ -1059,7 +1059,7 @@
     </div>
 
     <!-- OPS Screen -->
-    <div id="ops-screen" style="margin-top: -15px;">
+    <div id="ops-screen" style="margin-top: 0;">
       <div id="ops-scale">
         <div id="ops-labels"></div>
         <div id="ops-bar"></div>
@@ -1076,7 +1076,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V214</div>
+    <div id="version" style="margin-top:40px;">V215</div>
   </div>
 </div>
 
@@ -2067,7 +2067,9 @@
     const headerBar = document.getElementById('header-bar');
     const scale = document.getElementById('ops-scale');
     if (headerBar && scale) {
-      scale.style.top = headerBar.getBoundingClientRect().height + 'px';
+      const headerH = headerBar.getBoundingClientRect().height;
+      scale.style.top = (headerH - 15) + 'px';
+      scale.style.marginTop = '-15px';
     }
   }
 
