@@ -589,18 +589,20 @@
     /* ── OPS screen ── */
     #ops-screen { display: none; }
 
-    /* OPS scale — absolutely positioned, doesn't affect flow */
+    /* OPS scale — sticky below header bar */
     #ops-scale {
-      position: absolute;
+      position: sticky;
       left: 0; right: 0;
       height: 40px;
-      top: 0;
+      top: 0; /* will be set by JS to header bar height */
       pointer-events: none;
+      background: #111;
+      z-index: 5;
     }
 
-    /* ops-list padding-top reserves space for scale row */
+    /* ops-list — no padding needed, scale row is in flow now */
     #ops-list {
-      padding-top: 40px;
+      padding-top: 0;
       margin-top: 0;
     }
 
@@ -1058,7 +1060,7 @@
     </div>
 
     <!-- OPS Screen -->
-    <div id="ops-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
+    <div id="ops-screen" style="margin-top: 1.5em;">
       <div id="ops-scale">
         <div id="ops-labels"></div>
         <div id="ops-bar"></div>
@@ -1075,7 +1077,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V204</div>
+    <div id="version" style="margin-top:40px;">V205</div>
   </div>
 </div>
 
@@ -1380,6 +1382,7 @@
       }
       positionHomeBtn();
       if (currentScreen === 'ops') {
+        setOpsScaleTop();
         requestAnimationFrame(() => requestAnimationFrame(() => alignOPSDividers()));
       }
       if (currentScreen === 'vin') {
@@ -1429,6 +1432,7 @@
       buildWSList();
     } else if (screen === 'ops') {
       document.body.classList.add('ops-mode');
+      setOpsScaleTop();
       if (loadedOPSYear !== selectedYear) loadOPS(selectedYear);
       else requestAnimationFrame(() => requestAnimationFrame(() => alignOPSDividers()));
     } else if (screen === 'vin') {
@@ -2058,6 +2062,14 @@
         return p.ab >= 10;
       })
       .sort((a, b) => b.ops - a.ops);
+  }
+
+  function setOpsScaleTop() {
+    const headerBar = document.getElementById('header-bar');
+    const scale = document.getElementById('ops-scale');
+    if (headerBar && scale) {
+      scale.style.top = headerBar.getBoundingClientRect().height + 'px';
+    }
   }
 
   function alignOPSDividers() {
