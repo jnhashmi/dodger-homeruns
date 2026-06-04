@@ -600,10 +600,10 @@
       z-index: 5;
     }
 
-    /* ops-list — padding-top pushes first row below sticky scale, margin-top matches original screen offset */
+    /* ops-list — padding-top pushes first row below sticky scale */
     #ops-list {
-      padding-top: 40px;
-      margin-top: calc(1.5em - 40px);
+      padding-top: 0;
+      margin-top: 0;
     }
 
     /* The color bar — left edge aligns with tick area (name col + gap) */
@@ -1060,7 +1060,7 @@
     </div>
 
     <!-- OPS Screen -->
-    <div id="ops-screen" style="margin-top: 0;">
+    <div id="ops-screen" style="margin-top: calc(1.5em - 40px);">
       <div id="ops-scale">
         <div id="ops-labels"></div>
         <div id="ops-bar"></div>
@@ -1077,7 +1077,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V208</div>
+    <div id="version" style="margin-top:40px;">V209</div>
   </div>
 </div>
 
