@@ -395,8 +395,15 @@
       font-weight: 700;
       letter-spacing: 0.05em;
       text-align: center;
-      margin-top: 32px;
+      margin-top: 40px;
       text-transform: uppercase;
+    }
+
+    @media (orientation: portrait) {
+      #portrait-note { display: block; }
+    }
+    @media (orientation: landscape) {
+      #portrait-note { display: none !important; }
     }
 
     #version {
@@ -755,7 +762,6 @@
     body.ps-mode #ops-screen { display: none !important; }
     body.ps-mode #vin-screen { display: none !important; }
     body.ps-mode #ps-screen { display: block; }
-    body.ps-mode #portrait-note { display: none !important; }
     body.ps-mode #ws-tally { display: none; }
     body.ps-mode #ws-clear-btn { display: none; }
     body.ps-mode #ws-label { display: none; }
@@ -780,7 +786,6 @@
     body.vin-mode #ws-screen { display: none; }
     body.vin-mode #ops-screen { display: none; }
     body.vin-mode #ps-screen { display: none !important; }
-    body.vin-mode #portrait-note { display: none !important; }
     body.vin-mode #ws-tally { display: none; }
     body.vin-mode #ws-clear-btn { display: none; }
     body.vin-mode #ws-label { display: none; }
@@ -874,7 +879,6 @@
     body.ws-mode #dodger-logo { display: inline-block; }
     body.ws-mode #hr-screen { display: none; }
     body.ws-mode #ws-screen { display: block; }
-    body.ws-mode #portrait-note { display: none !important; }
     body.ws-mode #ops-screen { display: none; }
     body.ws-mode #ps-screen { display: none !important; }
 
@@ -889,7 +893,6 @@
     body.ops-mode #ws-screen { display: none; }
     body.ops-mode #ops-screen { display: block; }
     body.ops-mode #ps-screen { display: none !important; }
-    body.ops-mode #portrait-note { display: none; }
     body.ops-mode #ws-tally { display: none; }
     body.ops-mode #ws-clear-btn { display: none; }
     body.ops-mode #ws-label { display: none; }
@@ -920,7 +923,6 @@
     body.avg-mode #vin-screen { display: none !important; }
     body.avg-mode #ps-screen { display: none !important; }
     body.avg-mode #avg-screen { display: block; }
-    body.avg-mode #portrait-note { display: none !important; }
     body.avg-mode #ws-tally { display: none; }
     body.avg-mode #ws-clear-btn { display: none; }
     body.avg-mode #ws-label { display: none; }
@@ -1003,7 +1005,6 @@
       body.ops-mode #dodger-logo { display: none !important; }
       body.ops-mode #ops-label { display: inline-block !important; }
       body.ops-mode #title { display: none; }
-      body.ops-mode #portrait-note { display: block !important; }
       #ops-labels { display: none; }
     }
   </style>
@@ -1077,7 +1078,8 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V220</div>
+    <div id="portrait-note">Best viewed in landscape</div>
+    <div id="version" style="margin-top:40px;">V221</div>
   </div>
 </div>
 
