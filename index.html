@@ -1048,8 +1048,8 @@
     </div>
 
     <!-- Postseason Screen -->
-    <div id="ps-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
-      <div id="ps-list" style="padding-top:40px;"></div>
+    <div id="ps-screen" style="margin-top: 0;">
+      <div id="ps-list"></div>
     </div>
 
     <div id="ws-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
@@ -1077,7 +1077,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V219</div>
+    <div id="version" style="margin-top:40px;">V220</div>
   </div>
 </div>
 
@@ -1389,7 +1389,7 @@
         buildVinGrid();
       }
       if (currentScreen === 'ws') buildWSList();
-      if (currentScreen === 'ps') renderPSList();
+      if (currentScreen === 'ps') { renderPSList(); requestAnimationFrame(setPSHeaderTop); }
       if (currentScreen === 'avg') { renderAvgList(); requestAnimationFrame(setAvgHeaderTop); }
     }, 100);
   });
@@ -1441,6 +1441,7 @@
     } else if (screen === 'ps') {
       document.body.classList.add('ps-mode');
       loadPS();
+      requestAnimationFrame(setPSHeaderTop);
     } else if (screen === 'avg') {
       document.body.classList.add('avg-mode');
       if (loadedAvgYear !== selectedYear) loadAvg(selectedYear);
@@ -2077,6 +2078,16 @@
   function setAvgHeaderTop() {
     const headerBar = document.getElementById('header-bar');
     const hdr = document.querySelector('.avg-header-row');
+    if (headerBar && hdr) {
+      const headerH = headerBar.getBoundingClientRect().height;
+      hdr.style.top = (headerH - 15) + 'px';
+      hdr.style.marginTop = '-15px';
+    }
+  }
+
+  function setPSHeaderTop() {
+    const headerBar = document.getElementById('header-bar');
+    const hdr = document.querySelector('.ps-header-row');
     if (headerBar && hdr) {
       const headerH = headerBar.getBoundingClientRect().height;
       hdr.style.top = (headerH - 15) + 'px';
@@ -2794,7 +2805,7 @@
     // Header rendered absolutely over ps-screen, not inside ps-list
     const psScreen = document.getElementById('ps-screen');
     psScreen.querySelectorAll('.ps-header-row').forEach(h => h.remove());
-    psScreen.insertBefore(hdr, list);
+    list.appendChild(hdr);
 
     PS_YEARS.forEach(year => {
       const d = psCache[year] || { wl:'', rounds:{} };
@@ -2874,13 +2885,14 @@
       psLoaded = true;
     }
     renderPSList();
+    requestAnimationFrame(setPSHeaderTop);
   }
 
   // Inject PS CSS via JS to bypass any stylesheet caching
   (function() {
     const s = document.createElement('style');
     s.textContent = `
-      .ps-header-row { position:absolute; top:0; left:0; right:0; display:flex; align-items:flex-end; height:40px; padding-bottom:5px; border:none; }
+      .ps-header-row { position:sticky; top:0; left:0; right:0; display:flex; align-items:flex-end; height:40px; padding-bottom:5px; border:none; background:#000; z-index:5; }
       .ps-header-cell { font-size:13px; font-weight:700; color:#797878; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:0.05em; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
       .ps-row { display:flex; align-items:center; height:40px; border-bottom:0.5px solid #6e6e6e; border-top:none; position:relative; }
       .ps-divider { position:absolute; top:3px; bottom:3px; width:0.5px; background:#6e6e6e; pointer-events:none; }
