@@ -944,9 +944,10 @@
     #avg-list { width: 100%; }
 
     .avg-header-row {
-      position: absolute; top: 0; left: 0; right: 0;
+      position: sticky; top: 0; left: 0; right: 0;
       display: flex; align-items: flex-end;
       height: 40px; padding-bottom: 5px; border: none;
+      background: #000; z-index: 5;
     }
     .avg-header-cell {
       font-size: 13px; font-weight: 700; color: #797878;
@@ -1042,8 +1043,8 @@
 
     <!-- World Series Screen -->
     <!-- Averages Screen -->
-    <div id="avg-screen" style="margin-top: calc(1.5em - 40px); position: relative;">
-      <div id="avg-list" style="padding-top:40px;"></div>
+    <div id="avg-screen" style="margin-top: 0;">
+      <div id="avg-list"></div>
     </div>
 
     <!-- Postseason Screen -->
@@ -1076,7 +1077,7 @@
         <table id="vin-grid"></table>
       </div>
     </div>
-    <div id="version" style="margin-top:40px;">V216</div>
+    <div id="version" style="margin-top:40px;">V217</div>
   </div>
 </div>
 
@@ -1389,7 +1390,7 @@
       }
       if (currentScreen === 'ws') buildWSList();
       if (currentScreen === 'ps') renderPSList();
-      if (currentScreen === 'avg') renderAvgList();
+      if (currentScreen === 'avg') { renderAvgList(); requestAnimationFrame(setAvgHeaderTop); }
     }, 100);
   });
 
@@ -1443,7 +1444,7 @@
     } else if (screen === 'avg') {
       document.body.classList.add('avg-mode');
       if (loadedAvgYear !== selectedYear) loadAvg(selectedYear);
-      else renderAvgList();
+      else { renderAvgList(); requestAnimationFrame(setAvgHeaderTop); }
     }
   }
 
@@ -2070,6 +2071,15 @@
       const headerH = headerBar.getBoundingClientRect().height;
       scale.style.top = (headerH - 15) + 'px';
       scale.style.marginTop = '-15px';
+    }
+  }
+
+  function setAvgHeaderTop() {
+    const headerBar = document.getElementById('header-bar');
+    const hdr = document.querySelector('.avg-header-row');
+    if (headerBar && hdr) {
+      const headerH = headerBar.getBoundingClientRect().height;
+      hdr.style.top = (headerH - 15) + 'px';
     }
   }
 
@@ -2987,6 +2997,7 @@
 
     // Header — absolutely positioned
     avgScreen.querySelectorAll('.avg-header-row').forEach(h => h.remove());
+    list.insertBefore(hdr, list.firstChild);
     const hdr = document.createElement('div');
     hdr.className = 'avg-header-row';
     const nameHdr = document.createElement('div');
@@ -2999,7 +3010,6 @@
       cell.textContent = isLand ? col.labelLand : col.labelPort;
       hdr.appendChild(cell);
     });
-    avgScreen.insertBefore(hdr, list);
 
     // Rows
     avgData.forEach((p, idx) => {
@@ -3050,6 +3060,7 @@
           row.appendChild(div);
         });
       });
+      setAvgHeaderTop();
     });
   }
 
