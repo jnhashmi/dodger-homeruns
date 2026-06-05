@@ -419,6 +419,19 @@
       margin-top: 8px;
     }
 
+    /* Extra spacing before version/note on non-HR screens */
+    body.ops-mode #portrait-note,
+    body.avg-mode #portrait-note,
+    body.ps-mode #portrait-note,
+    body.ws-mode #portrait-note,
+    body.vin-mode #portrait-note { margin-top: 60px; }
+
+    body.ops-mode #version,
+    body.avg-mode #version,
+    body.ps-mode #version,
+    body.ws-mode #version,
+    body.vin-mode #version { margin-top: 48px; }
+
     #title-text { display: none; }
 
     @media (orientation: landscape) {
@@ -1083,7 +1096,7 @@
       </div>
     </div>
     <div id="portrait-note">Best viewed in landscape</div>
-    <div id="version" style="margin-top:8px;">V222</div>
+    <div id="version" style="margin-top:8px;">V223</div>
   </div>
 </div>
 
