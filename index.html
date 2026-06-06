@@ -1103,7 +1103,7 @@
       </div>
     </div>
     <div id="portrait-note">Best viewed in landscape</div>
-    <div id="version">V227</div>
+    <div id="version">V228</div>
   </div>
 </div>
 
@@ -2163,10 +2163,14 @@
       const trackRect = track.getBoundingClientRect();
       const offset = barRect.left - trackRect.left;
 
-      // Position dividers
+      // Position dividers — add left edge first
+      let divIdx = 0;
       track.querySelectorAll('.ops-divider').forEach((div, i) => {
-        if (boundaries[i] !== undefined) {
-          div.style.left = (offset + boundaries[i]) + 'px';
+        if (i === 0) {
+          // Left edge divider
+          div.style.left = offset + 'px';
+        } else if (boundaries[i - 1] !== undefined) {
+          div.style.left = (offset + boundaries[i - 1]) + 'px';
         }
       });
 
@@ -2198,9 +2202,11 @@
       const track = document.createElement('div');
       track.className = 'ops-track';
 
-      // Dividers positioned to match bar segment boundaries
-      // Using opsToPercent accounting for the gap: 5px between segments
-      // We'll position them after render using rAF to read actual bar segment positions
+      // Dividers: one for left edge + one per threshold boundary
+      const leftEdgeDiv = document.createElement('div');
+      leftEdgeDiv.className = 'ops-divider';
+      track.appendChild(leftEdgeDiv);
+
       OPS_THRESHOLDS_VALS.forEach((t, i) => {
         const div = document.createElement('div');
         div.className = 'ops-divider';
