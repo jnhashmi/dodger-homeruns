@@ -1103,7 +1103,7 @@
       </div>
     </div>
     <div id="portrait-note">Best viewed in landscape</div>
-    <div id="version">V230</div>
+    <div id="version">V231</div>
   </div>
 </div>
 
@@ -2833,7 +2833,7 @@
     const mkHdr = (text, cls) => { const d=document.createElement('div'); d.className='ps-header-cell '+cls; d.textContent=text; hdr.appendChild(d); };
     mkHdr('', 'ps-year-cell');
     mkHdr('W/L', 'ps-wl-cell');
-    PS_ROUNDS.forEach(r => mkHdr(isLand ? r.land : r.port, 'ps-round-cell'));
+    PS_ROUNDS.forEach(r => mkHdr(isLand ? r.land : r.port, 'ps-round-cell' + (r.key === 'WS' ? ' ps-ws-cell' : '')));
     // Header rendered absolutely over ps-screen, not inside ps-list
     const psScreen = document.getElementById('ps-screen');
     psScreen.querySelectorAll('.ps-header-row').forEach(h => h.remove());
@@ -2848,7 +2848,7 @@
       mkCell(d.wl||'—', 'ps-wl-cell');
       PS_ROUNDS.forEach(r => {
         const cell = document.createElement('div');
-        cell.className = 'ps-round-cell';
+        cell.className = 'ps-round-cell' + (r.key === 'WS' ? ' ps-ws-cell' : '');
         const rd = d.rounds[r.key];
         if (rd) {
           cell.appendChild(makePSIcon(rd.win));
@@ -2949,9 +2949,10 @@
       @media (orientation:portrait) {
         .ps-result-text { display:none; }
         .ps-round-cell { width:60px; min-width:60px; padding-left:0; justify-content:center; }
+        .ps-ws-cell { width:54px; min-width:54px; }
         .ps-header-cell.ps-round-cell { justify-content:flex-start; padding-left:4px; }
         .ps-year-cell { width:48px; min-width:48px; font-size:15px; }
-        .ps-wl-cell { width:55px; min-width:55px; font-size:13px; padding-left:4px; border-left:none; }
+        .ps-wl-cell { width:61px; min-width:61px; font-size:13px; padding-left:3px; border-left:none; }
         .ps-header-cell.ps-wl-cell { border-left:none !important; }
         .ps-wl-divider { position:absolute; top:3px; bottom:3px; width:0.5px; background:#6e6e6e; pointer-events:none; }
       }
