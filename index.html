@@ -1103,7 +1103,7 @@
       </div>
     </div>
     <div id="portrait-note">Best viewed in landscape</div>
-    <div id="version">V229</div>
+    <div id="version">V230</div>
   </div>
 </div>
 
@@ -2894,6 +2894,9 @@
           dividerXs.push(xLeft);
           dividerXs.push(r.right - rowRect.left);
         }
+        if (cell.classList.contains('ps-wl-cell') && !isLand) {
+          dividerXs.push(xLeft); // left of W/L in portrait
+        }
         if (cell.classList.contains('ps-round-cell')) {
           dividerXs.push(xLeft);
         }
@@ -2945,11 +2948,12 @@
       @media (orientation:landscape) { .ps-wl-cell { padding-right:8px; } }
       @media (orientation:portrait) {
         .ps-result-text { display:none; }
-        .ps-round-cell { width:57px; min-width:57px; padding-left:0; justify-content:center; }
+        .ps-round-cell { width:60px; min-width:60px; padding-left:0; justify-content:center; }
         .ps-header-cell.ps-round-cell { justify-content:flex-start; padding-left:4px; }
         .ps-year-cell { width:48px; min-width:48px; font-size:15px; }
-        .ps-wl-cell { width:55px; min-width:55px; font-size:13px; padding-left:4px; border-left:0.5px solid #6e6e6e; }
+        .ps-wl-cell { width:55px; min-width:55px; font-size:13px; padding-left:4px; border-left:none; }
         .ps-header-cell.ps-wl-cell { border-left:none !important; }
+        .ps-wl-divider { position:absolute; top:3px; bottom:3px; width:0.5px; background:#6e6e6e; pointer-events:none; }
       }
     `;
     document.head.appendChild(s);
